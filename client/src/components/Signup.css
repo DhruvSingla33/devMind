@@ -1,0 +1,85 @@
+/* signup.css */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    /* width: 1000px; */
+  }
+  
+  .auth-inner {
+    width: 500px;
+    padding: 20px;
+    background:#02363d;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(29, 2, 2, 0.1);
+    transition: background-color 0.3s; /* Add a smooth transition for the color change */
+  }
+  
+  .auth-inner:hover {
+    background: rgb(31, 66, 66);
+  }
+  
+  
+  form {
+    max-width: 450px;
+    text-align: left;
+  }
+  
+  h3 {
+    text-align: center;
+  }
+  
+  div.register-as {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  div.register-as label {
+    margin-right: 10px;
+  }
+  
+  input[type="radio"] {
+    margin-right: 5px;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #6beae5;
+    border-radius: 5px;
+  }
+  
+  .d-grid {
+    text-align: center;
+  }
+  
+  .btn-primary {
+    background-color: #1c65ca;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-primary:hover {
+    background-color: #145298;
+  }
+  
+  .forgot-password {
+    text-align: right;
+  }
+  
+  .forgot-password a {
+    text-decoration: none;
+    color: #1c65ca;
+  }
+  .mb-3{
+  height: 80px;
+  }
