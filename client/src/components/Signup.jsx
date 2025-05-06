@@ -16,8 +16,8 @@ export default function SignUp() {
      else {
       e.preventDefault();
 
-   
-      fetch("http://localhost:8000/register", {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+      fetch(`${API_BASE_URL}/register`, {
         method: "POST",
         crossDomain: true,
         headers: {
