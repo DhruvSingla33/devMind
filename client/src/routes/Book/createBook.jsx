@@ -38,9 +38,10 @@ function CreateProblem() {
     for (let [key, val] of formData.entries()) {
       console.log(key, "→", val);
     }
-
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const baseUrl = `${API_BASE_URL}/api/problems`;
     try {
-      const res = await fetch("http://localhost:8000/api/problems", {
+      const res = await fetch(baseUrl, {
         method: "POST",
         body: formData,
       });

@@ -7,9 +7,11 @@ export default function Login() {
 
   function handleSubmit(e) {
     e.preventDefault();
-
+ 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    
     console.log(email, password);
-    fetch("http://localhost:8000/login-user", {
+    fetch(`${API_BASE_URL}/login-user`, {
       method: "POST",
       crossDomain: true,
       headers: {

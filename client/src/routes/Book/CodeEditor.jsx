@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Link, useParams } from "react-router-dom";
 
 const CodeEditor = (props) => {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const input=props.data1;
   const output=props.data2;
  const { id}= useParams(); 
@@ -21,7 +22,7 @@ const CodeEditor = (props) => {
     console.log(value);
     
     axios
-      .post('http://localhost:8000/python', { value,input,output, id})
+      .post(`${API_BASE_URL}/python`, { value,input,output, id})
       .then(({ data }) => {
         console.log(data.testCaseResults);
         setTestCaseResults(data.testCaseResults);

@@ -10,6 +10,7 @@ import { grayscale } from "react-syntax-highlighter/dist/esm/styles/hljs";
 <p className="font-serif text-lg py-4">{user.email}</p> */}
 
 function Book() {
+   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
   const baseUrl = "http://localhost:8000/api/problems";
   const [data, setData] = useState([]);
@@ -43,7 +44,7 @@ function Book() {
     const fetchData = async () => {
       try {
 
-        let url = baseUrl;
+        let url = `${API_BASE_URL}/api/problems`;
         if (selectedCategory) {
           url += `?category=${selectedCategory}`
         }
@@ -123,7 +124,7 @@ function Book() {
   <Link to={`/problems/${item._id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}>
     {/* Image */}
     <img
-      src={`http://localhost:8000/uploads/${item.thumbnail}`}
+      src={`${API_BASE_URL}/uploads/${item.thumbnail}`}
       alt={item.title}
       style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '10px' }}
     />

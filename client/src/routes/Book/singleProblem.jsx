@@ -16,6 +16,7 @@ const customMaterialDark = {
 
 
 function singleProblem () {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     const [data, setData] = useState([]);
     const [outputCode, setOutputCode] = useState([]);
@@ -65,7 +66,7 @@ function singleProblem () {
 
 
     const { id}= useParams(); // ye path mai konse parameters hai. konse path mai?
-    const baseUrl = `http://localhost:8000/api/problems/${id}`;
+    const baseUrl = `${API_BASE_URL}/api/problems/${id}`;
 
 
     useEffect(() => {
@@ -100,94 +101,114 @@ function singleProblem () {
 
 
     return (
-        <main className="py-7 mx-auto relative ">
-        <br>
+      <main className="py-10 px-6  mx-auto text-white font-sans " >
+  <div className="flex flex-col lg:flex-row gap-10 mt-16">
+    
+    {/* Left Column - 50% width */}
+    <div className="w-full lg:w-1/2 space-y-6">
+      <div className="bg-slate-900 p-6 rounded-xl shadow-md">
+        <h1 className="text-4xl font-bold text-amber-300">{data?.title}</h1>
+        <p className="text-slate-200 mt-4 whitespace-pre-line">{data?.description}</p>
 
-        </br>
-        
-
-        <div className="py-10 flex">
-  
-        <div className="w-1/2 items-center p-5 mx-auto overflow-auto">
-          <div className="px-10">
-            <h1 className="text-3xl font-serif text-pretty text-amber-200">{data?.title}</h1> <br />
-            <p>{data?.description} </p>
-            <br />
-            <h1 className="text-lg font-serif text-slate-400">Testcase Input</h1>
-            
-            <p className="text-lg font-serif text-slate-200">{data?.input}</p>
-             <br />
-            <h1 className="text-lg font-serif text-slate-400">Expected output</h1>
-            
-            <p className="text-lg font-serif text-slate-200">{data?.output}</p>
-            <br />
-            <span className="text-lg font-serif text-slate-200"><StarRating num={data?.stars} /> </span> <br />
-           
-            <p className="text-lg font-serif text-slate-200">Category</p>
-            <ul className="font-serif text-pretty text-amber-200 text-lg">
-              {data?.category?.map((item, index)=> (
-                <li key={index}>{item.charAt(0).toUpperCase()+item.substr(1)}</li>
-              ))}
-            </ul>
-            {/* <h1>{user.name}</h1> */}
+        <div className="mt-6 space-y-3">
+          <div>
+            <h2 className="text-lg text-slate-400">Testcase Input</h2>
+            <p className="text-slate-100">{data?.input}</p>
           </div>
-          <div className="description-box whitespace-pre-line text-lg text-orange-400 font-serif">
-            <button className="btn btn-outline btn-info p-4 m-4 font-bold" onClick={toggleVisibilityEditorial}>
-              {visibleEditorial ? "Hide Editorial" : "Show Editorial"}
-            </button>
-            
-              <ReactMarkdown
-                components={{
-                  code({ node, inline, className, children, ...props }) {
-                    const match = /language-(\w+)/.exec(className || '');
-                    return !inline && match ? (
-                      
-                      <SyntaxHighlighter
-                        style={customMaterialDark}
-                        language={match[1]}
-                        PreTag="div"
-                        children={String(children).replace(/\n$/, '')}
-                        {...props}
-                      />
-                    ) : (
-                      
-                      generateMockupCode(children)
-                      // <code className={className} style={{color:"white"}} {...props}>
-                      //   {children}
-                      // </code>
-                    );
-                  },
-                  strong: ({ node, ...props }) => <strong style={{ fontWeight: 'bold' }} {...props} />,
-                }}
-              >
-                {visibleEditorial && data?.solution}
-              </ReactMarkdown>
-            </div>
+          <div>
+            <h2 className="text-lg text-slate-400">Expected Output</h2>
+            <p className="text-slate-100">{data?.output}</p>
+          </div>
+          <div className="text-slate-100">
+            <StarRating num={data?.stars} />
+          </div>
         </div>
-        
-        <div className="w-1/2">
-        <h1>{data.username}</h1>
-        {/* <h1>{user}</h1> */}
-        {data.intialcode && (
-  <Codeeditor
-    data1={data.input}
-    data2={data.output}
-    data3={data.intialcode}
-  />
-)}
+      </div>
+
+      {/* Testcases */}
+      {data?.testcases?.length > 0 && (
+        <div className="bg-slate-900 p-6 rounded-xl shadow-md">
+          <h2 className="text-xl text-slate-400 mb-4">All Test Cases</h2>
+          <div className="space-y-3">
+            {data.testcases.map((testcase, index) => (
+              <div key={index} className="bg-slate-800 p-4 rounded-md">
+                <p className="text-amber-300 font-semibold">Testcase {index + 1}</p>
+                <p><span className="text-emerald-300">Input:</span> {testcase.input}</p>
+                <p><span className="text-pink-300">Output:</span> {testcase.output}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Category */}
+      <div className="bg-slate-900 p-6 rounded-xl shadow-md">
+        <h2 className="text-lg text-slate-400 mb-2">Category</h2>
+        <ul className="list-disc list-inside text-amber-300 space-y-1">
+          {data?.category?.map((item, index) => (
+            <li key={index}>{item.charAt(0).toUpperCase() + item.substr(1)}</li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Editorial */}
+      <div className="bg-slate-900 p-6 rounded-xl shadow-md">
+        <button
+          className="btn btn-outline btn-info font-bold transition duration-200 hover:scale-105"
+          onClick={toggleVisibilityEditorial}
+        >
+          {visibleEditorial ? "Hide Editorial" : "Show Editorial"}
+        </button>
+        <div className="mt-4 text-orange-400">
+          <ReactMarkdown
+            components={{
+              code({ node, inline, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || '');
+                return !inline && match ? (
+                  <SyntaxHighlighter
+                    style={customMaterialDark}
+                    language={match[1]}
+                    PreTag="div"
+                    children={String(children).replace(/\n$/, '')}
+                    {...props}
+                  />
+                ) : generateMockupCode(children);
+              },
+              strong: ({ node, ...props }) => <strong style={{ fontWeight: 'bold' }} {...props} />,
+            }}
+          >
+            {visibleEditorial && data?.solution}
+          </ReactMarkdown>
+        </div>
+      </div>
+    </div>
+
+    {/* Right Column - 50% width */}
+    <div className="w-full lg:w-1/2 space-y-6">
+      {/* <div className="bg-slate-900 p-6 rounded-xl shadow-md">
+        <h2 className="text-xl text-white mb-2 font-semibold">Author</h2>
+        <p className="text-slate-300">{data.username}</p>
+        {isAuthenticated && areEqual && (
+          <Link to={`/editproblem/${data.slug}`} className="inline-block mt-4 text-info hover:underline text-lg">
+            ✏️ Edit This Problem
+          </Link>
+        )}
+      </div> */}
+
+      {data.intialcode && (
+        <div className="bg-slate-900 p-4 rounded-xl shadow-md">
+          <Codeeditor
+            data1={data.input}
+            data2={data.output}
+            data3={data.intialcode}
+          />
+        </div>
+      )}
+    </div>
   </div>
-  
-        </div>
-        <div className="col-1 rounded-xl items-center justify-evenly text-center">
-        
-        
-            {/* <img className="mx-auto py-12 min-h-36 min-w-36 content-center items-center justify-center" src={`http://localhost:8000/uploads/${data?.thumbnail}`}
-            alt={data?.title} /> */}
-            {/* {!areEqual && <ComponentToRenderWhenNotEqual />} */}
-            {isAuthenticated &&areEqual && <Link to={`/editproblem/${data.slug}`} className="text-xl">✏️Edit</Link>} <br/><br/>
-           
-        </div>
-        </main>
+</main>
+
+    
       );
 
 }
