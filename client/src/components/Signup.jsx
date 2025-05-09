@@ -1,5 +1,6 @@
 import React, { Component, useState } from "react";
 import './Signup.css'; // Import the CSS file
+import { Link } from 'react-router-dom';
 export default function SignUp() {
   const [Firstname, setFname] = useState("");
   const [Lastname, setLname] = useState("");
@@ -126,9 +127,12 @@ export default function SignUp() {
               Sign Up
             </button>
           </div>
-          <p className="forgot-password text-right">
-            Already registered <a href="/signin">sign in?</a>
-          </p>
+        
+
+<p className="forgot-password text-right">
+  Already registered <Link to="/signin">sign in?</Link>
+</p>
+
         </form>
       </div>
     </div>
