@@ -23,7 +23,7 @@
       </ul>
     </td>
     <td width="50%">
-      <img src="Images/app-home.png" alt="DevMinds App Homepage" width="100%" />
+      <img src="Images/appHome.png" alt="DevMinds App Homepage" width="100%" />
     </td>
   </tr>
 </table>
@@ -59,7 +59,7 @@
 
 ---
 
-## 📌 Features in Detail
+<!-- ## 📌 Features in Detail
 
 Explore each core feature of **DevMinds** with dedicated visuals and descriptions that showcase its functionality and impact.
 
@@ -147,7 +147,7 @@ Post questions, share your learning journey, comment on others' projects, and gr
 
 Secure authentication system with role-based access. Mentors can create content, review students, and moderate the platform.
 
----
+--- -->
 ## 🛠️ How to Run DevMinds Locally
 
 ### 🔧 Prerequisites
@@ -226,6 +226,6 @@ Visit your app at:
 
 Feel free to reach out for questions, collaborations, or feedback:
 
-- 📧 Email: [your.email@example.com](mailto:your.email@example.com)  
-- 💼 LinkedIn: [linkedin.com/in/your-username](https://www.linkedin.com/in/your-username)
+- 📧 Email: [singladhruv301@gmail.com](mailto:your.email@example.com)  
+- 💼 LinkedIn: [https://www.linkedin.com/in/dhruv-singla30/](https://www.linkedin.com/in/your-username)
 
