@@ -40,7 +40,7 @@ function Header() {
             <li><Link to="/personalproblems">Problems</Link></li>
             <li><Link to="/coding1">Algo</Link></li>
             <li><Link to="/coding2">CodeEditor</Link></li>
-            <li><Link to="/allpost">Discussion</Link></li>
+            {/* <li><Link to="/allpost">Discussion</Link></li> */}
             {/* <li><Link to="/coding3">Tutorials</Link></li> */}
             {/* <li><Link to="/Admin">admin</Link></li> */}
           </>
