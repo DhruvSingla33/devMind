@@ -58,9 +58,10 @@ function Header() {
         </li> */}
 
         {!isAuthenticated && (
-        
+              <>
              <li><Link to="/register">Register</Link></li>
-          
+             <li><Link to="/signin">login</Link></li>
+             </>
         )}
 
         {isAuthenticated && (
