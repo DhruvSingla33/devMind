@@ -61,7 +61,7 @@ function Comment() {
             </div>
           ))
         ) : (
-          <p className="text-gray-500">No comments yet. Be the first to comment!</p>
+          <p className="text-gray-500">No comments yet. you are the first to comment!</p>
         )}
       </div>
     </div>
