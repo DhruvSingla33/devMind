@@ -204,7 +204,7 @@ app.post("/python", async (req, res) => {
 
     const pythonResults = await PythonShell.run("test.py", options);
    
-    testCaseResults.push(pythonResults.trim() === output.trim());
+    testCaseResults.push(pythonResults == output.trim());
 
   }
  
