@@ -1,19 +1,67 @@
-import React from 'react'
+import React from "react";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './Footer.css';
+
+import { Container, Row, Col } from "react-bootstrap";
+import {
+  AiFillGithub,
+  AiOutlineTwitter,
+  AiFillInstagram,
+} from "react-icons/ai";
+import { FaLinkedinIn } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 
 function Footer() {
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="text-center contrast-200 bg-slate-800 lg:text-left">
-    <div className="p-4 text-center text-neutral-700 dark:text-neutral-200">
-      <h2 className="text-2xl font-bold text-white uppercase tracking-wider">
-        <span className="text-blue-500">dev</span><span className="text-green-400">Minds</span>
-      </h2>
-      <p className="mt-2 text-sm text-neutral-400">
-        Crafting the Future of Development
-      </p>
-    </div>
-  </footer>
-  
-  )
+    <footer className="footer1">
+      <Container>
+        <Row className="footer-content1">
+          <Col md={4} className="footer-text1">
+            <p>Designed & Developed by <strong>Dhruv Singla</strong></p>
+          </Col>
+          <Col md={4} className="footer-text1">
+            <p>© {year} DS. All rights reserved.</p>
+          </Col>
+          <Col md={4} className="footer-social1">
+            <ul className="social-links1">
+              <li>
+                <a
+                  href="https://github.com/DhruvSingla33/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub"
+                >
+                  <AiFillGithub />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.linkedin.com/in/dhruv-singla30/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                >
+                  <FaLinkedinIn />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="mailto:singladhruv301@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Email"
+                >
+                  <MdEmail />
+                </a>
+              </li>
+            </ul>
+          </Col>
+        </Row>
+      </Container>
+    </footer>
+  );
 }
 
-export default Footer
+export default Footer;

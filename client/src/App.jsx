@@ -48,10 +48,7 @@ function App() {
           <Route path="/logout" element={<Logout />} />
           <Route path="/register" element={<Signup />} />
           <Route path="/signin" element={<Login />} />
-
-          {/* Protected Routes */}
-          <Route element={<PrivateRoute />}>
-            <Route path="/contact" element={<Contact />} />
+           <Route path="/contact" element={<Contact />} />
             <Route path="/Admin" element={<Admin />} />
             <Route path="/problems" element={<Book />} />
             <Route path="/personalproblems" element={<Personalproblem />} />
@@ -73,13 +70,17 @@ function App() {
             <Route path="/default-question-4" element={<DQ4 />} />
             <Route path="/default-question-5" element={<DQ5 />} />
 
-            {/* Nested route for /coding3 */}
+          
             <Route path="/coding3">
               <Route index element={<Home2 />} />
               <Route path="video">
                 <Route path=":id" element={<Video />} />
               </Route>
             </Route>
+
+          {/* Protected Routes */}
+          <Route element={<PrivateRoute />}>
+           
           </Route>
         </Routes>
         <Footer />

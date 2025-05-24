@@ -1,13 +1,20 @@
 
-import React, { Component, useState } from "react";
+import React, { Component, useState ,useEffect} from "react";
 import { Link } from 'react-router-dom';
+import './Signup.css'; // Import the CSS file
+import sideimage from '../assets/sideimage.png';
+import { useNavigate } from "react-router-dom";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+   const [autoLogin, setAutoLogin] = useState(false);
+const [loading, setLoading] = useState(false);
+     const navigate = useNavigate(); 
 
   function handleSubmit(e) {
-    e.preventDefault();
- 
+    setLoading(true);
+ if (e) e.preventDefault();
+   
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     
     console.log(email, password);
@@ -32,62 +39,91 @@ export default function Login() {
           window.localStorage.setItem("token", data.data);
           window.localStorage.setItem("loggedIn", true);
           window.localStorage.setItem("email", email);
-          window.location.href = "./";
+               window.location.href = "/";
+
         }
+        else {
+          alert("Invalid credentials");
+        }
+      })
+      .catch((err) => {
+        setLoading(false);
+        alert("Something went wrong. Try again later.");
+        console.error(err);
       });
   }
+  useEffect(() => {
+    if (autoLogin && email && password) {
+      handleSubmit();
+      setAutoLogin(false);
+    }
+  }, [email, password, autoLogin]);
+
+const useSampleLogin = (role) => {
+    if (role === "student") {
+      setEmail("singladhruv24@gmail.com");
+      setPassword("1234");
+      setAutoLogin(true);
+      
+    } else if (role === "teacher") {
+      setEmail("yogita@123gmail.com");
+      setPassword("1234");
+      setAutoLogin(true);
+    }
+  };
 
   return (
     <div className="auth-wrapper">
-      <div className="auth-inner">
-        <form onSubmit={handleSubmit}>
-          <h3>Sign In</h3>
+  <div className="auth-container">
+    <div className="auth-left">
+      <h2>Sign In</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Email address</label>
+        <input
+          type="email"
+          placeholder={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-          <div className="mb-3">
-            <label>Email address</label>
-            <input
-              type="email"
-              className="form-control"
-              placeholder="Enter email"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+        <label>Password</label>
+        <input
+          type="password"
+          placeholder={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-          <div className="mb-3">
-            <label>Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Enter password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+        <button type="submit" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+        </button>
+            <div className="sample-buttons">
+              <button
+                type="button"
+                className="sample-login-btn student"
+                onClick={() => useSampleLogin("student")}
+                disabled={loading}
+              >
+                Student Sample Login
+              </button>
+             
+            </div>
 
-          <div className="mb-3">
-            {/* <div className="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                className="custom-control-input"
-                id="customCheck1"
-              />
-              <label className="custom-control-label" htmlFor="customCheck1">
-                Remember me
-              </label>
-            </div> */}
-          </div>
-
-          <div className="d-grid">
-            <button type="submit" className="btn btn-primary">
-              Submit
-            </button>
-          </div>
-         
-
-<p className="forgot-password text-right">
-  <Link to="/Register">Sign Up</Link>
-</p>
-        </form>
-      </div>
+        <p style={{ marginTop: "15px" }}>
+          Don’t have an account? <Link to="/register">Sign Up</Link>
+        </p>
+      </form>
     </div>
+    <div className="auth-right">
+      <img src={sideimage} alt="Side Visual" />
+      <h3>Welcome Back to DevMinds</h3>
+      <p>
+        Collaborate, code, and grow together in a vibrant developer ecosystem.
+      </p>
+      <p style={{ marginTop: '1rem', color: '#00ffff', fontWeight: '500' }}>
+     <strong>Note for Recruiters:</strong> You can skip sign-up and directly log in using the <em>sample account</em>.
+      </p>
+    </div>
+  </div>
+</div>
+
   );
 }

@@ -6,7 +6,7 @@ import AppControls from './components/molecules/AppControls';
 import TopBar from './components/organisms/TopBar';
 import AppDrawer from './components/organisms/AppDrawer';
 import SortVisualizer from './components/organisms/SortVisualizer';
-import Footer from './components/molecules/Footer';
+
 
 import BubbleSort, {
   BubbleSortKey,
@@ -43,11 +43,11 @@ import ShellSort, {
 
 class App1 extends Component {
   state = {
-    darkMode: false,
+    darkMode: true,
     array: [],
     arraySize: 10,
     trace: [],
-    algorithm: null,
+    algorithm: "Bubble Sort",
     appDrawerOpen: false
   };
 
@@ -159,34 +159,33 @@ class App1 extends Component {
     );
 
     return (
-      <div className={theme} style={{ marginTop: '90px' }}>
-       
-        {/* <h1> Algorithms Visualizer</h1> */}
-        <TopBar
-          drawerOpen={this.state.appDrawerOpen}
-          toggleDrawer={this.toggleAppDrawer}
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}
-        >
-          {controls}
-        </TopBar>
+      <div className={theme}>
 
-        <AppDrawer
-          open={this.state.appDrawerOpen}
-          closeDrawer={this.toggleAppDrawer}
-        >
-          {controls}
-        </AppDrawer>
 
-        <main className="App__Body">
-          <SortVisualizer
-            array={this.state.array}
-            trace={this.state.trace}
-            colorKey={colorKey}
-            desc={desc}
-          />
-        </main>
+  <AppDrawer
+    open={this.state.appDrawerOpen}
+    closeDrawer={this.toggleAppDrawer}
+  >
+    {controls}
+  </AppDrawer>
+
+  <main className="App__Body">
+      <TopBar
+    drawerOpen={this.state.appDrawerOpen}
+    toggleDrawer={this.toggleAppDrawer}
+  >
+    {controls}
+  </TopBar>
+    <SortVisualizer
+      array={this.state.array}
+      trace={this.state.trace}
+      colorKey={colorKey}
+      desc={desc}
+    />
     
-      </div>
+  </main>
+</div>
+
     );
   }
 }

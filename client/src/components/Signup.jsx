@@ -1,6 +1,7 @@
 import React, { Component, useState } from "react";
 import './Signup.css'; // Import the CSS file
 import { Link } from 'react-router-dom';
+import sideimage from '../assets/sideimage.png';
 export default function SignUp() {
   const [Firstname, setFname] = useState("");
   const [Lastname, setLname] = useState("");
@@ -48,93 +49,91 @@ export default function SignUp() {
 
   return (
   
+  
     <div className="auth-wrapper">
-      <div className="auth-inner">
-        <form onSubmit={handleSubmit}>
-          <h3>Sign Up</h3>
-          <div className="register-as">
-            Register As
-            <input
-              type="radio"
-              name="UserType"
-              value="User"
-              onChange={(e) => setUserType(e.target.value)}
-            />
-            User
-            <input
-              type="radio"
-              name="UserType"
-              value="Admin"
-              onChange={(e) => setUserType(e.target.value)}
-            />
-            Admin
-          
-          </div>
-          {(UserType == 'Admin' || UserType == 'Teacher') ? (
-            <div className="mb-3">
-              <label>Secret Key</label>
-              <input
-                 type="password"
-                className="form-control"
-                placeholder="Secret Key"
-                onChange={(e) => setSecretKey(e.target.value)}
-              />
+      <div className="auth-container">
+        <div className="auth-left">
+          <h2>Sign Up</h2>
+          <form onSubmit={handleSubmit}>
+            <label>Register As:</label>
+            <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+              {["User", "Admin"].map((type) => (
+                <label
+                  key={type}
+                  style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "0.9rem" }}
+                >
+                  <input
+                    type="radio"
+                    name="UserType"
+                    value={type}
+                    onChange={(e) => setUserType(e.target.value)}
+                  />
+                  {type}
+                </label>
+              ))}
             </div>
-          ) : null }
 
-          <div className="mb-3">
-            <label>First name</label>
+            {(UserType === "Admin" ) && (
+              <>
+                <label>Secret Key</label>
+                
+                <input
+                  type="password"
+                  placeholder="Secret Key"
+                  onChange={(e) => setSecretKey(e.target.value)}
+                />
+              </>
+            )}
+
+            <label>First Name</label>
             <input
               type="text"
-              className="form-control"
               placeholder="First name"
               onChange={(e) => setFname(e.target.value)}
             />
-          </div>
 
-          <div className="mb-3">
-            <label>Last name</label>
+            <label>Last Name</label>
             <input
               type="text"
-              className="form-control"
               placeholder="Last name"
               onChange={(e) => setLname(e.target.value)}
             />
-          </div>
 
-          <div className="mb-3">
-            <label>Email address</label>
+            <label>Email</label>
             <input
               type="email"
-              className="form-control"
-              placeholder="Enter email"
+              placeholder="Email"
               onChange={(e) => setEmail(e.target.value)}
             />
-          </div>
 
-          <div className="mb-3">
             <label>Password</label>
             <input
               type="password"
-              className="form-control"
-              placeholder="Enter password"
+              placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
             />
-          </div>
-             <h1></h1>
-          <div className="d-grid">
-            <button type="submit" className="btn btn-primary">
-              Sign Up
-            </button>
-          </div>
-        
 
-<p className="forgot-password text-right">
-  Already registered <Link to="/signin">sign in?</Link>
-</p>
+            <button type="submit">Sign Up</button>
 
-        </form>
+            <p style={{ marginTop: "15px" }}>
+              Already registered? <Link to="/signin">Sign In</Link>
+            </p>
+          </form>
+        </div>
+        <div className="auth-right">
+  <img src={sideimage} alt="Side Visual" />
+  <h3>Welcome Back to DevMinds</h3>
+  <p>
+    Collaborate, code, and grow together in a vibrant developer ecosystem.
+  </p>
+  <p style={{ marginTop: '1rem', color: '#00ffff', fontWeight: '500' }}>
+    <strong>Note for Recruiters:</strong> You can skip sign-up and directly log in using the <em>sample account</em>.
+  </p>
+</div>
+
       </div>
     </div>
   );
+
+  
 }

@@ -5,7 +5,7 @@ function CreateProblem() {
   const isAuthenticated = window.localStorage.getItem("loggedIn") === "true";
 
   const [title, setTitle] = useState("");
-  const [ intialcode, setintialcode] = useState("");
+  const [intialcode, setintialcode] = useState("");
   const [snippet, setSnippet] = useState("");
   const [solution, setSolution] = useState("");
   const [sampleInput, setSampleInput] = useState("");
@@ -20,7 +20,6 @@ function CreateProblem() {
 
   const createProblem = async (e) => {
     e.preventDefault();
-
     const formData = new FormData();
     formData.append("title", title);
     formData.append("intialcode", intialcode);
@@ -32,21 +31,17 @@ function CreateProblem() {
     formData.append("stars", stars);
     formData.append("thumbnail", thumbnail);
     formData.append("category", categories);
-    formData.append("testcases", JSON.stringify(testcases)); // now [{input,output},…]
-    
-    // debug
-    for (let [key, val] of formData.entries()) {
-      console.log(key, "→", val);
-    }
+    formData.append("testcases", JSON.stringify(testcases));
+
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const baseUrl = `${API_BASE_URL}/api/problems`;
+    const baseUrl = `${API_BASE_URL}/api/problems`;
+
     try {
       const res = await fetch(baseUrl, {
         method: "POST",
         body: formData,
       });
       if (res.ok) {
-        // reset form
         setTitle("");
         setintialcode("");
         setSnippet("");
@@ -88,24 +83,27 @@ function CreateProblem() {
   };
 
   return (
-    <div>
+    <div className="w-full min-h-screen bg-gray-900 flex justify-center px-4">
       {submitted ? (
-        <p className="text-xl text-white">Problem submitted successfully!</p>
+        <p className="text-xl text-white mt-20">Problem submitted successfully!</p>
       ) : (
-        <form className="p-10" onSubmit={createProblem}>
+        <form className="w-full max-w-[1200px] p-10" onSubmit={createProblem}>
           <h1 className="text-center text-3xl my-10 text-white font-bold">
             Create Problem
           </h1>
 
           {/* Thumbnail */}
-          <div className="col-1 rounded-xl text-center mb-6">
+          <div className="rounded-xl text-center mb-6">
             <span className="text-white text-lg">Upload Thumbnail</span>
-            <img src={image} alt="preview" className="mx-auto w-96 m-3 rounded-xl" />
+            <img
+              src={image}
+              alt="preview"
+              className="mx-auto w-96 m-3 rounded-xl"
+            />
             <input onChange={onImageChange} type="file" accept="image/*" />
           </div>
 
-          {/* Main Fields */}
-          <div className="col-2 space-y-4 text-white p-2">
+          <div className="space-y-6 text-white">
             <div>
               <label>Title</label>
               <input
@@ -117,32 +115,37 @@ function CreateProblem() {
             </div>
 
             <div>
-              <label>Intial Code</label>
+              <label className="block mb-1 font-semibold">Initial Code</label>
               <textarea
-                rows="4"
+                rows="10"
                 value={intialcode}
                 onChange={(e) => setintialcode(e.target.value)}
-                className="input input-bordered w-full"
+                className="w-full p-3 border rounded-lg font-mono text-sm resize-y"
+                placeholder="Enter the initial code here..."
               />
             </div>
 
             <div>
-              <label>Starter Code (Snippet)</label>
+              <label className="block mb-1 font-semibold">
+                Starter Code (Snippet)
+              </label>
               <textarea
-                rows="4"
+                rows="10"
                 value={snippet}
                 onChange={(e) => setSnippet(e.target.value)}
-                className="input input-bordered w-full"
+                className="w-full p-3 border rounded-lg font-mono text-sm resize-y"
+                placeholder="Enter the starter code snippet..."
               />
             </div>
 
             <div>
-              <label>Solution</label>
+              <label className="block mb-1 font-semibold">Solution</label>
               <textarea
-                rows="4"
+                rows="10"
                 value={solution}
                 onChange={(e) => setSolution(e.target.value)}
-                className="input input-bordered w-full"
+                className="w-full p-3 border rounded-lg font-mono text-sm resize-y"
+                placeholder="Enter the full solution..."
               />
             </div>
 
@@ -208,7 +211,9 @@ function CreateProblem() {
                   <input
                     type="text"
                     value={tc.input}
-                    onChange={(e) => handleTestcaseChange(i, "input", e.target.value)}
+                    onChange={(e) =>
+                      handleTestcaseChange(i, "input", e.target.value)
+                    }
                     className="input input-bordered w-full"
                   />
                 </div>
@@ -217,7 +222,9 @@ function CreateProblem() {
                   <input
                     type="text"
                     value={tc.output}
-                    onChange={(e) => handleTestcaseChange(i, "output", e.target.value)}
+                    onChange={(e) =>
+                      handleTestcaseChange(i, "output", e.target.value)
+                    }
                     className="input input-bordered w-full"
                   />
                 </div>

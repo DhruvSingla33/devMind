@@ -10,13 +10,13 @@ const TopBar = ({ drawerOpen, toggleDrawer, children }) => {
     <header className="TopBar">
       <div className="TopBar__Row">
         <section className="TopBar__Section">
-          <Button
+          {/* <Button
             icon={drawerOpen ? Close : Hamburger}
             className="TopBar__MenuButton"
             iconClass="TopBar__Icon"
             onClick={toggleDrawer}
-          />
-          <span className="TopBar__Title">Algorithm Visualizer</span>
+          /> */}
+          {/* <span className="TopBar__Title">Algorithm Visualizer</span> */}
         </section>
         <section className="TopBar__Section TopBar__Section_align_end">
           {children}

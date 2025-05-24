@@ -108,9 +108,9 @@ function Book() {
           <br /><br />
 
 
-          {
+          {/* {
             isAuthenticated && <Link to="/addproblem" className="text-2xl"> <button className="btn btn-accent w-2/12">+Add Problem</button></Link>
-          }
+          } */}
 
           {/* <br /><br /> */}
         

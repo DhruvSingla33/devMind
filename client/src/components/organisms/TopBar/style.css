@@ -9,13 +9,13 @@
   --top-bar-mobile-breakpoint: 599px;
 
   display: flex;
-  position: fixed;
+  /* position: fixed; */
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
 
-  background-color: var(--background-color-3);
-  z-index: 105;
+  background-color: var(--background-color-1);
+  /* z-index: 105; */
   box-shadow: var(--elevation-umbra-4) var(--elevation-umbra-color),
     var(--elevation-penumbra-4) var(--elevation-penumbra-color);
 

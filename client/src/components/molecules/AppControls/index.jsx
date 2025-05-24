@@ -43,13 +43,13 @@ const AppControls = ({
         />
       </div>
 
-      <Button onClick={onGenerateRandomArray}>Randomize</Button>
+      {/* <Button onClick={onGenerateRandomArray}>Randomize</Button> */}
 
-      <Switch
+      {/* <Switch
         label="Dark Mode"
         onSwitch={onToggleDarkMode}
         checked={darkMode}
-      />
+      /> */}
     </Fragment>
   );
 };

@@ -5,9 +5,9 @@
 
   box-sizing: border-box;
   min-height: 100vh;
-  min-width: 100vw;
+  width: 100%;
   position: relative;
-  overflow: scroll;
+  /* overflow: scroll; */
 
   padding-bottom: var(--footer-height);
   text-align: center;
@@ -19,8 +19,13 @@
 }
 
 .App__Body {
-  padding-top: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* Ensure there's no space between children */
+  padding-top: 100px; /* Optional: only if padding is the issue */
+  margin: 0;
 }
+
 
 .App_modal_open {
   height: 100vh;
