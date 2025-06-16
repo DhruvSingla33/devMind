@@ -21,8 +21,8 @@
 .App__Body {
   display: flex;
   flex-direction: column;
-  gap: 0; /* Ensure there's no space between children */
-  padding-top: 100px; /* Optional: only if padding is the issue */
+  gap: 0; 
+  padding-top: 100px; 
   margin: 0;
 }
 
