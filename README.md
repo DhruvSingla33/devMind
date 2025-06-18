@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>A powerful platform to solve problems, visualize algorithms, and grow as a developer.</strong><br/>
-  Empowering students and mentors through coding, collaboration, and innovation.
+  Empowering students and mentors through coding, collaboration, and innovation..
 </p>
 
 ---
