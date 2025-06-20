@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import NoImageSelected from "../../assets/lc.png";
+import NoImageSelected from "../../assets/sideimage.png";
 import Fuse from 'fuse.js';
 import { grayscale } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
@@ -74,49 +74,29 @@ function Book() {
   // const newData = data.filter(item => item.username === curr);
   return (
     
-    <div>
-      <main className='p-10'>
-
-        <section className="min-h-screen ">
-          <div> 
+    
 
 
-
-        
-           
-
-          </div>
-          <br />
-
-          <div className="dropdown dropdown-hover">
-            {/* <div tabIndex={0} role="button" className="btn  btn-accent m-1 text-gray-100">Category</div> */}
-            <select tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-gray-900 rounded-box w-52" onChange={(e) => setSelectedCategory(e.target.value)}>
-              {/* <select > */}
-              <option value="">All (click once more)</option>
-              <option value="linked-list">Linked-List</option>
-              <option value="hash">Hash</option>
-              <option value="bfs">BFS</option>
-              <option value="dfs">DFS</option>
-              <option value="dp">DP</option>
-              <option value="binary-search">Binary Search</option>
-              <option value="sliding-window">Sliding Window</option>
-              {/* </select> */}
-            </select>
-          </div>
-
-
-          <br /><br />
-
-
-          {/* {
-            isAuthenticated && <Link to="/addproblem" className="text-2xl"> <button className="btn btn-accent w-2/12">+Add Problem</button></Link>
-          } */}
-
-          {/* <br /><br /> */}
         
         <div style={{ margin: '0 auto', padding: '20px' }}>
     
-   
+    {data.length === 0 ? (
+    <div
+  style={{
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '80vh',
+    backgroundColor: '#1e1e1e',
+  }}
+>
+  <p className="text-white text-xl mb-2">Please wait</p>
+  <h1 className="text-white text-3xl font-bold animate-pulse">
+    Problems is Loading...
+  </h1>
+</div>
+  ) : (
           
     <ul style={{ listStyleType: 'none' }}>
       {data.map((item) => (
@@ -124,8 +104,8 @@ function Book() {
   <Link to={`/problems/${item._id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', width: '100%' }}>
     {/* Image */}
     <img
-      src={`${API_BASE_URL}/uploads/${item.thumbnail}`}
-      alt={item.title}
+      src={NoImageSelected}
+      alt="Thumbnail"
       style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '10px' }}
     />
     {/* Text container */}
@@ -139,7 +119,7 @@ function Book() {
 </li>
 
       ))}
-    </ul>
+    </ul>)}
   </div>
           
 
@@ -147,21 +127,7 @@ function Book() {
        
 
 
-          
-        </section>
-
-
-
-
-      </main>
-
-
-      {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
-
-
-
-
-    </div>
+  
   )
 }
 

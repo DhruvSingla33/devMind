@@ -181,8 +181,7 @@ app.post("/userData", async (req, res) => {
 app.post("/python", async (req, res) => {
   const pre = "import sys;\n\n";
   const code = req.body.value;
-  const input = req.body.input;
-  const outpu = req.body.output;
+ 
   const id =req.body.id;
   const codeDetails = await Problem.findById(id);
   console.log(codeDetails);
@@ -194,8 +193,7 @@ app.post("/python", async (req, res) => {
     const input = testcase.input;
     const inputArray =input.split(' ').map(Number);
     let output = testcase.output;
-    console.log(output)
-    console.log(inputArray);
+   
     const options = {
       mode: "text",
       pythonOptions: ["-u"],
@@ -203,8 +201,9 @@ app.post("/python", async (req, res) => {
     };
 
     const pythonResults = await PythonShell.run("test.py", options);
-   
-    testCaseResults.push(pythonResults == output.trim());
+     console.log(pythonResults[0].trim());
+     console.log(output);
+    testCaseResults.push(pythonResults[0].trim() == output.trim());
 
   }
  
@@ -250,21 +249,21 @@ app.get('/api/posts/find/:id', async (req, res) => {
 });
 app.get('/api/posts', async (req, res, next) => {
   try {
-    const posts = await Post.find(); // Fetch all posts from the database
+    const posts = await Post.find(); 
     console.log(posts);
     res.status(200).json(posts);
   } catch (error) {
     next(error);
   }
 });
-// Comment schema and model
+
 const commentSchema = new mongoose.Schema({
   text: String,
   createdAt: { type: Date, default: Date.now },
 });
 const Comment = mongoose.model("Comment", commentSchema);
 
-// Route to get all comments
+
 app.get("/api/comments", async (req, res) => {
   try {
     const comments = await Comment.find();
@@ -274,7 +273,7 @@ app.get("/api/comments", async (req, res) => {
   }
 });
 
-// Route to post a new comment
+
 app.post("/api/comments", async (req, res) => {
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: "Comment text is required" });
@@ -306,8 +305,6 @@ app.get("/api/problems/:id", async (req, res) => {
 });
 
 
-
-// add book now
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -400,25 +397,24 @@ app.post("/api/problems", upload.single("thumbnail"), async (req, res) => {
       category,
     } = req.body;
 
-    // 1) Handle "function" since it's a reserved word
-    //    req.body.function arrives as a string; alias it to fnName
+
     const intialcode = req.body.intialcode;
 
-    // 2) Parse testcases safely
+   
     let parsedTestcases = req.body.testcases;
     if (typeof parsedTestcases === "string") {
       parsedTestcases = JSON.parse(parsedTestcases);
     }
     console.dir(parsedTestcases, { depth: null });
 
-    // 3) Normalize category into an array of strings
+    
     let parsedCategory = category;
     if (typeof category === "string") {
       try {
-        // maybe it was JSON‐stringified?
+       
         parsedCategory = JSON.parse(category);
       } catch {
-        // fallback to comma‐split
+        
         parsedCategory = category.split(",").map((c) => c.trim());
       }
     }
@@ -434,7 +430,7 @@ app.post("/api/problems", upload.single("thumbnail"), async (req, res) => {
       category: Array.isArray(parsedCategory) ? parsedCategory : [parsedCategory],
       thumbnail: req.file?.filename || "",
       testcases: parsedTestcases,
-      intialcode       // quoted to avoid syntax issues
+      intialcode       
     });
 
     console.log("Saving problem:", JSON.stringify(newProblem.toObject(), null, 2));
@@ -490,7 +486,6 @@ app.delete("/api/books/:id", async(req,res) => {
 
 
 
-// TRIAL
 
 
 app.get("/", (req, res) => {
