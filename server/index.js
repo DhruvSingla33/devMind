@@ -31,10 +31,7 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 
 
-// user routes 
-// app.get("/hello",async(req,res)=>{
-// consolelo
-// });
+
 app.post("/register", async (req, res) => {
   const { Firstname, Lastname, Email, Password, UserType } = req.body;
    console.log(req.body);
