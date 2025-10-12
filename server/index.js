@@ -316,34 +316,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 
 
-// Set up a POST route to upload video data
-app.post('/api/videos', upload.fields([{ name: 'img' }, { name: 'video' }]), async (req, res) => {
-  try {
-    const { userName, title, desc } = req.body;
-    const imgUrl = req.files['img'] ? req.files['img'][0].path : ''; // Assuming you store the file path
-    const videoUrl = req.files['video'] ? req.files['video'][0].path : ''; // Assuming you store the file path
-
-    // Create a new video document
-    const newVideo = new Video({
-      userName,
-      title,
-      desc,
-      imgUrl,
-      videoUrl,
-      likes: [],
-      dislikes: [],
-    });
-    console.log(newVideo);
-    // Save the video to the database
-    await newVideo.save();
-
-    // Respond with success message
-    res.status(201).json({ message: 'Video uploaded successfully', video: newVideo });
-  } catch (error) {
-    console.error('Error uploading video:', error);
-    res.status(500).json({ message: 'Error uploading video', error });
-  }
-});
 
 
 
