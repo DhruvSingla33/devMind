@@ -48,27 +48,27 @@ function App() {
           <Route path="/logout" element={<Logout />} />
           <Route path="/register" element={<Signup />} />
           <Route path="/signin" element={<Login />} />
-           <Route path="/contact" element={<Contact />} />
-            <Route path="/Admin" element={<Admin />} />
-            <Route path="/problems" element={<Book />} />
-            <Route path="/personalproblems" element={<Personalproblem />} />
-            <Route path="/problems/:id" element={<SingleProblem />} />
-            <Route path="/coding1" element={<App1 />} />
-            <Route path="/coding2" element={<App2 />} />
-            <Route path="/upload" element={<Upload />} />
-            <Route path="/addpost" element={<Addpost />} />
-            <Route path="/allpost" element={<Posts />} />
-            <Route path="/allpost/details/:id" element={<Detailpost />} />
-            <Route path="/addproblem" element={<CreateBook />} />
-            <Route path="/code" element={<Codeeditor />} />
-            <Route path="/editproblem/:slug" element={<EditBook />} />
-            <Route path="/recommendation" element={<Recommendation />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/default-question-1" element={<DQ1 />} />
-            <Route path="/default-question-2" element={<DQ2 />} />
-            <Route path="/default-question-3" element={<DQ3 />} />
-            <Route path="/default-question-4" element={<DQ4 />} />
-            <Route path="/default-question-5" element={<DQ5 />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/Admin" element={<Admin />} />
+          <Route path="/problems" element={<Book />} />
+          <Route path="/personalproblems" element={<Personalproblem />} />
+          <Route path="/problems/:id" element={<SingleProblem />} />
+          <Route path="/coding1" element={<App1 />} />
+          <Route path="/coding2" element={<App2 />} />
+          <Route path="/upload" element={<Upload />} />
+          <Route path="/addpost" element={<Addpost />} />
+          <Route path="/allpost" element={<Posts />} />
+          <Route path="/allpost/details/:id" element={<Detailpost />} />
+          <Route path="/addproblem" element={<CreateBook />} />
+          <Route path="/code" element={<Codeeditor />} />
+          <Route path="/editproblem/:slug" element={<EditBook />} />
+          <Route path="/recommendation" element={<Recommendation />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/default-question-1" element={<DQ1 />} />
+          <Route path="/default-question-2" element={<DQ2 />} />
+          <Route path="/default-question-3" element={<DQ3 />} />
+          <Route path="/default-question-4" element={<DQ4 />} />
+          <Route path="/default-question-5" element={<DQ5 />} />
 
           
             <Route path="/coding3">
