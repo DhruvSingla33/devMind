@@ -8,7 +8,6 @@ const ContentBlock = ({ item }) => {
       return (
         <p className="content-text">
           {item.value}
-          <>
         </p>
       );
 
