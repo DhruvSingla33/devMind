@@ -9,6 +9,8 @@ import Home from "./routes/Home/home";
 import Login from "./components/Signin";
 import Signup from "./components/Signup";
 import Logout from "./components/Logout";
+import { studyData } from "./data/studyData";
+
 
 
 import Contact from "./components/Contact";
@@ -34,6 +36,7 @@ import DQ4 from "./routes/defaultQuestions/DQ4";
 import DQ5 from "./routes/defaultQuestions/DQ5";
 import Home2 from "./pages/Home";
 import Video from "./pages/Video";
+import StudySection from "./pages/StudySection/StudySection";
 
 function App() {
   return (
@@ -54,7 +57,10 @@ function App() {
           <Route path="/personalproblems" element={<Personalproblem />} />
           <Route path="/problems/:id" element={<SingleProblem />} />
           <Route path="/coding1" element={<App1 />} />
-          <Route path="/coding2" element={<App2 />} />
+          <Route
+  path="/coding2"
+  element={<StudySection studyData={studyData} />}
+/>
           <Route path="/upload" element={<Upload />} />
           <Route path="/addpost" element={<Addpost />} />
           <Route path="/allpost" element={<Posts />} />

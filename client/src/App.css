@@ -54,3 +54,506 @@
   .CodeMirror-scroll {
     background: #1d1e22;
   }
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: #f5f6f8;
+  color: #20242b;
+}
+
+
+/* =========================
+   STUDY SECTION
+========================= */
+
+.study-section {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.chapter-header {
+  height: 72px;
+  background: white;
+  border-bottom: 1px solid #e4e6e9;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 28px;
+}
+
+
+.chapter-left {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+
+.subject {
+  font-size: 14px;
+  color: #69707d;
+}
+
+
+.chapter-title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+
+.chapter-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+
+.page-counter {
+  font-size: 13px;
+  color: #737b87;
+}
+
+
+.progress-track {
+  width: 90px;
+  height: 5px;
+
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+
+.progress-fill {
+  height: 100%;
+  background: #8bc34a;
+  transition: width 0.3s ease;
+}
+
+
+/* =========================
+   MAIN CONTENT
+========================= */
+
+.study-content {
+  flex: 1;
+
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(420px, 48%);
+
+  overflow: hidden;
+}
+
+
+/* =========================
+   BOOK PAGE
+========================= */
+
+.study-page {
+  overflow-y: auto;
+  background: #ffffff;
+
+  padding: 40px 48px;
+}
+
+
+.page-renderer {
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+
+.content-section {
+  margin-bottom: 48px;
+}
+
+
+.content-section h2 {
+  font-size: 22px;
+  margin: 0 0 18px;
+  color: #242933;
+}
+
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+
+.content-text {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #4e5663;
+  margin: 0;
+}
+
+
+.content-image-wrapper {
+  margin: 10px 0;
+  text-align: center;
+}
+
+
+.content-image {
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+}
+
+
+.content-image-wrapper figcaption {
+  margin-top: 8px;
+  color: #7b8390;
+  font-size: 13px;
+}
+
+
+/* =========================
+   TABLE
+========================= */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+
+.content-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+
+.content-table th,
+.content-table td {
+  border: 1px solid #e2e5e9;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+
+.content-table th {
+  background: #f4f5f7;
+  font-weight: 600;
+}
+
+
+/* =========================
+   MCQ
+========================= */
+
+.study-mcq {
+  border-left: 1px solid #e1e4e8;
+  background: #f7f8fa;
+
+  overflow-y: auto;
+}
+
+
+.mcq-panel {
+  min-height: 100%;
+}
+
+
+.mcq-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+
+  background: #ffffff;
+  border-bottom: 1px solid #e2e5e9;
+
+  padding: 18px;
+}
+
+
+.mcq-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #21a366;
+}
+
+
+.cached-badge {
+  font-size: 11px;
+  color: #20a56a;
+
+  background: #e7f8ef;
+  border: 1px solid #c9eedb;
+
+  padding: 3px 7px;
+  border-radius: 10px;
+}
+
+
+.mcq-filter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+
+  margin-top: 14px;
+}
+
+
+.mcq-filter button {
+  border: 1px solid #e1e5e9;
+  background: white;
+
+  border-radius: 14px;
+  padding: 5px 12px;
+
+  font-size: 11px;
+  cursor: pointer;
+}
+
+
+.mcq-filter button.active {
+  border-color: #e4a62b;
+  color: #d28b00;
+}
+
+
+/* =========================
+   MCQ CARD
+========================= */
+
+.mcq-list {
+  padding: 18px;
+}
+
+
+.mcq-card {
+  background: white;
+  border: 1px solid #e0e3e7;
+  border-radius: 14px;
+
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+
+.mcq-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 18px;
+
+  font-size: 12px;
+}
+
+
+.mcq-type {
+  font-weight: 600;
+}
+
+
+.difficulty {
+  border: 1px solid #77d6a4;
+  color: #29945d;
+
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+
+.marks {
+  color: #89919d;
+}
+
+
+.mcq-question {
+  display: flex;
+  gap: 7px;
+
+  font-size: 15px;
+  line-height: 1.6;
+
+  margin-bottom: 16px;
+}
+
+
+.question-number {
+  font-weight: 600;
+}
+
+
+.mcq-options {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+
+.mcq-option {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  border: 1px solid #e0e3e7;
+  background: #f5f6f8;
+
+  border-radius: 9px;
+
+  padding: 11px;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition: 0.15s;
+}
+
+
+.mcq-option:hover {
+  border-color: #aab0b8;
+}
+
+
+.mcq-option.selected {
+  border-color: #4d8dff;
+  background: #edf4ff;
+}
+
+
+.mcq-option.correct {
+  border-color: #55b982;
+  background: #ebf9f1;
+}
+
+
+.option-letter {
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: white;
+  border: 1px solid #dce0e5;
+
+  font-size: 12px;
+}
+
+
+.show-answer {
+  margin-top: 16px;
+
+  border: 1px solid #4c8cff;
+  background: white;
+
+  color: #367ce8;
+
+  border-radius: 7px;
+
+  padding: 7px 12px;
+
+  cursor: pointer;
+}
+
+
+.answer {
+  margin-top: 12px;
+
+  padding: 10px;
+
+  background: #eef8f2;
+
+  border-radius: 7px;
+
+  color: #27794c;
+
+  font-size: 14px;
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.page-navigation {
+  height: 64px;
+
+  background: white;
+  border-top: 1px solid #e1e4e8;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 28px;
+}
+
+
+.navigation-button {
+  border: 1px solid #dfe3e8;
+  background: white;
+
+  padding: 9px 18px;
+
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  cursor: pointer;
+}
+
+
+.navigation-button:hover:not(:disabled) {
+  background: #f5f6f8;
+}
+
+
+.navigation-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
+.navigation-page {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  font-size: 13px;
+  color: #7a818c;
+}
+
+
+.navigation-page strong {
+  color: #252a31;
+}
