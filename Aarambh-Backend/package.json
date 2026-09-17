@@ -1,0 +1,57 @@
+{
+  "name": "aarambh-backend",
+  "version": "1.0.0",
+  "description": "Enterprise-grade Node.js Express REST API for Aarambh platform with MongoDB, JWT RS256, Phone/Email OTP, Redis caching, AWS S3 uploads & PDF support, AWS CloudWatch logging, Rate limiting, and Docker containerization.",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/seeders/aarambh.seeder.js",
+    "import:questions": "node scripts/import-questions.mjs"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "mongodb",
+    "mongoose",
+    "jwt",
+    "rs256",
+    "otp-auth",
+    "redis",
+    "google-auth",
+    "aws-s3",
+    "aws-cloudwatch",
+    "winston",
+    "swagger",
+    "rest-api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.758.0",
+    "@aws-sdk/s3-request-presigner": "^3.758.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "google-auth-library": "^9.15.0",
+    "helmet": "^8.0.0",
+    "ioredis": "^5.6.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.1",
+    "morgan": "^1.10.0",
+    "multer": "^2.3.0",
+    "nodemailer": "^6.10.0",
+    "pdf-lib": "^1.17.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.17.0",
+    "winston-cloudwatch": "^6.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

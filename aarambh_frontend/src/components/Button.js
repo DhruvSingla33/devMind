@@ -1,0 +1,81 @@
+import React, { useState } from 'react';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text } from 'react-native';
+import colors from '../theme/colors';
+import { radius, spacing, typography } from '../theme/theme';
+
+const VARIANTS = {
+  primary: { bg: colors.primary, border: colors.primary, text: colors.textOnDark, glow: true },
+  outline: { bg: 'transparent', border: colors.border, text: colors.textPrimary },
+  ghost: { bg: 'transparent', border: 'transparent', text: colors.primary },
+  light: { bg: colors.white, border: colors.border, text: colors.textOnLight },
+};
+
+export default function Button({
+  title,
+  onPress,
+  variant = 'primary',
+  loading = false,
+  disabled = false,
+  style,
+  textColor,
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+  const basePalette = VARIANTS[variant] || VARIANTS.primary;
+  const palette = textColor ? { ...basePalette, text: textColor } : basePalette;
+  const isDisabled = disabled || loading;
+
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={isDisabled}
+      onHoverIn={() => setIsHovered(true)}
+      onHoverOut={() => setIsHovered(false)}
+      style={({ pressed }) => [
+        styles.base,
+        palette.glow && !isDisabled && styles.glow,
+        {
+          backgroundColor: palette.bg,
+          borderColor: palette.border,
+          opacity: isDisabled ? 0.55 : pressed ? 0.85 : 1,
+          transform: [
+            { translateY: isHovered && !isDisabled && !pressed ? -2 : 0 },
+            { scale: pressed && !isDisabled ? 0.97 : 1 },
+          ],
+        },
+        style,
+      ]}
+    >
+      {loading ? (
+        <ActivityIndicator color={palette.text} />
+      ) : (
+        <Text style={[typography.button, { color: palette.text }]}>{title}</Text>
+      )}
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  base: {
+    borderWidth: 1,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm + 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      web: {
+        cursor: 'pointer',
+        transitionProperty: 'opacity, transform, box-shadow',
+        transitionDuration: '150ms',
+        transitionTimingFunction: 'ease',
+      },
+      default: {},
+    }),
+  },
+  glow: {
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+});

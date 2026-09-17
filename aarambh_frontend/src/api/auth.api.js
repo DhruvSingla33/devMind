@@ -1,0 +1,19 @@
+import apiClient from './client';
+
+// Matches Aarambh-Backend src/validations/auth.validation.js field names exactly.
+export const signup = (payload) =>
+  apiClient.post('/auth/signup', payload).then((res) => res.data.data);
+
+export const login = (payload) =>
+  apiClient.post('/auth/login', payload).then((res) => res.data.data);
+
+export const sendOtp = ({ target, purpose = 'login' }) =>
+  apiClient.post('/auth/send-otp', { target, purpose }).then((res) => res.data.data);
+
+export const verifyOtp = ({ target, otpCode, purpose = 'login', name }) =>
+  apiClient.post('/auth/verify-otp', { target, otpCode, purpose, name }).then((res) => res.data.data);
+
+export const googleAuth = (idToken) =>
+  apiClient.post('/auth/google', { idToken }).then((res) => res.data.data);
+
+export const getMe = () => apiClient.get('/auth/me').then((res) => res.data.data.user);

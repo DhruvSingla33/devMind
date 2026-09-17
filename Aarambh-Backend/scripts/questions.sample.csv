@@ -1,0 +1,4 @@
+textbookCode,chapterNumber,pageNumber,questionText,option1,option2,option3,option4,correctOption,explanation,difficulty,examTags,pyqYear,ncertRefPage,isHighProbability
+chemistry-11-part-1,1,1,"Which of the following is a pure substance?",Air,"Sugar solution",Distilled water,Milk,3,"Distilled water is a compound with fixed composition, hence a pure substance.",easy,NEET|JEE,,NCERT Chemistry XI - Page 2,true
+chemistry-11-part-1,1,1,"The SI unit of amount of substance is:",Kilogram,Mole,Candela,Kelvin,B,"The mole is the SI base unit for amount of substance.",easy,NEET,2023,NCERT Chemistry XI - Page 5,true
+chemistry-11-part-1,1,4,"1 mole of any gas at STP occupies a volume of:",11.2 L,22.4 L,24.4 L,"1 L",2,"At STP (0Â°C, 1 atm) one mole of an ideal gas occupies 22.4 litres.",medium,NEET|JEE,,NCERT Chemistry XI - Page 18,true
