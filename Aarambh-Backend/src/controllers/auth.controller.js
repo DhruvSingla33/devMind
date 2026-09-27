@@ -5,9 +5,10 @@ import {
   registerUser,
   loginUser,
   googleAuthService,
+  changePasswordService,
   refreshTokensService,
 } from '../services/auth.service.js';
-import { sendOtpService, verifyOtpService } from '../services/otp.service.js';
+import { sendOtpService, verifyOtpService, resetPasswordService } from '../services/otp.service.js';
 
 export const signup = asyncHandler(async (req, res) => {
   const result = await registerUser(req.body);
@@ -32,6 +33,16 @@ export const sendOtp = asyncHandler(async (req, res) => {
 export const verifyOtp = asyncHandler(async (req, res) => {
   const result = await verifyOtpService(req.body);
   sendSuccess(res, HTTP_STATUS.OK, result, MESSAGES.OTP_VERIFIED);
+});
+
+export const changePassword = asyncHandler(async (req, res) => {
+  const result = await changePasswordService({ userId: req.user._id, ...req.body });
+  sendSuccess(res, HTTP_STATUS.OK, result, 'Password changed successfully');
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const result = await resetPasswordService(req.body);
+  sendSuccess(res, HTTP_STATUS.OK, result, 'Password reset successful');
 });
 
 export const refreshToken = asyncHandler(async (req, res) => {

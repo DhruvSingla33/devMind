@@ -239,3 +239,46 @@ export const verifyOtpService = async ({ target, otpCode, purpose = OTP_PURPOSE.
     refreshToken,
   };
 };
+
+/**
+ * Reset Password Service Endpoint
+ * Verifies the reset_password OTP and sets a new password for an existing
+ * user in one step (unlike verifyOtpService, this never creates a new user).
+ */
+export const resetPasswordService = async ({ target, otpCode, newPassword }) => {
+  if (!target || !otpCode || !newPassword) {
+    throw new ApiError(HTTP_STATUS.BAD_REQUEST, 'Target, OTP code and new password are all required');
+  }
+
+  const normalizedTarget = target.trim().toLowerCase();
+  const isEmail = normalizedTarget.includes('@');
+
+  const otpRecord = await Otp.findOne({
+    phoneOrEmail: normalizedTarget,
+    otpCode,
+    purpose: OTP_PURPOSE.RESET_PASSWORD,
+    isVerified: false,
+  });
+
+  if (!otpRecord) {
+    throw new ApiError(HTTP_STATUS.BAD_REQUEST, 'Invalid or expired OTP code');
+  }
+
+  if (new Date() > otpRecord.expiresAt) {
+    throw new ApiError(HTTP_STATUS.BAD_REQUEST, 'OTP code has expired');
+  }
+
+  const query = isEmail ? { email: normalizedTarget } : { phone: normalizedTarget };
+  const user = await User.findOne(query);
+  if (!user) {
+    throw new ApiError(HTTP_STATUS.NOT_FOUND, 'No account found for this email or mobile number');
+  }
+
+  otpRecord.isVerified = true;
+  await otpRecord.save();
+
+  user.password = newPassword;
+  await user.save();
+
+  return { message: 'Password reset successfully. Please log in with your new password.' };
+};

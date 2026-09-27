@@ -10,50 +10,58 @@ const linking = {
       Welcome: '',
       Login: 'login',
       Signup: 'signup',
-      Otp: 'otp',
+      ForgotPassword: 'forgot-password',
+      ResetOtp: 'forgot-password/otp',
+      ResetPasswordOtp: 'forgot-password/reset',
+      // OTP sign-in is off for now — kept commented, not removed.
+      // Otp: 'otp',
       PublicBookDetail: 'book/:code',
       PublicChapterReader: 'book/:code/chapter/:chapterNumber',
 
-      // Authenticated app shell (MainStack): the tab app plus the admin panel
-      // pushed on top of it.
+      // Authenticated app shell (MainStack): the 3-tab app (Home / Leaderboard
+      // / Aarambh+) plus Textbooks/Tests/More/Profile/Admin, each pushed on
+      // top of it rather than being a tab — see MainStack.js.
       Tabs: {
         screens: {
           Home: 'home',
-          TextbooksTab: {
-            screens: {
-              TextbookList: 'textbooks',
-              TextbookDetail: 'textbooks/:code',
-              Chapter: 'textbooks/:code/:chapterNumber',
-            },
-          },
-          TestsTab: {
-            screens: {
-              TestList: 'tests',
-              MixQuizSetup: 'tests/mix-quiz',
-              TestAttempt: 'tests/attempt',
-              TestResult: 'tests/result',
-              MyAttempts: 'tests/my-attempts',
-            },
-          },
-          MoreTab: {
-            screens: {
-              MoreHub: 'more',
-              Bookmarks: 'more/bookmarks',
-              MentorList: 'more/mentors',
-              MentorSlots: 'more/mentors/:mentorId',
-              BookingConfirmation: 'more/mentors/booked',
-              MyDoubts: 'more/doubts',
-              AskDoubt: 'more/doubts/ask',
-              DoubtDetail: 'more/doubts/:doubtId',
-              BatchList: 'more/batches',
-              BatchDetail: 'more/batches/:batchId',
-              Pulse: 'more/pulse',
-              Predictor: 'more/predictor',
-            },
-          },
-          Profile: 'profile',
+          Leaderboard: 'leaderboard',
+          AarambhPlus: 'aarambh-plus',
         },
       },
+      TextbooksTab: {
+        screens: {
+          TextbookList: 'textbooks',
+          TextbookDetail: 'textbooks/:code',
+          Chapter: 'textbooks/:code/:chapterNumber',
+        },
+      },
+      TestsTab: {
+        screens: {
+          TestList: 'tests',
+          MixQuizSetup: 'tests/mix-quiz',
+          TestAttempt: 'tests/attempt',
+          TestResult: 'tests/result',
+          MyAttempts: 'tests/my-attempts',
+        },
+      },
+      MoreTab: {
+        screens: {
+          MoreHub: 'more',
+          Bookmarks: 'more/bookmarks',
+          MentorList: 'more/mentors',
+          MentorSlots: 'more/mentors/:mentorId',
+          BookingConfirmation: 'more/mentors/booked',
+          MyDoubts: 'more/doubts',
+          AskDoubt: 'more/doubts/ask',
+          DoubtDetail: 'more/doubts/:doubtId',
+          BatchList: 'more/batches',
+          BatchDetail: 'more/batches/:batchId',
+          Pulse: 'more/pulse',
+          Predictor: 'more/predictor',
+        },
+      },
+      Profile: 'profile',
+      ResetPassword: 'profile/reset-password',
       Admin: {
         screens: {
           AdminHub: 'admin',

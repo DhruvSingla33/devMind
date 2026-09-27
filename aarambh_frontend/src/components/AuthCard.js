@@ -1,33 +1,30 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { radius, spacing } from '../theme/theme';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import colors, { isDarkTheme } from '../theme/colors';
+import { radius, shadow, spacing } from '../theme/theme';
+import Logo from './Logo';
 
-// A deliberately dark, floating-card auth layout — used only by the web
-// variant of Login/Signup/Otp. It intentionally does NOT use the app's
-// shared (light) theme tokens from src/theme/colors.js: this is a one-off
-// visual treatment for the auth flow, not a new global theme, so its colors
-// are local to this file rather than touching colors.js.
-const DARK = {
-  page: '#0B0B0D',
-  card: '#18181B',
-  border: 'rgba(255,255,255,0.08)',
-  divider: 'rgba(255,255,255,0.08)',
-  text: '#F5F5F7',
-  textMuted: '#9A9AA4',
-  inputBg: 'rgba(255,255,255,0.04)',
-  inputBorder: 'rgba(255,255,255,0.14)',
-  primary: '#E63946',
-};
+// colors.background is a light *grey* (#F3F4F7, by design — it's the shared
+// page canvas everywhere else, kept a shade off colors.surface so cards lift
+// off it). That reads fine on Home where lots of colored content sits on it,
+// but on this mostly-empty auth backdrop it just reads as "grey", not white.
+// Auth pages default to pure white instead; dark mode is untouched.
+const pageBackground = isDarkTheme ? colors.background : colors.white;
+
+// The floating-card auth layout used by the web variant of Login/Signup/etc.
+// Uses the app's shared theme tokens (colors.js) so it follows the same
+// light/dark toggle as the rest of the app — it used to hardcode a
+// permanent dark palette here, which is why it never picked up light mode.
 
 export function AuthCard({ title, subtitle, children, footer, onLogoPress }) {
-  const logo = (
-    <View style={styles.logo}>
-      <Text style={styles.logoMark}>आ</Text>
-    </View>
-  );
+  const logo = <Logo size="md" align="column" />;
 
   return (
-    <View style={styles.page}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.page}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={styles.card}>
         {onLogoPress ? (
           <Pressable onPress={onLogoPress} hitSlop={8} style={styles.logoPressable}>
@@ -43,7 +40,7 @@ export function AuthCard({ title, subtitle, children, footer, onLogoPress }) {
 
         {footer ? <View style={styles.footer}>{footer}</View> : null}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -55,7 +52,7 @@ export function AuthField({ label, secureEntry, style, ...inputProps }) {
       {label ? <Text style={fieldStyles.label}>{label}</Text> : null}
       <View style={fieldStyles.inputRow}>
         <TextInput
-          placeholderTextColor={DARK.textMuted}
+          placeholderTextColor={colors.textMuted}
           style={fieldStyles.input}
           secureTextEntry={secureEntry ? isHidden : false}
           {...inputProps}
@@ -68,6 +65,46 @@ export function AuthField({ label, secureEntry, style, ...inputProps }) {
           >
             <Text style={fieldStyles.toggleIcon}>{isHidden ? '👁' : '🙈'}</Text>
           </Pressable>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+export function AuthSelect({ label, value, options, onSelect, placeholder = 'Select', style }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selected = options.find((option) => option.value === value);
+
+  return (
+    <View style={[fieldStyles.wrapper, style, isOpen && selectStyles.wrapperOpen]}>
+      {label ? <Text style={fieldStyles.label}>{label}</Text> : null}
+      <View style={selectStyles.anchor}>
+        <Pressable style={selectStyles.field} onPress={() => setIsOpen((prev) => !prev)}>
+          <Text style={selected ? selectStyles.value : selectStyles.placeholder}>
+            {selected ? selected.label : placeholder}
+          </Text>
+          <Text style={[selectStyles.chevron, isOpen && selectStyles.chevronOpen]}>▾</Text>
+        </Pressable>
+
+        {isOpen ? (
+          <View style={selectStyles.panel}>
+            {options.map((option) => (
+              <Pressable
+                key={option.value}
+                style={({ pressed }) => [selectStyles.option, pressed && selectStyles.optionPressed]}
+                onPress={() => {
+                  onSelect(option.value);
+                  setIsOpen(false);
+                }}
+              >
+                <Text
+                  style={option.value === value ? selectStyles.optionTextSelected : selectStyles.optionText}
+                >
+                  {option.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
         ) : null}
       </View>
     </View>
@@ -97,7 +134,7 @@ export function GoogleButton({ title = 'Continue with Google', onPress, loading,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={DARK.text} />
+        <ActivityIndicator color={colors.textPrimary} />
       ) : (
         <>
           <Text style={googleStyles.g}>G</Text>
@@ -119,18 +156,21 @@ export function AuthFooterLink({ prompt, actionLabel, onPress }) {
 }
 
 export function authErrorStyle() {
-  return { color: '#FF6B74', marginBottom: spacing.md, textAlign: 'center' };
+  return { color: colors.danger, marginBottom: spacing.md, textAlign: 'center' };
 }
 
 export function authInfoStyle() {
-  return { color: DARK.textMuted, marginBottom: spacing.md, textAlign: 'center' };
+  return { color: colors.textMuted, marginBottom: spacing.md, textAlign: 'center' };
 }
 
 const styles = StyleSheet.create({
-  page: {
+  scroll: {
     flex: 1,
-    minHeight: '100%',
-    backgroundColor: DARK.page,
+    backgroundColor: pageBackground,
+  },
+  page: {
+    flexGrow: 1,
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: spacing.xxl,
@@ -139,42 +179,29 @@ const styles = StyleSheet.create({
   card: {
     width: '100%',
     maxWidth: 440,
-    backgroundColor: DARK.card,
-    borderRadius: 20,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: DARK.border,
+    borderColor: colors.border,
     paddingTop: spacing.xl,
     paddingHorizontal: spacing.xl,
     overflow: 'hidden',
+    ...shadow.card,
   },
   logoPressable: {
     alignSelf: 'center',
     ...Platform.select({ web: { cursor: 'pointer' }, default: {} }),
   },
-  logo: {
-    alignSelf: 'center',
-    width: 56,
-    height: 56,
-    borderRadius: 14,
-    backgroundColor: '#000000',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.md,
-  },
-  logoMark: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: DARK.primary,
-  },
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: DARK.text,
+    color: colors.textPrimary,
     textAlign: 'center',
+    marginTop: spacing.md,
   },
   subtitle: {
     fontSize: 14,
-    color: DARK.textMuted,
+    color: colors.textMuted,
     textAlign: 'center',
     marginTop: spacing.xs,
     paddingHorizontal: spacing.sm,
@@ -186,7 +213,7 @@ const styles = StyleSheet.create({
   footer: {
     marginHorizontal: -spacing.xl,
     borderTopWidth: 1,
-    borderTopColor: DARK.divider,
+    borderTopColor: colors.border,
     paddingVertical: spacing.md,
     alignItems: 'center',
   },
@@ -199,7 +226,7 @@ const fieldStyles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: DARK.text,
+    color: colors.textPrimary,
     marginBottom: spacing.xs,
   },
   inputRow: {
@@ -207,14 +234,14 @@ const fieldStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   input: {
-    backgroundColor: DARK.inputBg,
+    backgroundColor: colors.surfaceAlt,
     borderWidth: 1,
-    borderColor: DARK.inputBorder,
+    borderColor: colors.border,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 4,
     fontSize: 15,
-    color: DARK.text,
+    color: colors.textPrimary,
   },
   toggle: {
     position: 'absolute',
@@ -222,6 +249,75 @@ const fieldStyles = StyleSheet.create({
   },
   toggleIcon: {
     fontSize: 16,
+  },
+});
+
+const selectStyles = StyleSheet.create({
+  wrapperOpen: {
+    zIndex: 20,
+  },
+  anchor: {
+    position: 'relative',
+  },
+  field: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 4,
+  },
+  value: {
+    fontSize: 15,
+    color: colors.textPrimary,
+  },
+  placeholder: {
+    fontSize: 15,
+    color: colors.textMuted,
+  },
+  chevron: {
+    color: colors.textMuted,
+    fontSize: 14,
+  },
+  chevronOpen: {
+    transform: [{ rotate: '180deg' }],
+  },
+  panel: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    marginTop: spacing.xs,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    overflow: 'hidden',
+    zIndex: 20,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 14,
+  },
+  option: {
+    paddingVertical: spacing.sm + 4,
+    paddingHorizontal: spacing.md,
+  },
+  optionPressed: {
+    backgroundColor: colors.surfaceAlt,
+  },
+  optionText: {
+    fontSize: 15,
+    color: colors.textPrimary,
+  },
+  optionTextSelected: {
+    fontSize: 15,
+    color: colors.primary,
+    fontWeight: '700',
   },
 });
 
@@ -234,10 +330,10 @@ const dividerStyles = StyleSheet.create({
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: DARK.divider,
+    backgroundColor: colors.border,
   },
   label: {
-    color: DARK.textMuted,
+    color: colors.textMuted,
     fontSize: 13,
     marginHorizontal: spacing.sm,
   },
@@ -250,7 +346,7 @@ const googleStyles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.sm,
     borderWidth: 1,
-    borderColor: DARK.inputBorder,
+    borderColor: colors.border,
     borderRadius: radius.md,
     paddingVertical: spacing.sm + 4,
     marginBottom: spacing.md,
@@ -269,17 +365,17 @@ const googleStyles = StyleSheet.create({
   text: {
     fontSize: 15,
     fontWeight: '600',
-    color: DARK.text,
+    color: colors.textPrimary,
   },
 });
 
 const footerStyles = StyleSheet.create({
   text: {
     fontSize: 14,
-    color: DARK.textMuted,
+    color: colors.textMuted,
   },
   link: {
-    color: DARK.primary,
+    color: colors.primary,
     fontWeight: '700',
   },
 });

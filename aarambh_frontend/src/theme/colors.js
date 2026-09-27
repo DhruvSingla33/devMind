@@ -93,7 +93,7 @@ export const darkColors = {
 // Resolve the mode chosen before the app tree loaded. `globalThis.__themeMode`
 // is set in index.js from persisted storage; 'system' follows the OS setting.
 function resolveScheme() {
-  const mode = globalThis.__themeMode || 'system';
+  const mode = globalThis.__themeMode || 'light';
   if (mode === 'light' || mode === 'dark') {
     return mode;
   }

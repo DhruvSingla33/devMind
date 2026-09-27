@@ -2,10 +2,8 @@ import React from 'react';
 import { Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/home/HomeScreen';
-import TextbookStack from './TextbookStack';
-import TestStack from './TestStack';
-import MoreStack from './MoreStack';
-import ProfileScreen from '../screens/profile/ProfileScreen';
+import LeaderboardScreen from '../screens/leaderboard/LeaderboardScreen';
+import SubscriptionScreen from '../screens/premium/SubscriptionScreen';
 import colors from '../theme/colors';
 import headerOptions from './headerOptions';
 
@@ -13,12 +11,15 @@ const Tab = createBottomTabNavigator();
 
 const TAB_ICONS = {
   Home: '🏠',
-  TextbooksTab: '📚',
-  TestsTab: '📝',
-  MoreTab: '🧭',
-  Profile: '👤',
+  Leaderboard: '🏆',
+  AarambhPlus: 'A',
 };
 
+// Textbooks, Tests, More and Profile aren't tabs — they're registered as
+// sibling screens on the parent MainStack (pushed on top, same as Admin) and
+// reached from links on Home / Profile. Keeping this Tab.Navigator to just
+// the 3 screens actually shown avoids the layout/label-width issues that come
+// from registering hidden tabs here.
 export default function AppTabs() {
   return (
     <Tab.Navigator
@@ -29,15 +30,19 @@ export default function AppTabs() {
         tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: { fontWeight: '600', fontSize: 11 },
         tabBarIcon: ({ color }) => (
-          <Text style={{ fontSize: 18, color }}>{TAB_ICONS[route.name]}</Text>
+          <Text style={{ fontSize: 18, color, fontWeight: route.name === 'AarambhPlus' ? '800' : '400' }}>
+            {TAB_ICONS[route.name]}
+          </Text>
         ),
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="TextbooksTab" component={TextbookStack} options={{ headerShown: false, title: 'Textbooks' }} />
-      <Tab.Screen name="TestsTab" component={TestStack} options={{ headerShown: false, title: 'Tests' }} />
-      <Tab.Screen name="MoreTab" component={MoreStack} options={{ headerShown: false, title: 'More' }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Leaderboard" component={LeaderboardScreen} />
+      <Tab.Screen
+        name="AarambhPlus"
+        component={SubscriptionScreen}
+        options={{ title: 'Aarambh+', headerShown: false }}
+      />
     </Tab.Navigator>
   );
 }

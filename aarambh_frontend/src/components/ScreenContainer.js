@@ -15,6 +15,7 @@ export default function ScreenContainer({ children, style, noPadding, maxWidth }
     <SafeAreaView style={styles.safeArea}>
       <View
         style={[
+          styles.flexFill,
           !noPadding && styles.padded,
           isWeb && {
             width: '100%',
@@ -36,8 +37,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  padded: {
+  // Split out from `padded` so `noPadding` (HomeScreen, PublicBookDetailScreen)
+  // still gets flex:1 — without it, the child ScrollView had no flex-bound
+  // parent on web and grew to its full content height instead of staying
+  // viewport-sized, so it never actually scrolled and everything past the
+  // fold was clipped by the navigator's screen wrapper.
+  flexFill: {
     flex: 1,
+  },
+  padded: {
     paddingHorizontal: spacing.md,
   },
 });

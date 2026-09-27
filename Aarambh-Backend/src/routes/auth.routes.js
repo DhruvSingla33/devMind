@@ -5,6 +5,8 @@ import {
   googleAuth,
   sendOtp,
   verifyOtp,
+  changePassword,
+  resetPassword,
   refreshToken,
   getMe,
 } from '../controllers/auth.controller.js';
@@ -15,6 +17,8 @@ import {
   loginSchema,
   sendOtpSchema,
   verifyOtpSchema,
+  changePasswordSchema,
+  resetPasswordSchema,
   googleAuthSchema,
   refreshTokenSchema,
 } from '../validations/auth.validation.js';
@@ -94,6 +98,66 @@ router.post('/send-otp', validate(sendOtpSchema), sendOtp);
  *         description: OTP verified, Access and Refresh JWT tokens returned
  */
 router.post('/verify-otp', validate(verifyOtpSchema), verifyOtp);
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Verify a reset_password OTP and set a new password for an existing account
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - target
+ *               - otpCode
+ *               - newPassword
+ *             properties:
+ *               target:
+ *                 type: string
+ *                 example: "you@example.com"
+ *               otpCode:
+ *                 type: string
+ *                 example: "123456"
+ *               newPassword:
+ *                 type: string
+ *                 example: "newSecurePass123"
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ */
+router.post('/reset-password', validate(resetPasswordSchema), resetPassword);
+
+/**
+ * @swagger
+ * /auth/change-password:
+ *   post:
+ *     summary: Change password for the signed-in user (requires their current password)
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - oldPassword
+ *               - newPassword
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ */
+router.post('/change-password', authenticateJWT, validate(changePasswordSchema), changePassword);
 
 router.post('/refresh-token', validate(refreshTokenSchema), refreshToken);
 router.get('/me', authenticateJWT, getMe);

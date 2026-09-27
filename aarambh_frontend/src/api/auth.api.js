@@ -13,6 +13,16 @@ export const sendOtp = ({ target, purpose = 'login' }) =>
 export const verifyOtp = ({ target, otpCode, purpose = 'login', name }) =>
   apiClient.post('/auth/verify-otp', { target, otpCode, purpose, name }).then((res) => res.data.data);
 
+export const resetPassword = ({ target, otpCode, newPassword }) =>
+  apiClient
+    .post('/auth/reset-password', { target, otpCode, newPassword })
+    .then((res) => res.data.data);
+
+export const changePassword = ({ oldPassword, newPassword }) =>
+  apiClient
+    .post('/auth/change-password', { oldPassword, newPassword })
+    .then((res) => res.data.data);
+
 export const googleAuth = (idToken) =>
   apiClient.post('/auth/google', { idToken }).then((res) => res.data.data);
 

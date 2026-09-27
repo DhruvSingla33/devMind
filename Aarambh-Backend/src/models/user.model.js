@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema(
       sparse: true,
       trim: true,
     },
+    classLevel: {
+      type: String,
+      enum: ['11th', '12th', 'dropper'],
+    },
     password: {
       type: String,
       required: function () {

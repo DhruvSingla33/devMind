@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Card from '../../components/Card';
@@ -17,13 +17,58 @@ const THEME_OPTIONS = [
 ];
 
 const ROWS = [
-  { key: 'role', icon: '🎓', label: 'Role', value: (user) => user?.role },
-  { key: 'signin', icon: '🔐', label: 'Sign-in method', value: (user) => user?.authProvider },
+  { key: 'role', icon: '🎓', label: 'Role', value: (user) => user?.role, tint: '#E7ECFB' },
+  {
+    key: 'signin',
+    icon: '🔐',
+    label: 'Sign-in method',
+    value: (user) => user?.authProvider,
+    tint: '#F2E9FB',
+  },
   {
     key: 'verified',
     icon: '✉️',
     label: 'Email verified',
     value: (user) => (user?.isEmailVerified ? 'Yes' : 'No'),
+    tint: '#E4F5EC',
+  },
+];
+
+// Home's bottom tab bar only shows Home / Leaderboard / Aarambh+, so these
+// stacks (still fully registered as hidden tabs — see AppTabs.js) need a
+// reachable entry point. Profile, opened from Home's ☰ button, is it.
+const MORE_LINKS = [
+  {
+    key: 'textbooks',
+    icon: '📚',
+    label: 'Textbooks',
+    tab: 'TextbooksTab',
+    screen: 'TextbookList',
+    tint: '#E7F0FB',
+  },
+  {
+    key: 'tests',
+    icon: '📝',
+    label: 'Mock tests & Mix Quiz',
+    tab: 'TestsTab',
+    screen: 'TestList',
+    tint: '#FBE7EA',
+  },
+  {
+    key: 'attempts',
+    icon: '📈',
+    label: 'My attempts',
+    tab: 'TestsTab',
+    screen: 'MyAttempts',
+    tint: '#E4F5EC',
+  },
+  {
+    key: 'more',
+    icon: '🧭',
+    label: 'Mentors, doubts, notes & more',
+    tab: 'MoreTab',
+    screen: 'MoreHub',
+    tint: '#FBF0E3',
   },
 ];
 
@@ -43,6 +88,19 @@ export default function ProfileScreen({ navigation }) {
       setThemeMode(mode);
     }
   };
+
+  // A header logout button that's always on screen, not just the one at the
+  // bottom of a long scroll — that one stays too, but this is the one a
+  // student actually finds without hunting for it.
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable onPress={logout} hitSlop={8} style={styles.headerLogout}>
+          <Text style={styles.headerLogoutText}>Log out</Text>
+        </Pressable>
+      ),
+    });
+  }, [navigation, logout]);
 
   return (
     <ScreenContainer maxWidth={640}>
@@ -65,11 +123,36 @@ export default function ProfileScreen({ navigation }) {
             style={[styles.row, index < ROWS.length - 1 && styles.rowDivider]}
           >
             <View style={styles.rowLabel}>
-              <Text style={styles.rowIcon}>{row.icon}</Text>
+              <View style={[styles.rowIconBadge, { backgroundColor: row.tint }]}>
+                <Text style={styles.rowIcon}>{row.icon}</Text>
+              </View>
               <Text style={typography.bodyMuted}>{row.label}</Text>
             </View>
             <Text style={styles.rowValue}>{row.value(user)}</Text>
           </View>
+        ))}
+      </Card>
+
+      <Text style={[typography.caption, styles.sectionLabel]}>EXPLORE</Text>
+      <Card style={styles.card} noPadding>
+        {MORE_LINKS.map((link, index) => (
+          <Pressable
+            key={link.key}
+            onPress={() => navigation.navigate(link.tab, { screen: link.screen })}
+            style={({ pressed }) => [
+              styles.row,
+              index < MORE_LINKS.length - 1 && styles.rowDivider,
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <View style={styles.rowLabel}>
+              <View style={[styles.rowIconBadge, { backgroundColor: link.tint }]}>
+                <Text style={styles.rowIcon}>{link.icon}</Text>
+              </View>
+              <Text style={typography.body}>{link.label}</Text>
+            </View>
+            <Text style={styles.chevron}>›</Text>
+          </Pressable>
         ))}
       </Card>
 
@@ -103,6 +186,12 @@ export default function ProfileScreen({ navigation }) {
         </>
       ) : null}
 
+      <Button
+        title="Reset password"
+        variant="outline"
+        onPress={() => navigation.navigate('ResetPassword')}
+        style={styles.resetPassword}
+      />
       <Button title="Log out" variant="outline" onPress={logout} style={styles.logout} />
     </ScreenContainer>
   );
@@ -158,13 +247,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
+  rowIconBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   rowIcon: {
-    fontSize: 16,
+    fontSize: 14,
   },
   rowValue: {
     ...typography.body,
     fontWeight: '600',
     textTransform: 'capitalize',
+  },
+  chevron: {
+    fontSize: 20,
+    color: colors.textMuted,
   },
   sectionLabel: {
     marginTop: spacing.lg,
@@ -204,7 +304,19 @@ const styles = StyleSheet.create({
   adminButton: {
     marginTop: spacing.xs,
   },
-  logout: {
+  resetPassword: {
     marginTop: spacing.lg,
+  },
+  logout: {
+    marginTop: spacing.sm,
+  },
+  headerLogout: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  headerLogoutText: {
+    color: colors.primary,
+    fontWeight: '700',
+    fontSize: 14,
   },
 });

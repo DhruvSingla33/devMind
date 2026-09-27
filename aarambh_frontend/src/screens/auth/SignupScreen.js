@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import TextField from '../../components/TextField';
+import SelectField from '../../components/SelectField';
 import Button from '../../components/Button';
 import {
   AuthCard,
   AuthField,
+  AuthSelect,
   AuthDivider,
   GoogleButton,
   AuthFooterLink,
@@ -17,9 +19,19 @@ import { notify } from '../../utils/alert';
 import colors from '../../theme/colors';
 import { spacing, typography } from '../../theme/theme';
 
+const CLASS_OPTIONS = [
+  { label: '11th', value: '11th' },
+  { label: '12th', value: '12th' },
+  { label: 'Dropper', value: 'dropper' },
+];
+
 function useSignupLogic() {
-  const { signup, requestGoogleSignIn } = useAuth();
+  const { signup } = useAuth();
+  // requestGoogleSignIn kept on useAuth for the phase-2 Google signup button below.
+  const { requestGoogleSignIn } = useAuth();
   const [name, setName] = useState('');
+  const [classLevel, setClassLevel] = useState('');
+  const [mobile, setMobile] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,9 +40,17 @@ function useSignupLogic() {
 
   const handleSignup = async () => {
     setError(null);
+    if (!name.trim() || !classLevel || !mobile.trim() || !email.trim() || !password) {
+      setError('Please fill in all fields.');
+      return;
+    }
+    if (!/^[6-9]\d{9}$/.test(mobile.trim())) {
+      setError('Enter a valid 10-digit mobile number.');
+      return;
+    }
     setIsSubmitting(true);
     try {
-      await signup(name.trim(), email.trim(), password);
+      await signup(name.trim(), email.trim(), mobile.trim(), classLevel, password);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -38,6 +58,7 @@ function useSignupLogic() {
     }
   };
 
+  // Not wired to any button yet — Google auth ships in phase 2.
   const handleGoogleSignup = async () => {
     setIsGoogleSubmitting(true);
     try {
@@ -55,6 +76,10 @@ function useSignupLogic() {
   return {
     name,
     setName,
+    classLevel,
+    setClassLevel,
+    mobile,
+    setMobile,
     email,
     setEmail,
     password,
@@ -71,15 +96,19 @@ function WebSignup({ navigation }) {
   const {
     name,
     setName,
+    classLevel,
+    setClassLevel,
+    mobile,
+    setMobile,
     email,
     setEmail,
     password,
     setPassword,
     isSubmitting,
-    isGoogleSubmitting,
+    // isGoogleSubmitting,
     error,
     handleSignup,
-    handleGoogleSignup,
+    // handleGoogleSignup,
   } = useSignupLogic();
 
   return (
@@ -95,10 +124,26 @@ function WebSignup({ navigation }) {
         />
       }
     >
-      <GoogleButton onPress={handleGoogleSignup} loading={isGoogleSubmitting} />
-      <AuthDivider />
+      {/* Google sign-up ships in phase 2 — kept commented, not removed. */}
+      {/* <GoogleButton onPress={handleGoogleSignup} loading={isGoogleSubmitting} /> */}
+      {/* <AuthDivider /> */}
 
       <AuthField label="Full name" value={name} onChangeText={setName} placeholder="Jane Doe" />
+      <AuthSelect
+        label="Class"
+        value={classLevel}
+        onSelect={setClassLevel}
+        options={CLASS_OPTIONS}
+        placeholder="Select your class"
+      />
+      <AuthField
+        label="Mobile number"
+        value={mobile}
+        onChangeText={setMobile}
+        keyboardType="phone-pad"
+        maxLength={10}
+        placeholder="9876543210"
+      />
       <AuthField
         label="Email address"
         value={email}
@@ -118,13 +163,30 @@ function WebSignup({ navigation }) {
       {error ? <Text style={authErrorStyle()}>{error}</Text> : null}
 
       <Button title="Continue" onPress={handleSignup} loading={isSubmitting} />
+
+      <Text style={styles.webTerms}>
+        By signing up, you agree to our Terms & Conditions and Privacy Policy.
+      </Text>
     </AuthCard>
   );
 }
 
 function NativeSignup({ navigation }) {
-  const { name, setName, email, setEmail, password, setPassword, isSubmitting, error, handleSignup } =
-    useSignupLogic();
+  const {
+    name,
+    setName,
+    classLevel,
+    setClassLevel,
+    mobile,
+    setMobile,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    isSubmitting,
+    error,
+    handleSignup,
+  } = useSignupLogic();
 
   return (
     <ScreenContainer>
@@ -135,6 +197,21 @@ function NativeSignup({ navigation }) {
         </Text>
 
         <TextField label="Full name" value={name} onChangeText={setName} placeholder="Jane Doe" />
+        <SelectField
+          label="Class"
+          value={classLevel}
+          onSelect={setClassLevel}
+          options={CLASS_OPTIONS}
+          placeholder="Select your class"
+        />
+        <TextField
+          label="Mobile number"
+          value={mobile}
+          onChangeText={setMobile}
+          keyboardType="phone-pad"
+          maxLength={10}
+          placeholder="9876543210"
+        />
         <TextField
           label="Email"
           value={email}
@@ -154,6 +231,11 @@ function NativeSignup({ navigation }) {
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <Button title="Create account" onPress={handleSignup} loading={isSubmitting} />
+
+        <Text style={styles.terms}>
+          By signing up, you agree to our Terms & Conditions and Privacy Policy.
+        </Text>
+
         <Button
           title="Already have an account? Log in"
           variant="ghost"
@@ -187,5 +269,17 @@ const styles = StyleSheet.create({
   },
   spaced: {
     marginTop: spacing.sm,
+  },
+  terms: {
+    ...typography.caption,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginTop: spacing.md,
+  },
+  webTerms: {
+    fontSize: 12,
+    color: '#9A9AA4',
+    textAlign: 'center',
+    marginTop: spacing.md,
   },
 });

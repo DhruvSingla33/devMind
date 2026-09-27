@@ -9,15 +9,22 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 /**
  * Register user with Email & Password
  */
-export const registerUser = async ({ name, email, password }) => {
+export const registerUser = async ({ name, email, phone, classLevel, password }) => {
   const existingUser = await User.findOne({ email: email.toLowerCase() });
   if (existingUser) {
     throw new ApiError(HTTP_STATUS.CONFLICT, 'User with this email address already exists');
   }
 
+  const existingPhone = await User.findOne({ phone });
+  if (existingPhone) {
+    throw new ApiError(HTTP_STATUS.CONFLICT, 'User with this mobile number already exists');
+  }
+
   const user = await User.create({
     name,
     email: email.toLowerCase(),
+    phone,
+    classLevel,
     password,
     authProvider: AUTH_PROVIDERS.LOCAL,
   });
@@ -128,6 +135,33 @@ export const googleAuthService = async ({ idToken }) => {
     accessToken,
     refreshToken,
   };
+};
+
+/**
+ * Change Password (authenticated user, verifies their current password)
+ */
+export const changePasswordService = async ({ userId, oldPassword, newPassword }) => {
+  const user = await User.findById(userId).select('+password');
+  if (!user) {
+    throw new ApiError(HTTP_STATUS.NOT_FOUND, 'User not found');
+  }
+
+  if (!user.password) {
+    throw new ApiError(
+      HTTP_STATUS.BAD_REQUEST,
+      'This account has no password set (signed up via Google). Use Google Sign-In instead.'
+    );
+  }
+
+  const isPasswordValid = await user.isPasswordMatch(oldPassword);
+  if (!isPasswordValid) {
+    throw new ApiError(HTTP_STATUS.UNAUTHORIZED, 'Current password is incorrect');
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  return { message: 'Password changed successfully' };
 };
 
 /**

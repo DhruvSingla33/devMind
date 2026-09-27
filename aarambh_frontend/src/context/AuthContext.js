@@ -85,8 +85,8 @@ export function AuthProvider({ children }) {
     return result.user;
   }, []);
 
-  const signup = useCallback(async (name, email, password) => {
-    const result = await authApi.signup({ name, email, password });
+  const signup = useCallback(async (name, email, phone, classLevel, password) => {
+    const result = await authApi.signup({ name, email, phone, classLevel, password });
     await saveTokens(result);
     setUser(result.user);
     return result.user;
@@ -100,6 +100,22 @@ export function AuthProvider({ children }) {
     setUser(result.user);
     return result.user;
   }, []);
+
+  // Unlike confirmOtp, this never logs the user in — it only verifies the
+  // reset_password OTP and sets a new password. The caller sends the user
+  // back to Login to sign in with their new credentials.
+  const resetPassword = useCallback(
+    (target, otpCode, newPassword) => authApi.resetPassword({ target, otpCode, newPassword }),
+    []
+  );
+
+  // The "Reset password" feature the app actually surfaces: a signed-in user
+  // enters their current password + a new one. Unlike resetPassword above
+  // (OTP-based, unauthenticated, currently unwired) this requires a session.
+  const changePassword = useCallback(
+    (oldPassword, newPassword) => authApi.changePassword({ oldPassword, newPassword }),
+    []
+  );
 
   const logout = useCallback(async () => {
     await clearTokens();
@@ -115,6 +131,8 @@ export function AuthProvider({ children }) {
       signup,
       requestOtp,
       confirmOtp,
+      resetPassword,
+      changePassword,
       requestGoogleSignIn,
       isGoogleReady: !!request,
       logout,
@@ -127,6 +145,8 @@ export function AuthProvider({ children }) {
       signup,
       requestOtp,
       confirmOtp,
+      resetPassword,
+      changePassword,
       requestGoogleSignIn,
       request,
       logout,

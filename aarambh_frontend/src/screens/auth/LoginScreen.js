@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import TextField from '../../components/TextField';
 import Button from '../../components/Button';
@@ -37,6 +37,7 @@ function useLoginLogic(navigation) {
     }
   };
 
+  // Not wired to any button yet — Google auth ships in phase 2.
   const handleGoogleLogin = async () => {
     setIsGoogleSubmitting(true);
     try {
@@ -71,10 +72,10 @@ function WebLogin({ navigation }) {
     password,
     setPassword,
     isSubmitting,
-    isGoogleSubmitting,
+    // isGoogleSubmitting,
     error,
     handleLogin,
-    handleGoogleLogin,
+    // handleGoogleLogin,
   } = useLoginLogic(navigation);
 
   return (
@@ -90,8 +91,9 @@ function WebLogin({ navigation }) {
         />
       }
     >
-      <GoogleButton onPress={handleGoogleLogin} loading={isGoogleSubmitting} />
-      <AuthDivider />
+      {/* Google sign-in ships in phase 2 — kept commented, not removed. */}
+      {/* <GoogleButton onPress={handleGoogleLogin} loading={isGoogleSubmitting} /> */}
+      {/* <AuthDivider /> */}
 
       <AuthField
         label="Email address"
@@ -109,15 +111,21 @@ function WebLogin({ navigation }) {
         placeholder="Enter your password"
       />
 
+      <Pressable onPress={() => navigation.navigate('ForgotPassword')} hitSlop={8}>
+        <Text style={styles.webForgotLink}>Forgot Password?</Text>
+      </Pressable>
+
       {error ? <Text style={authErrorStyle()}>{error}</Text> : null}
 
       <Button title="Continue" onPress={handleLogin} loading={isSubmitting} />
-      <Button
+
+      {/* OTP sign-in is off for now — kept commented, not removed. */}
+      {/* <Button
         title="Use phone / email OTP instead"
         variant="ghost"
         onPress={() => navigation.navigate('Otp')}
         style={styles.webGhost}
-      />
+      /> */}
     </AuthCard>
   );
 }
@@ -129,10 +137,10 @@ function NativeLogin({ navigation }) {
     password,
     setPassword,
     isSubmitting,
-    isGoogleSubmitting,
+    // isGoogleSubmitting,
     error,
     handleLogin,
-    handleGoogleLogin,
+    // handleGoogleLogin,
   } = useLoginLogic(navigation);
 
   return (
@@ -159,32 +167,43 @@ function NativeLogin({ navigation }) {
           placeholder="••••••••"
         />
 
+        <Pressable onPress={() => navigation.navigate('ForgotPassword')} hitSlop={8} style={styles.forgotWrap}>
+          <Text style={styles.forgotLink}>Forgot password?</Text>
+        </Pressable>
+
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <Button title="Log in" onPress={handleLogin} loading={isSubmitting} />
 
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>or</Text>
-          <View style={styles.dividerLine} />
-        </View>
+        {/*
+          Google + OTP sign-in are off for now (no OTP service yet, Google
+          ships in phase 2) — kept commented, not removed.
 
-        <Button
-          title="Continue with Google"
-          variant="light"
-          onPress={handleGoogleLogin}
-          loading={isGoogleSubmitting}
-        />
-        <Button
-          title="Use phone / email OTP instead"
-          variant="ghost"
-          onPress={() => navigation.navigate('Otp')}
-          style={styles.spaced}
-        />
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <Button
+            title="Continue with Google"
+            variant="light"
+            onPress={handleGoogleLogin}
+            loading={isGoogleSubmitting}
+          />
+          <Button
+            title="Use phone / email OTP instead"
+            variant="ghost"
+            onPress={() => navigation.navigate('Otp')}
+            style={styles.spaced}
+          />
+        */}
+
         <Button
           title="New here? Create an account"
           variant="ghost"
           onPress={() => navigation.navigate('Signup')}
+          style={styles.spaced}
         />
       </ScrollView>
     </ScreenContainer>
@@ -201,6 +220,13 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   webGhost: {
     marginTop: spacing.xs,
+  },
+  webForgotLink: {
+    color: colors.primary,
+    fontSize: 13,
+    fontWeight: '600',
+    textAlign: 'right',
+    marginBottom: spacing.md,
   },
   content: {
     paddingTop: spacing.xl,
@@ -230,5 +256,14 @@ const styles = StyleSheet.create({
   },
   spaced: {
     marginTop: spacing.sm,
+  },
+  forgotWrap: {
+    alignItems: 'flex-end',
+    marginBottom: spacing.md,
+  },
+  forgotLink: {
+    color: colors.primary,
+    fontSize: 13,
+    fontWeight: '600',
   },
 });
