@@ -195,7 +195,7 @@ export default function AdminPageFormScreen({ route, navigation }) {
     setIsSubmitting(true);
     const payload = {
       title: title.trim(),
-      // Blank -> backend auto-assigns the next page number in the chapter.
+      // Blank -> backend auto-assigns the next page number in the book.
       ...(pageNumber ? { pageNumber: Number(pageNumber) } : {}),
       sections: sectionsPayload,
       quiz: quizPayload,
@@ -204,7 +204,7 @@ export default function AdminPageFormScreen({ route, navigation }) {
       if (isEditing) {
         await adminUpdatePage(existing._id, payload);
       } else {
-        await adminCreatePage(chapterId, payload);
+        await adminCreatePage(textbookId, payload);
       }
       navigation.goBack();
     } catch (err) {

@@ -1,14 +1,10 @@
 import mongoose from 'mongoose';
 
+// A content page now belongs DIRECTLY to a textbook (book). Chapters no longer
+// own pages — a chapter is just a labelled page-range on the book (see
+// chapter.model.js startPage/endPage), so a page has no chapterId at all.
 const pageSchema = new mongoose.Schema(
   {
-    chapterId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Chapter',
-      required: true,
-    },
-    // Denormalized parent ref so pages can be fetched by textbook without
-    // first resolving the chapter (mirrors the chapter -> textbook link).
     textbookId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Textbook',
@@ -23,7 +19,7 @@ const pageSchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
-    // Explicit ordering within the chapter (falls back to pageNumber).
+    // Explicit ordering within the book (falls back to pageNumber).
     order: {
       type: Number,
       default: 0,
@@ -38,6 +34,7 @@ const pageSchema = new mongoose.Schema(
   }
 );
 
-pageSchema.index({ chapterId: 1, pageNumber: 1 }, { unique: true });
+// Page numbers are unique per book now (not per chapter).
+pageSchema.index({ textbookId: 1, pageNumber: 1 }, { unique: true });
 
 export const Page = mongoose.model('Page', pageSchema);

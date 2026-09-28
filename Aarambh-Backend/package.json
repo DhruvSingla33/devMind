@@ -8,6 +8,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node src/seeders/aarambh.seeder.js",
+    "reset:content": "node scripts/reset-content.mjs",
     "import:questions": "node scripts/import-questions.mjs"
   },
   "keywords": [

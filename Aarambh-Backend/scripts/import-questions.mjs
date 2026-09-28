@@ -10,7 +10,7 @@
  *
  * CSV columns (header row required, order-independent):
  *   textbookCode        e.g. chemistry-11-part-1        (required)
- *   chapterNumber       e.g. 1                          (required)
+ *   chapterNumber       (ignored — chapters are page-ranges now; kept for CSV compat)
  *   pageNumber          e.g. 1  -> links pageId if a matching Page exists (default 1)
  *   questionText                                        (required)
  *   option1..option4    the choices (>= 2 non-empty required)
@@ -29,7 +29,6 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
 import { Textbook } from '../src/models/textbook.model.js';
-import { Chapter } from '../src/models/chapter.model.js';
 import { Page } from '../src/models/page.model.js';
 import { Question } from '../src/models/question.model.js';
 
@@ -110,7 +109,6 @@ async function main() {
 
   // small caches so repeated codes/chapters/pages don't re-query
   const bookCache = new Map();
-  const chapterCache = new Map();
   const pageCache = new Map();
 
   const valid = [];
@@ -132,24 +130,20 @@ async function main() {
     const book = bookCache.get(code);
     if (!book) { fail(`textbookCode "${code}" not found`); continue; }
 
-    // --- resolve chapter
-    const chNum = Number(row.chapterNumber);
-    if (!Number.isInteger(chNum)) { fail(`chapterNumber "${row.chapterNumber}" invalid`); continue; }
-    const chKey = `${book._id}:${chNum}`;
-    if (!chapterCache.has(chKey)) {
-      chapterCache.set(chKey, await Chapter.findOne({ textbookId: book._id, chapterNumber: chNum }));
-    }
-    const chapter = chapterCache.get(chKey);
-    if (!chapter) { fail(`chapter ${chNum} not found in ${code}`); continue; }
-
-    // --- resolve page (optional link)
+    // --- resolve page (required: quiz belongs to a page, book-scoped now).
+    // The page is created on demand if it doesn't exist yet, unless --dry-run.
     const pageNumber = row.pageNumber ? Number(row.pageNumber) : 1;
     if (!Number.isInteger(pageNumber)) { fail(`pageNumber "${row.pageNumber}" invalid`); continue; }
-    const pgKey = `${chapter._id}:${pageNumber}`;
+    const pgKey = `${book._id}:${pageNumber}`;
     if (!pageCache.has(pgKey)) {
-      pageCache.set(pgKey, await Page.findOne({ chapterId: chapter._id, pageNumber }));
+      let pg = await Page.findOne({ textbookId: book._id, pageNumber });
+      if (!pg && !dryRun) {
+        pg = await Page.create({ textbookId: book._id, pageNumber, order: pageNumber });
+      }
+      pageCache.set(pgKey, pg);
     }
-    const page = pageCache.get(pgKey); // may be null -> pageId null, still stores pageNumber
+    const page = pageCache.get(pgKey);
+    if (!page && !dryRun) { fail(`could not resolve/create page ${pageNumber} in ${code}`); continue; }
 
     // --- options
     const options = [row.option1, row.option2, row.option3, row.option4]
@@ -182,7 +176,6 @@ async function main() {
 
     valid.push({
       textbookId: book._id,
-      chapterId: chapter._id,
       pageId: page ? page._id : null,
       pageNumber,
       questionText: row.questionText,

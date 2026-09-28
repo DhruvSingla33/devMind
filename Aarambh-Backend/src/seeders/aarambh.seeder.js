@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import { User } from '../models/user.model.js';
 import { Textbook } from '../models/textbook.model.js';
 import { Chapter } from '../models/chapter.model.js';
+import { Page } from '../models/page.model.js';
+import { Section } from '../models/section.model.js';
 import { Question } from '../models/question.model.js';
 import { MockTest } from '../models/mockTest.model.js';
 import { Mentor } from '../models/mentor.model.js';
@@ -22,6 +24,8 @@ export const seedDatabase = async () => {
     await User.deleteMany({});
     await Textbook.deleteMany({});
     await Chapter.deleteMany({});
+    await Page.deleteMany({});
+    await Section.deleteMany({});
     await Question.deleteMany({});
     await MockTest.deleteMany({});
     await Mentor.deleteMany({});
@@ -87,6 +91,8 @@ export const seedDatabase = async () => {
       title: 'The Living World',
       description: 'Diversity in living organisms, taxonomic categories and aids.',
       totalPages: 14,
+      startPage: 1,
+      endPage: 14,
       examTags: ['NEET'],
       pdfUrl: 'https://aarambh-media-assets.s3.ap-south-1.amazonaws.com/pdfs/ncert-bio-11-ch1.pdf',
     });
@@ -97,6 +103,8 @@ export const seedDatabase = async () => {
       title: 'Biological Classification',
       description: 'Kingdom Monera, Protista, Fungi, Plantae and Animalia overview.',
       totalPages: 18,
+      startPage: 15,
+      endPage: 32,
       examTags: ['NEET'],
       pdfUrl: 'https://aarambh-media-assets.s3.ap-south-1.amazonaws.com/pdfs/ncert-bio-11-ch2.pdf',
     });
@@ -107,13 +115,22 @@ export const seedDatabase = async () => {
       title: 'Some Basic Concepts of Chemistry',
       description: 'Mole concept, stoichiometry, and concentration terms.',
       totalPages: 24,
+      startPage: 1,
+      endPage: 24,
       examTags: ['NEET', 'JEE'],
     });
+
+    console.log('[Seeder] Seeding Pages...');
+    // Pages belong to the book. Their pageNumber decides which chapter-range
+    // they fall in (bio pages 3 & 7 -> chapter 1 [1..14]; chem page 12 -> chem ch1).
+    const bioPage3 = await Page.create({ textbookId: bio11._id, pageNumber: 3, order: 3 });
+    const bioPage7 = await Page.create({ textbookId: bio11._id, pageNumber: 7, order: 7 });
+    const chemPage12 = await Page.create({ textbookId: chem11._id, pageNumber: 12, order: 12 });
 
     console.log('[Seeder] Seeding Questions...');
     const q1 = await Question.create({
       textbookId: bio11._id,
-      chapterId: ch1._id,
+      pageId: bioPage3._id,
       pageNumber: 3,
       questionText: 'Which of the following is considered a defining property of living organisms?',
       options: [
@@ -132,7 +149,7 @@ export const seedDatabase = async () => {
 
     const q2 = await Question.create({
       textbookId: bio11._id,
-      chapterId: ch1._id,
+      pageId: bioPage7._id,
       pageNumber: 7,
       questionText: 'The correct sequence of taxonomic categories in ascending order is:',
       options: [
@@ -152,7 +169,7 @@ export const seedDatabase = async () => {
 
     const q3 = await Question.create({
       textbookId: chem11._id,
-      chapterId: chemCh1._id,
+      pageId: chemPage12._id,
       pageNumber: 12,
       questionText: 'What is the molar mass of water (H2O)?',
       options: [

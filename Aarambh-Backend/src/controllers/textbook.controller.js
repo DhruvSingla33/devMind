@@ -70,7 +70,7 @@ export const adminListChapterPages = asyncHandler(async (req, res) => {
 });
 
 export const adminCreatePage = asyncHandler(async (req, res) => {
-  const page = await textbookService.createPageWithContent(req.params.chapterId, req.body);
+  const page = await textbookService.createPage(req.params.textbookId, req.body);
   await invalidateCachePattern('textbooks:*');
   sendCreated(res, page, 'Page created successfully');
 });

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Carousel from '../../components/Carousel';
 import Logo from '../../components/Logo';
@@ -28,12 +28,12 @@ const DAILY_TASKS = [
 ];
 
 const STUDY_TOOLS = [
-  { key: 'ai', icon: '🤖', title: 'Aarambh AI', subtitle: 'Ask anything. Get instant help.', tint: '#FBE7EA' },
-  { key: 'quiz', icon: '✍️', title: 'Quiz Creator', subtitle: 'Create your own custom quiz.', tint: '#E7ECFB' },
-  { key: 'predictor', icon: '🧠', title: 'Rank Predictor', subtitle: 'Know your potential and plan better.', tint: '#E4F5EC' },
-  { key: 'chapterwise', icon: '🎓', title: 'Chapterwise PYQ', subtitle: 'Topic-wise PYQs with NCERT mapping.', tint: '#F2E9FB' },
-  { key: 'notes', icon: '📝', title: 'Short Notes', subtitle: 'Quick revision, better retention.', tint: '#FBF0E3' },
-  { key: 'material', icon: '📚', title: 'Study Material', subtitle: 'Handwritten notes, PDFs, & more.', tint: '#E7F0FB' },
+  { key: 'ai', img: require('../../images/tools/ai.png'), title: 'Aarambh AI', subtitle: 'Ask anything. Get instant help.', tint: '#FBE7EA' },
+  { key: 'quiz', img: require('../../images/tools/quiz.png'), title: 'Quiz Creator', subtitle: 'Create your own custom quiz.', tint: '#E7ECFB' },
+  { key: 'predictor', img: require('../../images/tools/predictor.png'), title: 'Rank Predictor', subtitle: 'Know your potential and plan better.', tint: '#E4F5EC' },
+  { key: 'chapterwise', img: require('../../images/tools/chapterwise.png'), title: 'Chapterwise PYQ', subtitle: 'Topic-wise PYQs with NCERT mapping.', tint: '#F2E9FB' },
+  { key: 'notes', img: require('../../images/tools/notes.png'), title: 'Short Notes', subtitle: 'Quick revision, better retention.', tint: '#FBF0E3' },
+  { key: 'material', img: require('../../images/tools/material.png'), title: 'Study Material', subtitle: 'Handwritten notes, PDFs, & more.', tint: '#E7F0FB' },
 ];
 
 const PRACTICE_TILES = [
@@ -388,7 +388,7 @@ export default function HomeScreen({ navigation }) {
               onPress={() => handleStudyToolPress(tool.key)}
               style={[styles.toolCard, { backgroundColor: isDark ? colors.surface : tool.tint }]}
             >
-              <Text style={styles.toolIcon}>{tool.icon}</Text>
+              <Image source={tool.img} style={styles.toolIconImg} resizeMode="contain" />
               <Text style={styles.toolTitle}>{tool.title}</Text>
               <Text style={styles.toolSubtitle}>{tool.subtitle}</Text>
               <Text style={styles.toolArrow}>→</Text>
@@ -826,6 +826,10 @@ const styles = StyleSheet.create({
   },
   toolIcon: {
     fontSize: 22,
+  },
+  toolIconImg: {
+    width: 30,
+    height: 30,
   },
   toolTitle: {
     ...typography.caption,

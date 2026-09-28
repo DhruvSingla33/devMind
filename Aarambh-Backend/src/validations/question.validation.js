@@ -2,7 +2,9 @@ import Joi from 'joi';
 
 export const createQuestionSchema = Joi.object({
   textbookId: Joi.string().required(),
-  chapterId: Joi.string().required(),
+  // Quiz questions belong to a page. Either pass pageId directly, or pass
+  // pageNumber and the server resolves/creates the page under the textbook.
+  pageId: Joi.string(),
   pageNumber: Joi.number().integer().min(1).default(1),
   questionText: Joi.string().trim().required(),
   options: Joi.array()

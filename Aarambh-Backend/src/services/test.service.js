@@ -1,6 +1,7 @@
 import { MockTest } from '../models/mockTest.model.js';
 import { TestAttempt } from '../models/testAttempt.model.js';
 import { Question } from '../models/question.model.js';
+import { Chapter } from '../models/chapter.model.js';
 import { ApiError } from '../utils/ApiError.js';
 
 export const listMockTests = async (query = {}) => {
@@ -16,7 +17,19 @@ export const listMockTests = async (query = {}) => {
 export const createCustomMixQuiz = async ({ chapterIds, questionCount = 30, title, exam = 'NEET' }) => {
   const filter = { isActive: true };
   if (chapterIds && chapterIds.length > 0) {
-    filter.chapterId = { $in: chapterIds };
+    // Chapters are page-ranges now, so map each selected chapter to a
+    // { book + pageNumber range } clause and match questions across all of them.
+    const chapters = await Chapter.find({ _id: { $in: chapterIds } });
+    const ranges = chapters
+      .filter((c) => c.startPage && c.endPage)
+      .map((c) => ({
+        textbookId: c.textbookId,
+        pageNumber: { $gte: c.startPage, $lte: c.endPage },
+      }));
+    if (ranges.length === 0) {
+      throw new ApiError(400, 'Selected chapters have no page range configured');
+    }
+    filter.$or = ranges;
   }
 
   const availableQuestions = await Question.find(filter).limit(Number(questionCount));

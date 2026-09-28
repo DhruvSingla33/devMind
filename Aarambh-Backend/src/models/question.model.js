@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
 
+// A quiz question now belongs to a PAGE (pageId required). The book link
+// (textbookId) is kept denormalized for browsing/filtering. Chapters are just
+// page-ranges on the book, so a question has no chapterId — "which chapter"
+// is derived from the page's pageNumber falling inside a chapter's range.
 const questionSchema = new mongoose.Schema(
   {
     textbookId: {
@@ -7,17 +11,10 @@ const questionSchema = new mongoose.Schema(
       ref: 'Textbook',
       required: true,
     },
-    chapterId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Chapter',
-      required: true,
-    },
-    // Optional link to a specific content Page. Nullable so existing
-    // chapter-level questions (not tied to a page) stay valid.
     pageId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Page',
-      default: null,
+      required: true,
     },
     pageNumber: {
       type: Number,
@@ -76,7 +73,7 @@ const questionSchema = new mongoose.Schema(
   }
 );
 
-questionSchema.index({ chapterId: 1, pageNumber: 1 });
+questionSchema.index({ textbookId: 1, pageNumber: 1 });
 questionSchema.index({ pageId: 1 });
 questionSchema.index({ examTags: 1, pyqYear: 1 });
 

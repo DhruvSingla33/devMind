@@ -120,18 +120,20 @@ router.delete(
   controller.adminDeleteChapter
 );
 
-// Content pages within a chapter (each page holds sections + quiz questions)
+// Content pages now belong to the BOOK (each page holds sections + quiz).
+// Create a page under a textbook:
+router.post(
+  '/admin/textbooks/:textbookId/pages',
+  authenticateJWT,
+  authorizeRoles('admin'),
+  controller.adminCreatePage
+);
+// List the pages that fall inside a chapter's page-range (admin view w/ answers):
 router.get(
   '/admin/chapters/:chapterId/pages',
   authenticateJWT,
   authorizeRoles('admin'),
   controller.adminListChapterPages
-);
-router.post(
-  '/admin/chapters/:chapterId/pages',
-  authenticateJWT,
-  authorizeRoles('admin'),
-  controller.adminCreatePage
 );
 router.put(
   '/admin/pages/:pageId',

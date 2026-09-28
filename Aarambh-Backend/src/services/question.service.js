@@ -1,10 +1,25 @@
 import { Question } from '../models/question.model.js';
+import { Chapter } from '../models/chapter.model.js';
+import { Page } from '../models/page.model.js';
 import { ApiError } from '../utils/ApiError.js';
 
 export const getQuestions = async (query = {}) => {
   const filter = { isActive: true };
 
-  if (query.chapterId) filter.chapterId = query.chapterId;
+  // Questions are page-based now. Support the legacy `chapterId` query param by
+  // translating the chapter into its book + page-range (chapter = page-range).
+  if (query.chapterId) {
+    const chapter = await Chapter.findById(query.chapterId);
+    if (chapter && chapter.startPage && chapter.endPage) {
+      filter.textbookId = chapter.textbookId;
+      filter.pageNumber = { $gte: chapter.startPage, $lte: chapter.endPage };
+    } else {
+      // Unknown chapter or no range set -> no questions.
+      filter.pageNumber = { $lt: 0 };
+    }
+  }
+  if (query.textbookId) filter.textbookId = query.textbookId;
+  if (query.pageId) filter.pageId = query.pageId;
   if (query.pageNumber) filter.pageNumber = Number(query.pageNumber);
   if (query.exam) filter.examTags = query.exam;
   if (query.isHighProbability !== undefined) {
@@ -24,8 +39,8 @@ export const getQuestions = async (query = {}) => {
     // revealed per-question via submitAnswerCheck(), so browsing the list
     // (now public, no login required) can never leak the correct option.
     .select('-correctOptionIndex -explanation -ncertRefPage')
-    .populate('chapterId', 'chapterNumber title')
     .populate('textbookId', 'title code subject')
+    .populate('pageId', 'pageNumber title')
     .sort({ pageNumber: 1, createdAt: -1 })
     .skip(skip)
     .limit(limit);
@@ -59,15 +74,36 @@ export const submitAnswerCheck = async (questionId, selectedOption) => {
 };
 
 // Admin Methods
+
+// Quiz questions belong to a page. If the caller didn't pass a pageId, resolve
+// (or create) the page for { textbookId, pageNumber } so the question is always
+// page-anchored without the admin needing to pre-create the page.
+const resolvePageId = async (data) => {
+  if (data.pageId) return data.pageId;
+  if (!data.textbookId) throw new ApiError(400, 'textbookId is required');
+  const pageNumber = Number(data.pageNumber) || 1;
+  let page = await Page.findOne({ textbookId: data.textbookId, pageNumber });
+  if (!page) {
+    page = await Page.create({ textbookId: data.textbookId, pageNumber, order: pageNumber });
+  }
+  return page._id;
+};
+
 export const createQuestion = async (data) => {
-  return await Question.create(data);
+  const pageId = await resolvePageId(data);
+  return await Question.create({ ...data, pageId });
 };
 
 export const bulkCreateQuestions = async (questionsArray) => {
   if (!Array.isArray(questionsArray) || questionsArray.length === 0) {
     throw new ApiError(400, 'Questions array must be a non-empty array');
   }
-  return await Question.insertMany(questionsArray);
+  const withPages = [];
+  for (const q of questionsArray) {
+    const pageId = await resolvePageId(q);
+    withPages.push({ ...q, pageId });
+  }
+  return await Question.insertMany(withPages);
 };
 
 export const updateQuestion = async (id, data) => {

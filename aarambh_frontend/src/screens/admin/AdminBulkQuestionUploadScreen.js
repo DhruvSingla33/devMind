@@ -21,7 +21,7 @@ const PLACEHOLDER = `[
 ]`;
 
 export default function AdminBulkQuestionUploadScreen({ route, navigation }) {
-  const { textbookId, chapterId } = route.params;
+  const { textbookId } = route.params;
   const [raw, setRaw] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -59,7 +59,7 @@ export default function AdminBulkQuestionUploadScreen({ route, navigation }) {
 
     const questions = parsed.map((q) => ({
       textbookId: q.textbookId || textbookId,
-      chapterId: q.chapterId || chapterId,
+      // Quiz belongs to a page; backend resolves/creates it from pageNumber.
       pageNumber: q.pageNumber || 1,
       questionText: q.questionText,
       options: q.options,
@@ -89,8 +89,8 @@ export default function AdminBulkQuestionUploadScreen({ route, navigation }) {
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={typography.h2}>Bulk import questions</Text>
         <Text style={[typography.bodyMuted, styles.subtitle]}>
-          Paste a JSON array of questions below. Each one is added to the chapter you came from
-          unless it includes its own textbookId/chapterId.
+          Paste a JSON array of questions below. Each one is added to this book at its
+          pageNumber (a page is created if needed) unless it includes its own textbookId/pageNumber.
         </Text>
 
         <TextField

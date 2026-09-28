@@ -5,6 +5,18 @@ import { Section } from '../models/section.model.js';
 import { Question } from '../models/question.model.js';
 import { ApiError } from '../utils/ApiError.js';
 
+// A chapter is a labelled page-range on its book. This builds the Page query
+// that selects the book's pages belonging to the chapter. If the range isn't
+// set yet, an impossible filter is returned so the chapter simply shows no
+// pages (admin must set startPage/endPage) instead of leaking the whole book.
+const pageRangeFilter = (chapter) => {
+  const { textbookId, startPage, endPage } = chapter;
+  if (!startPage || !endPage) {
+    return { textbookId, pageNumber: { $lt: 0 } };
+  }
+  return { textbookId, pageNumber: { $gte: startPage, $lte: endPage } };
+};
+
 export const getAllTextbooks = async (filter = {}) => {
   const query = { isActive: true };
   if (filter.subject) query.subject = filter.subject;
@@ -47,12 +59,13 @@ export const getChapterDetails = async (code, chapterNumber) => {
     throw new ApiError(404, 'Chapter not found');
   }
 
-  // Load all content pages of this chapter, then all their sections in one
-  // query and nest each section under its page (avoids an N+1 per page).
-  const pages = await Page.find({ chapterId: chapter._id, isActive: true }).sort({
-    order: 1,
-    pageNumber: 1,
-  });
+  // Pages belong to the BOOK now; a chapter is just a page-range. Load the
+  // book's pages whose pageNumber falls inside this chapter's range, then all
+  // their sections in one query and nest each section under its page.
+  const pages = await Page.find({
+    ...pageRangeFilter(chapter),
+    isActive: true,
+  }).sort({ order: 1, pageNumber: 1 });
 
   const pageIds = pages.map((p) => p._id);
   const sections = await Section.find({ pageId: { $in: pageIds }, isActive: true }).sort({
@@ -116,8 +129,16 @@ export const deleteTextbook = async (id) => {
   if (!textbook) {
     throw new ApiError(404, 'Textbook not found');
   }
-  await Chapter.deleteMany({ textbookId: id });
-  return { message: 'Textbook and associated chapters deleted' };
+  // Pages/sections/questions belong to the book directly now, so cascade them.
+  const pages = await Page.find({ textbookId: id }).select('_id');
+  const pageIds = pages.map((p) => p._id);
+  await Promise.all([
+    Chapter.deleteMany({ textbookId: id }),
+    Page.deleteMany({ textbookId: id }),
+    Question.deleteMany({ textbookId: id }),
+    Section.deleteMany({ pageId: { $in: pageIds } }),
+  ]);
+  return { message: 'Textbook and all its chapters, pages, sections & quiz deleted' };
 };
 
 export const createChapter = async (textbookId, data) => {
@@ -154,7 +175,7 @@ export const getChapterPages = async (chapterId) => {
     throw new ApiError(404, 'Chapter not found');
   }
 
-  const pages = await Page.find({ chapterId }).sort({ order: 1, pageNumber: 1 });
+  const pages = await Page.find(pageRangeFilter(chapter)).sort({ order: 1, pageNumber: 1 });
   const pageIds = pages.map((p) => p._id);
 
   const sections = await Section.find({ pageId: { $in: pageIds } }).sort({ order: 1 });
@@ -185,30 +206,28 @@ export const getChapterPages = async (chapterId) => {
 // Mongo standalone has no multi-doc transactions, so on any failure after the
 // Page is created we best-effort roll back the child docs and the page itself
 // to avoid leaving a half-built page behind.
-export const createPageWithContent = async (chapterId, data = {}) => {
-  const chapter = await Chapter.findById(chapterId);
-  if (!chapter) {
-    throw new ApiError(404, 'Chapter not found');
+export const createPage = async (textbookId, data = {}) => {
+  const textbook = await Textbook.findById(textbookId);
+  if (!textbook) {
+    throw new ApiError(404, 'Textbook not found');
   }
 
   // Resolve page number: use the given one, else auto-increment past the
-  // chapter's current highest page.
+  // book's current highest page.
   let pageNumber = Number(data.pageNumber);
   if (!Number.isInteger(pageNumber) || pageNumber < 1) {
-    const last = await Page.findOne({ chapterId }).sort({ pageNumber: -1 });
+    const last = await Page.findOne({ textbookId }).sort({ pageNumber: -1 });
     pageNumber = last ? last.pageNumber + 1 : 1;
   }
 
-  const clash = await Page.findOne({ chapterId, pageNumber });
+  const clash = await Page.findOne({ textbookId, pageNumber });
   if (clash) {
-    throw new ApiError(409, `Page number ${pageNumber} already exists in this chapter`);
+    throw new ApiError(409, `Page number ${pageNumber} already exists in this book`);
   }
 
-  const textbookId = chapter.textbookId;
   let page;
   try {
     page = await Page.create({
-      chapterId,
       textbookId,
       pageNumber,
       title: (data.title || '').trim(),
@@ -218,7 +237,6 @@ export const createPageWithContent = async (chapterId, data = {}) => {
     const sectionsInput = Array.isArray(data.sections) ? data.sections : [];
     const sectionDocs = sectionsInput.map((s, index) => ({
       pageId: page._id,
-      chapterId,
       heading: (s.heading || '').trim(),
       order: Number.isInteger(s.order) ? s.order : index,
       contents: normalizeContents(s.contents),
@@ -228,7 +246,6 @@ export const createPageWithContent = async (chapterId, data = {}) => {
     const quizInput = Array.isArray(data.quiz) ? data.quiz : [];
     const quizDocs = quizInput.map((q) => ({
       textbookId,
-      chapterId,
       pageId: page._id,
       pageNumber,
       questionText: (q.questionText || '').trim(),
@@ -269,14 +286,14 @@ export const updatePageWithContent = async (pageId, data = {}) => {
     throw new ApiError(404, 'Page not found');
   }
 
-  const { chapterId, textbookId } = page;
+  const { textbookId } = page;
 
   let pageNumber = page.pageNumber;
   const desired = Number(data.pageNumber);
   if (Number.isInteger(desired) && desired >= 1 && desired !== page.pageNumber) {
-    const clash = await Page.findOne({ chapterId, pageNumber: desired, _id: { $ne: pageId } });
+    const clash = await Page.findOne({ textbookId, pageNumber: desired, _id: { $ne: pageId } });
     if (clash) {
-      throw new ApiError(409, `Page number ${desired} already exists in this chapter`);
+      throw new ApiError(409, `Page number ${desired} already exists in this book`);
     }
     pageNumber = desired;
   }
@@ -289,7 +306,6 @@ export const updatePageWithContent = async (pageId, data = {}) => {
   const sectionsInput = Array.isArray(data.sections) ? data.sections : [];
   const sectionDocs = sectionsInput.map((s, index) => ({
     pageId,
-    chapterId,
     heading: (s.heading || '').trim(),
     order: Number.isInteger(s.order) ? s.order : index,
     contents: normalizeContents(s.contents),
@@ -298,7 +314,6 @@ export const updatePageWithContent = async (pageId, data = {}) => {
   const quizInput = Array.isArray(data.quiz) ? data.quiz : [];
   const quizDocs = quizInput.map((q) => ({
     textbookId,
-    chapterId,
     pageId,
     pageNumber,
     questionText: (q.questionText || '').trim(),

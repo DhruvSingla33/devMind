@@ -35,14 +35,16 @@ export const adminUpdateChapter = (chapterId, payload) =>
 export const adminDeleteChapter = (chapterId) =>
   apiClient.delete(`/textbooks/admin/chapters/${chapterId}`).then((res) => res.data.data);
 
-// --- Admin: content pages (sections + quiz) inside a chapter ---
+// --- Admin: content pages (sections + quiz) ---
+// Pages belong to the BOOK now. A chapter is just a page-range, so listing a
+// chapter's pages returns the book pages whose number falls in that range.
 
 export const adminListChapterPages = (chapterId) =>
   apiClient.get(`/textbooks/admin/chapters/${chapterId}/pages`).then((res) => res.data.data);
 
-export const adminCreatePage = (chapterId, payload) =>
+export const adminCreatePage = (textbookId, payload) =>
   apiClient
-    .post(`/textbooks/admin/chapters/${chapterId}/pages`, payload)
+    .post(`/textbooks/admin/textbooks/${textbookId}/pages`, payload)
     .then((res) => res.data.data);
 
 export const adminUpdatePage = (pageId, payload) =>

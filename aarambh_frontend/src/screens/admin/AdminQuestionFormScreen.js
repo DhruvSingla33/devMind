@@ -13,7 +13,7 @@ const EXAM_TAGS = ['NEET', 'JEE', 'BOARDS'];
 const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
 
 export default function AdminQuestionFormScreen({ route, navigation }) {
-  const { textbookId, chapterId, question: existing } = route.params;
+  const { textbookId, question: existing } = route.params;
   const isEditing = !!existing;
 
   const [questionText, setQuestionText] = useState(existing?.questionText || '');
@@ -62,7 +62,8 @@ export default function AdminQuestionFormScreen({ route, navigation }) {
     setIsSubmitting(true);
     const payload = {
       textbookId,
-      chapterId,
+      // Quiz belongs to a page: the backend resolves/creates the page for this
+      // textbook + pageNumber (chapters are just page-ranges now).
       pageNumber: Number(pageNumber) || 1,
       questionText: questionText.trim(),
       options: options.map((text) => ({ text: text.trim() })),

@@ -41,12 +41,6 @@ const sectionSchema = new mongoose.Schema(
       ref: 'Page',
       required: true,
     },
-    // Denormalized parent ref for fetching all sections of a chapter directly.
-    chapterId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Chapter',
-      required: true,
-    },
     heading: {
       type: String,
       default: '',
