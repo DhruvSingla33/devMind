@@ -1,3 +1,4 @@
+import { MulterError } from 'multer';
 import { ApiError } from '../utils/ApiError.js';
 
 /**
@@ -5,6 +6,15 @@ import { ApiError } from '../utils/ApiError.js';
  */
 export const errorHandler = (err, req, res, next) => {
   let error = err;
+
+  // Multer errors (e.g. LIMIT_FILE_SIZE on an oversized upload) are client
+  // mistakes, not server faults — surface them as 400s instead of defaulting
+  // to 500 below.
+  if (error instanceof MulterError) {
+    const message =
+      error.code === 'LIMIT_FILE_SIZE' ? 'File is too large.' : `Upload error: ${error.message}`;
+    error = new ApiError(400, message);
+  }
 
   if (!(error instanceof ApiError)) {
     const statusCode = error.statusCode || 500;

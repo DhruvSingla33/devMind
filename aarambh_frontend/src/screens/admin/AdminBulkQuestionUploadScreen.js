@@ -1,82 +1,47 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
-import TextField from '../../components/TextField';
 import Button from '../../components/Button';
-import { adminBulkCreateQuestions } from '../../api/questions.api';
+import { adminImportQuestionsCsv } from '../../api/questions.api';
 import { extractErrorMessage } from '../../api/client';
+import { pickFile } from '../../utils/webUpload';
 import colors from '../../theme/colors';
 import { spacing, typography } from '../../theme/theme';
 
-const PLACEHOLDER = `[
-  {
-    "questionText": "Which of the following is a defining property of living organisms?",
-    "options": [{ "text": "Growth" }, { "text": "Reproduction" }, { "text": "Metabolism" }, { "text": "Self-increase in mass" }],
-    "correctOptionIndex": 2,
-    "explanation": "Metabolism is a defining feature of all living organisms without exception.",
-    "difficulty": "easy",
-    "examTags": ["NEET"],
-    "isHighProbability": true
-  }
-]`;
-
+// CSV columns the backend expects (matched case/space/dot-insensitively):
+//   Question No., Question, Options, Answer, Solution, NCERT Page, PYQ Year
+// Options are ";"-separated inside one cell; Answer is 1-4 / A-D / exact text;
+// NCERT Page = the book page number the quiz belongs to.
 export default function AdminBulkQuestionUploadScreen({ route, navigation }) {
-  const { textbookId } = route.params;
-  const [raw, setRaw] = useState('');
+  const { textbookId, bookTitle } = route.params;
+  const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [successCount, setSuccessCount] = useState(null);
+  const [result, setResult] = useState(null);
 
-  const handleSubmit = async () => {
+  const handlePick = async () => {
     setError(null);
-    setSuccessCount(null);
-
-    let parsed;
+    setResult(null);
     try {
-      parsed = JSON.parse(raw);
+      const picked = await pickFile('.csv,text/csv');
+      setFile(picked);
     } catch (err) {
-      setError('That is not valid JSON — check for a missing bracket or comma.');
+      if (err?.message !== 'No file selected') setError(extractErrorMessage(err));
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      setError('Choose a CSV file first.');
       return;
     }
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      setError('Paste a JSON array with at least one question object.');
-      return;
-    }
-
-    const invalidIndex = parsed.findIndex(
-      (q) =>
-        !q.questionText ||
-        !Array.isArray(q.options) ||
-        q.options.length < 2 ||
-        typeof q.correctOptionIndex !== 'number'
-    );
-    if (invalidIndex !== -1) {
-      setError(
-        `Question ${invalidIndex + 1} is missing questionText, options, or correctOptionIndex.`
-      );
-      return;
-    }
-
-    const questions = parsed.map((q) => ({
-      textbookId: q.textbookId || textbookId,
-      // Quiz belongs to a page; backend resolves/creates it from pageNumber.
-      pageNumber: q.pageNumber || 1,
-      questionText: q.questionText,
-      options: q.options,
-      correctOptionIndex: q.correctOptionIndex,
-      explanation: q.explanation || '',
-      ncertRefPage: q.ncertRefPage || '',
-      difficulty: q.difficulty || 'medium',
-      examTags: q.examTags || ['NEET'],
-      pyqYear: q.pyqYear ?? null,
-      isHighProbability: q.isHighProbability ?? true,
-    }));
-
+    setError(null);
+    setResult(null);
     setIsSubmitting(true);
     try {
-      const created = await adminBulkCreateQuestions(questions);
-      setSuccessCount(created.length);
-      setRaw('');
+      const data = await adminImportQuestionsCsv(file, textbookId);
+      setResult(data);
+      setFile(null);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -87,26 +52,66 @@ export default function AdminBulkQuestionUploadScreen({ route, navigation }) {
   return (
     <ScreenContainer maxWidth={720}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={typography.h2}>Bulk import questions</Text>
+        <Text style={typography.h2}>Upload quiz CSV</Text>
         <Text style={[typography.bodyMuted, styles.subtitle]}>
-          Paste a JSON array of questions below. Each one is added to this book at its
-          pageNumber (a page is created if needed) unless it includes its own textbookId/pageNumber.
+          {bookTitle ? `Adding quizzes to “${bookTitle}”. ` : ''}
+          Each row becomes a question on this book at its NCERT (book) page — a page is
+          created automatically if it doesn’t exist yet.
         </Text>
 
-        <TextField
-          value={raw}
-          onChangeText={setRaw}
-          placeholder={PLACEHOLDER}
-          multiline
-          numberOfLines={16}
+        <View style={styles.cols}>
+          <Text style={styles.colsTitle}>Expected columns</Text>
+          <Text style={styles.colsText}>
+            Question No., Question, Options, Answer, Solution, NCERT Page, PYQ Year
+          </Text>
+          <Text style={styles.colsHint}>
+            Options: “1) A ; 2) B ; 3) C ; 4) D”. Answer: 1-4, A-D, or the exact option text.
+          </Text>
+        </View>
+
+        <Button
+          title={file ? `Selected: ${file.name}` : 'Choose CSV file'}
+          variant="outline"
+          onPress={handlePick}
         />
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
-        {successCount != null ? (
-          <Text style={styles.success}>✓ Imported {successCount} questions.</Text>
+
+        {result ? (
+          <View style={styles.result}>
+            <Text style={styles.success}>✓ Imported {result.imported} of {result.totalRows} rows.</Text>
+            {result.pagesCreated?.length ? (
+              <Text style={styles.note}>New pages created: {result.pagesCreated.join(', ')}</Text>
+            ) : null}
+            {result.pagesOutsideChapter?.length ? (
+              <Text style={styles.warn}>
+                ⚠ Pages outside any chapter range (won’t show under a chapter yet):{' '}
+                {result.pagesOutsideChapter.join(', ')}
+              </Text>
+            ) : null}
+            {result.errors?.length ? (
+              <View style={styles.errorsBox}>
+                <Text style={styles.errorsTitle}>{result.errors.length} row(s) skipped:</Text>
+                {result.errors.slice(0, 20).map((e) => (
+                  <Text key={e.line} style={styles.rowError}>
+                    Row {e.line}: {e.error}
+                  </Text>
+                ))}
+                {result.errors.length > 20 ? (
+                  <Text style={styles.rowError}>…and {result.errors.length - 20} more.</Text>
+                ) : null}
+              </View>
+            ) : null}
+          </View>
         ) : null}
 
-        <Button title="Import questions" onPress={handleSubmit} loading={isSubmitting} />
+        <Button
+          title="Import questions"
+          onPress={handleUpload}
+          loading={isSubmitting}
+          disabled={!file}
+          style={styles.uploadButton}
+        />
         <Button title="Done" variant="ghost" onPress={() => navigation.goBack()} style={styles.doneButton} />
       </ScrollView>
     </ScreenContainer>
@@ -122,14 +127,62 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     marginBottom: spacing.md,
   },
+  cols: {
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: 12,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+  },
+  colsTitle: {
+    ...typography.caption,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: spacing.xs,
+  },
+  colsText: {
+    ...typography.body,
+    fontWeight: '700',
+  },
+  colsHint: {
+    ...typography.bodyMuted,
+    marginTop: spacing.xs,
+  },
   error: {
     color: colors.danger,
-    marginBottom: spacing.md,
+    marginTop: spacing.md,
+  },
+  result: {
+    marginTop: spacing.md,
   },
   success: {
     color: colors.success,
     fontWeight: '700',
-    marginBottom: spacing.md,
+    marginBottom: spacing.xs,
+  },
+  note: {
+    ...typography.bodyMuted,
+    marginBottom: spacing.xs,
+  },
+  warn: {
+    color: colors.warning || colors.danger,
+    marginBottom: spacing.xs,
+  },
+  errorsBox: {
+    marginTop: spacing.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: 12,
+    padding: spacing.md,
+  },
+  errorsTitle: {
+    fontWeight: '700',
+    marginBottom: spacing.xs,
+  },
+  rowError: {
+    ...typography.bodyMuted,
+    color: colors.danger,
+  },
+  uploadButton: {
+    marginTop: spacing.lg,
   },
   doneButton: {
     marginTop: spacing.sm,

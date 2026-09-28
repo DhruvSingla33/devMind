@@ -104,12 +104,34 @@ function mapPage(page) {
 export default function mapStudyData(data) {
   if (!data) return { chapter: null, pages: [] };
   const { textbook, chapter, pages } = data;
+
+  const mapped = (pages || []).map(mapPage);
+
+  // A chapter is a page-range (startPage..endPage) on the book, but the API only
+  // returns Page docs that actually exist (the ones that have sections or a
+  // quiz). So lay out EVERY page in the range and merge in any existing doc by
+  // pageNumber — pages with no doc become empty placeholders. This lets the
+  // reader walk 1..N continuously and show the quiz where it exists (empty
+  // otherwise) instead of skipping the gaps.
+  const start = Number(chapter?.startPage);
+  const end = Number(chapter?.endPage);
+  let readerPages;
+  if (Number.isInteger(start) && Number.isInteger(end) && end >= start) {
+    const byNumber = new Map(mapped.map((p) => [p.pageNumber, p]));
+    readerPages = [];
+    for (let n = start; n <= end; n++) {
+      readerPages.push(byNumber.get(n) || { pageNumber: n, order: n, sections: [], mcqs: [] });
+    }
+  } else {
+    readerPages = mapped.slice().sort(byOrder);
+  }
+
   return {
     chapter: {
       ...chapter,
       // ModuleHeader shows the subject; it lives on the textbook, not the chapter.
       subject: chapter?.subject || textbook?.subject || '',
     },
-    pages: (pages || []).slice().sort(byOrder).map(mapPage),
+    pages: readerPages,
   };
 }

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as controller from '../controllers/question.controller.js';
 import { authenticateJWT, authorizeRoles } from '../middlewares/auth.middleware.js';
+import { csvUpload } from '../middlewares/localUpload.middleware.js';
 
 const router = Router();
 
@@ -73,6 +74,14 @@ router.post('/submit-answer', controller.checkAnswer);
 // Admin Routes (Protected)
 router.post('/admin', authenticateJWT, authorizeRoles('admin'), controller.adminCreateQuestion);
 router.post('/admin/bulk', authenticateJWT, authorizeRoles('admin'), controller.adminBulkCreateQuestions);
+// Textbook-level CSV quiz upload. multipart/form-data: file=<csv>, textbookId=<id>.
+router.post(
+  '/admin/import-csv',
+  authenticateJWT,
+  authorizeRoles('admin'),
+  csvUpload.single('file'),
+  controller.adminImportQuestionsCsv
+);
 router.put('/admin/:id', authenticateJWT, authorizeRoles('admin'), controller.adminUpdateQuestion);
 router.delete('/admin/:id', authenticateJWT, authorizeRoles('admin'), controller.adminDeleteQuestion);
 

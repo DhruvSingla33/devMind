@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
@@ -104,6 +104,7 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <ScreenContainer maxWidth={640}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={[styles.hero, { backgroundColor: hexToRgba(colors.primary, 0.08) }]}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initial}</Text>
@@ -193,11 +194,15 @@ export default function ProfileScreen({ navigation }) {
         style={styles.resetPassword}
       />
       <Button title="Log out" variant="outline" onPress={logout} style={styles.logout} />
+      </ScrollView>
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
+  content: {
+    paddingBottom: spacing.xl,
+  },
   hero: {
     alignItems: 'center',
     paddingVertical: spacing.xl,

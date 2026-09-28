@@ -36,10 +36,10 @@ const StudySection = ({ studyData, loadPdfUrl }) => {
   const hasText = pages.length > 0;
   const hasPdf = typeof loadPdfUrl === "function";
 
-  const [viewMode, setViewMode] = useState(hasText ? "text" : "pdf");
+  // Default to the PDF view (the book page), with the quiz beside it.
+  const [viewMode, setViewMode] = useState(hasPdf ? "pdf" : "text");
   const [pdfUrl, setPdfUrl] = useState(null);
   const [pdfError, setPdfError] = useState(null);
-  const [pdfPage, setPdfPage] = useState(1);
   const [pdfPageCount, setPdfPageCount] = useState(0);
   // Bumped by "Try again" to re-request the URL / remount the viewer.
   const [pdfAttempt, setPdfAttempt] = useState(0);
@@ -65,9 +65,43 @@ const StudySection = ({ studyData, loadPdfUrl }) => {
     setPdfError(null);
     setPdfAttempt((prev) => prev + 1);
   };
-  const currentPage = pages[currentPageIndex];
-  const hasMcqs = (currentPage?.mcqs?.length || 0) > 0;
-  const showTwoColumn = isWide && hasMcqs;
+  const showPdf = viewMode === "pdf" && hasPdf;
+
+  // ONE page model for the whole reader. A single index walks the chapter's page
+  // range (startPage..endPage, laid out densely in mapStudyData), and everything
+  // follows it: "Page X of N", the notes page, the PDF page, and the quiz on the
+  // right are always the same book page. The Notes/PDF toggle only swaps what's
+  // shown on the LEFT — it never changes which page you're on.
+  const chapterStartPage = Number(studyData?.chapter?.startPage) || 1;
+
+  // Fallback: a chapter with a PDF but no page docs at all — once the PDF's
+  // length is known, synthesise a page list from it so navigation still works.
+  const effectivePages =
+    pages.length > 0
+      ? pages
+      : pdfPageCount > 0
+        ? Array.from({ length: pdfPageCount }, (_, i) => ({
+            pageNumber: chapterStartPage + i,
+            sections: [],
+            mcqs: [],
+          }))
+        : [];
+
+  const totalPages = effectivePages.length;
+  const currentPage = effectivePages[currentPageIndex];
+  const currentBookPage = currentPage?.pageNumber ?? chapterStartPage + currentPageIndex;
+
+  // The chapter PDF is sliced from the book starting at startPage, so the PDF
+  // page showing this book page is (bookPage - startPage + 1). Clamp to the real
+  // PDF length once we know it (the slice can be a page shorter than the range).
+  const pdfPageForBook = Math.max(1, currentBookPage - chapterStartPage + 1);
+  const pdfPage = pdfPageCount > 0 ? Math.min(pdfPageForBook, pdfPageCount) : pdfPageForBook;
+
+  const activeMcqs = currentPage?.mcqs || [];
+  const hasMcqs = activeMcqs.length > 0;
+  // Wide screens always split: left = the page (notes or PDF), right = this
+  // page's quiz (MCQPanel shows its own empty state when the page has none).
+  const showTwoColumn = isWide;
 
   // Resizable split between the page content (left) and the MCQ panel (right).
   // `leftWidth` is null until the row is measured; before then the columns fall
@@ -133,11 +167,11 @@ const StudySection = ({ studyData, loadPdfUrl }) => {
     pageScrollRef.current?.scrollTo(options);
     mcqScrollRef.current?.scrollTo(options);
     pdfScrollRef.current?.scrollTo(options);
-  }, [currentPageIndex, pdfPage]);
+  }, [currentPageIndex, viewMode]);
 
   const handleNext = () => {
     setCurrentPageIndex((prev) => {
-      if (prev >= pages.length - 1) {
+      if (prev >= totalPages - 1) {
         return prev;
       }
 
@@ -154,8 +188,6 @@ const StudySection = ({ studyData, loadPdfUrl }) => {
       return prev - 1;
     });
   };
-
-  const showPdf = viewMode === "pdf" && hasPdf;
 
   if (!currentPage && !showPdf) {
     return (
@@ -202,70 +234,53 @@ const StudySection = ({ studyData, loadPdfUrl }) => {
 
       <ModuleHeader
         chapter={studyData.chapter}
-        currentPage={showPdf ? pdfPage : currentPage.pageNumber}
-        totalPages={showPdf ? pdfPageCount : pages.length}
+        currentPage={currentBookPage}
+        totalPages={totalPages}
         viewMode={hasText && hasPdf ? viewMode : undefined}
         onViewModeChange={setViewMode}
       />
 
-      {/* Main Study Area */}
+      {/* Shared page navigation — ONE counter (1..N over the chapter range) for
+          both the notes and PDF views. */}
+      {totalPages > 0 ? (
+        <PageNavigation
+          currentPage={currentPageIndex}
+          totalPages={totalPages}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+        />
+      ) : null}
 
-      {showPdf ? (
-        <View style={styles.stackedContent}>
-          {pdfPageCount > 0 && !pdfError ? (
-            <PageNavigation
-              currentPage={pdfPage - 1}
-              totalPages={pdfPageCount}
-              onPrevious={() => setPdfPage((prev) => Math.max(1, prev - 1))}
-              onNext={() => setPdfPage((prev) => Math.min(pdfPageCount, prev + 1))}
-            />
-          ) : null}
-
-          {/* Web draws the page on a canvas that grows with its width, so it
-              scrolls here; the native WebView scrolls and zooms by itself. */}
-          {Platform.OS === "web" ? (
-            <ScrollView
-              ref={pdfScrollRef}
-              style={styles.columnScroll}
-              contentContainerStyle={styles.scrollContent}
-            >
-              <View style={styles.pdfColumn}>{pdfContent}</View>
-            </ScrollView>
-          ) : (
-            <View style={styles.pdfNative}>{pdfContent}</View>
-          )}
-        </View>
-      ) : showTwoColumn ? (
+      {/* Main Study Area. The LEFT pane switches between the notes/section
+          content and the PDF for the SAME book page; the RIGHT pane always shows
+          that page's quiz (empty-state panel when the page has none). */}
+      {showTwoColumn ? (
         <View
           style={styles.wideContent}
           onLayout={(e) => setRowWidth(e.nativeEvent.layout.width)}
         >
-          {/* Left - Book/Page (page navigation pinned on top) */}
-
-          <View
-            style={[
-              leftWidth == null ? styles.leftColumnFlex : { width: leftWidth },
-            ]}
-          >
-            <PageNavigation
-              currentPage={currentPageIndex}
-              totalPages={pages.length}
-              onPrevious={handlePrevious}
-              onNext={handleNext}
-            />
-
-            <ScrollView
-              ref={pageScrollRef}
-              style={styles.columnScroll}
-              contentContainerStyle={styles.scrollContent}
-              showsVerticalScrollIndicator={false}
-            >
-              <PageRenderer page={currentPage} />
-            </ScrollView>
+          {/* Left — notes or PDF for the current page */}
+          <View style={[leftWidth == null ? styles.leftColumnFlex : { width: leftWidth }]}>
+            {showPdf && Platform.OS !== "web" ? (
+              // Native PDF WebView scrolls/zooms itself — no ScrollView wrapper.
+              <View style={styles.pdfNative}>{pdfContent}</View>
+            ) : (
+              <ScrollView
+                ref={showPdf ? pdfScrollRef : pageScrollRef}
+                style={styles.columnScroll}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+              >
+                {showPdf ? (
+                  <View style={styles.pdfColumn}>{pdfContent}</View>
+                ) : (
+                  <PageRenderer page={currentPage} />
+                )}
+              </ScrollView>
+            )}
           </View>
 
           {/* Draggable divider */}
-
           <View
             {...panResponder.panHandlers}
             style={[styles.divider, { width: DIVIDER_WIDTH }]}
@@ -275,44 +290,43 @@ const StudySection = ({ studyData, loadPdfUrl }) => {
             <View style={styles.dividerGrip} />
           </View>
 
-          {/* Right - MCQs */}
-
+          {/* Right — this page's quiz */}
           <ScrollView
             ref={mcqScrollRef}
             style={styles.wideMcq}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
-            <MCQPanel questions={currentPage.mcqs || []} />
+            <MCQPanel questions={activeMcqs} />
           </ScrollView>
         </View>
       ) : (
+        // Narrow screens: page on top, quiz stacked below (web; a native PDF owns
+        // its own scroll, so nothing stacks under it there).
         <View style={styles.stackedContent}>
-          {/* Page navigation pinned on top of the content */}
+          {showPdf && Platform.OS !== "web" ? (
+            <View style={styles.pdfNative}>{pdfContent}</View>
+          ) : (
+            <ScrollView
+              ref={stackedScrollRef}
+              style={styles.columnScroll}
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {showPdf ? (
+                <View style={styles.pdfColumn}>{pdfContent}</View>
+              ) : (
+                <PageRenderer page={currentPage} />
+              )}
 
-          <PageNavigation
-            currentPage={currentPageIndex}
-            totalPages={pages.length}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
-          />
-
-          <ScrollView
-            ref={stackedScrollRef}
-            style={styles.columnScroll}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            <PageRenderer page={currentPage} />
-
-            {hasMcqs ? (
-              <>
-                <View style={styles.stackedDivider} />
-
-                <MCQPanel questions={currentPage.mcqs || []} />
-              </>
-            ) : null}
-          </ScrollView>
+              {hasMcqs ? (
+                <>
+                  <View style={styles.stackedDivider} />
+                  <MCQPanel questions={activeMcqs} />
+                </>
+              ) : null}
+            </ScrollView>
+          )}
         </View>
       )}
     </View>

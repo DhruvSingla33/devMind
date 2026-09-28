@@ -92,20 +92,35 @@ export default function AdminQuestionListScreen({ navigation }) {
       </View>
 
       {selectedBook ? (
-        <View style={styles.pickerRow}>
-          <Text style={styles.label}>Chapter</Text>
-          <View style={styles.chipRow}>
-            {chapters.map((chapter) => (
-              <Button
-                key={chapter._id}
-                title={`${chapter.chapterNumber}. ${chapter.title}`}
-                variant={selectedChapter?._id === chapter._id ? 'primary' : 'outline'}
-                onPress={() => selectChapter(chapter)}
-                style={styles.chip}
-              />
-            ))}
+        <>
+          <View style={styles.actionsRow}>
+            <Button
+              title="Upload quiz CSV"
+              onPress={() =>
+                navigation.navigate('AdminBulkQuestionUpload', {
+                  textbookId: selectedBook._id,
+                  bookTitle: selectedBook.title,
+                })
+              }
+              style={styles.actionButton}
+            />
           </View>
-        </View>
+
+          <View style={styles.pickerRow}>
+            <Text style={styles.label}>Chapter</Text>
+            <View style={styles.chipRow}>
+              {chapters.map((chapter) => (
+                <Button
+                  key={chapter._id}
+                  title={`${chapter.chapterNumber}. ${chapter.title}`}
+                  variant={selectedChapter?._id === chapter._id ? 'primary' : 'outline'}
+                  onPress={() => selectChapter(chapter)}
+                  style={styles.chip}
+                />
+              ))}
+            </View>
+          </View>
+        </>
       ) : null}
 
       {selectedChapter ? (
@@ -115,17 +130,6 @@ export default function AdminQuestionListScreen({ navigation }) {
               title="+ New question"
               onPress={() =>
                 navigation.navigate('AdminQuestionForm', {
-                  textbookId: selectedBook._id,
-                  chapterId: selectedChapter._id,
-                })
-              }
-              style={styles.actionButton}
-            />
-            <Button
-              title="Bulk import (JSON)"
-              variant="outline"
-              onPress={() =>
-                navigation.navigate('AdminBulkQuestionUpload', {
                   textbookId: selectedBook._id,
                   chapterId: selectedChapter._id,
                 })
