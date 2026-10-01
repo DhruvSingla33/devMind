@@ -6,14 +6,16 @@ import Button from '../../components/Button';
 import Card from '../../components/Card';
 import { adminCreatePulse } from '../../api/pulse.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 function todayIso() {
   return new Date().toISOString().slice(0, 10);
 }
 
 export default function AdminPulseFormScreen() {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [date, setDate] = useState(todayIso());
   const [title, setTitle] = useState('Aarambh Daily 5-Minute Memory Workout');
   const [puzzles, setPuzzles] = useState([{ term: '', definition: '', category: 'Formula' }]);
@@ -114,7 +116,7 @@ export default function AdminPulseFormScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

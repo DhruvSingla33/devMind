@@ -1,8 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colors, insets, radius, spacing } from "../../theme/theme";
+import { insets, radius, spacing } from "../../theme/theme";
+import { useThemedStyles } from "../../theme/ThemeContext";
 
 const PageNavigation = ({ currentPage, totalPages, onPrevious, onNext }) => {
+  const styles = useThemedStyles(makeStyles);
   const isFirstPage = currentPage === 0;
   const isLastPage = currentPage === totalPages - 1;
 
@@ -59,7 +61,7 @@ const PageNavigation = ({ currentPage, totalPages, onPrevious, onNext }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   footer: {
     flexDirection: "row",
     alignItems: "center",

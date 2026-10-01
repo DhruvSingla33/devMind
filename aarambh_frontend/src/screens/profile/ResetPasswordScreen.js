@@ -6,10 +6,12 @@ import Button from '../../components/Button';
 import { useAuth } from '../../context/AuthContext';
 import { extractErrorMessage } from '../../api/client';
 import { notify } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function ResetPasswordScreen({ navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { changePassword } = useAuth();
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -85,7 +87,7 @@ export default function ResetPasswordScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   content: {
     paddingTop: spacing.xl,
     paddingBottom: spacing.xl,

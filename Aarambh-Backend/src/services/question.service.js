@@ -1,9 +1,71 @@
+import mongoose from 'mongoose';
 import { parse } from 'csv-parse/sync';
 import { Question } from '../models/question.model.js';
 import { Chapter } from '../models/chapter.model.js';
 import { Page } from '../models/page.model.js';
 import { Textbook } from '../models/textbook.model.js';
 import { ApiError } from '../utils/ApiError.js';
+
+// Comma-separated query value ("a,b") or array -> trimmed non-empty list.
+const toList = (value) => {
+  if (value === undefined || value === null || value === '') return [];
+  const arr = Array.isArray(value) ? value : String(value).split(',');
+  return arr.map((v) => String(v).trim()).filter(Boolean);
+};
+
+// Question-bank filters shared by the browse list and the custom quiz builder:
+// textbookIds, subjects, classLevels, difficulty, exam, pyq/high-probability,
+// pyqYears and a free-text search. Book-level filters (subject/class) resolve
+// to textbook ids since questions only store textbookId.
+export const buildBankFilter = async (query = {}) => {
+  const filter = {};
+
+  let bookIds = toList(query.textbookIds);
+  const subjects = toList(query.subjects);
+  const classLevels = toList(query.classLevels);
+  if (subjects.length || classLevels.length) {
+    const bookQuery = { isActive: true };
+    if (subjects.length) bookQuery.subject = { $in: subjects };
+    if (classLevels.length) bookQuery.classLevel = { $in: classLevels };
+    const books = await Textbook.find(bookQuery).select('_id');
+    const ids = books.map((b) => String(b._id));
+    bookIds = bookIds.length ? bookIds.filter((id) => ids.includes(id)) : ids;
+    // Filters matched no book -> match nothing rather than everything.
+    if (bookIds.length === 0) bookIds = ['000000000000000000000000'];
+  }
+  // Cast explicitly: $sample uses aggregate(), which doesn't auto-cast strings.
+  if (bookIds.length) {
+    filter.textbookId = {
+      $in: bookIds.filter((id) => mongoose.isValidObjectId(id)).map((id) => new mongoose.Types.ObjectId(id)),
+    };
+  }
+
+  const difficulties = toList(query.difficulty);
+  if (difficulties.length) filter.difficulty = { $in: difficulties };
+
+  const exams = toList(query.exam);
+  if (exams.length) filter.examTags = { $in: exams };
+
+  if (query.isHighProbability !== undefined && query.isHighProbability !== '') {
+    filter.isHighProbability = String(query.isHighProbability) === 'true';
+  }
+
+  const years = toList(query.pyqYears).map(Number).filter(Boolean);
+  if (years.length) {
+    filter.pyqYear = { $in: years };
+  } else if (String(query.isPyq) === 'true') {
+    filter.pyqYear = { $ne: null };
+  } else if (String(query.isPyq) === 'false') {
+    filter.pyqYear = null;
+  }
+
+  if (query.search && String(query.search).trim()) {
+    const escaped = String(query.search).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    filter.questionText = { $regex: escaped, $options: 'i' };
+  }
+
+  return filter;
+};
 
 export const getQuestions = async (query = {}) => {
   const filter = { isActive: true };
@@ -23,13 +85,7 @@ export const getQuestions = async (query = {}) => {
   if (query.textbookId) filter.textbookId = query.textbookId;
   if (query.pageId) filter.pageId = query.pageId;
   if (query.pageNumber) filter.pageNumber = Number(query.pageNumber);
-  if (query.exam) filter.examTags = query.exam;
-  if (query.isHighProbability !== undefined) {
-    filter.isHighProbability = query.isHighProbability === 'true';
-  }
-  if (query.isPyq === 'true') {
-    filter.pyqYear = { $ne: null };
-  }
+  Object.assign(filter, await buildBankFilter(query));
 
   const page = parseInt(query.page, 10) || 1;
   const limit = parseInt(query.limit, 10) || 20;

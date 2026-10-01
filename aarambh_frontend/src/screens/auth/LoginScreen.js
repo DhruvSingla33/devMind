@@ -9,13 +9,13 @@ import {
   AuthDivider,
   GoogleButton,
   AuthFooterLink,
-  authErrorStyle,
+  AuthMessage,
 } from '../../components/AuthCard';
 import { useAuth } from '../../context/AuthContext';
 import { extractErrorMessage } from '../../api/client';
 import { notify } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 function useLoginLogic(navigation) {
   const { loginWithPassword, requestGoogleSignIn } = useAuth();
@@ -66,6 +66,7 @@ function useLoginLogic(navigation) {
 }
 
 function WebLogin({ navigation }) {
+  const styles = useThemedStyles(makeStyles);
   const {
     email,
     setEmail,
@@ -115,7 +116,7 @@ function WebLogin({ navigation }) {
         <Text style={styles.webForgotLink}>Forgot Password?</Text>
       </Pressable>
 
-      {error ? <Text style={authErrorStyle()}>{error}</Text> : null}
+      {error ? <AuthMessage>{error}</AuthMessage> : null}
 
       <Button title="Continue" onPress={handleLogin} loading={isSubmitting} />
 
@@ -131,6 +132,8 @@ function WebLogin({ navigation }) {
 }
 
 function NativeLogin({ navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const {
     email,
     setEmail,
@@ -217,7 +220,7 @@ export default function LoginScreen({ navigation }) {
   return <NativeLogin navigation={navigation} />;
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   webGhost: {
     marginTop: spacing.xs,
   },

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import colors from '../theme/colors';
-import { radius, spacing, typography } from '../theme/theme';
+import { radius, spacing } from '../theme/theme';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 export default function SelectField({ label, value, options, onSelect, placeholder = 'Select' }) {
+  const styles = useThemedStyles(makeStyles);
   const [isOpen, setIsOpen] = useState(false);
   const selected = options.find((option) => option.value === value);
 
@@ -41,7 +42,7 @@ export default function SelectField({ label, value, options, onSelect, placehold
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   wrapper: {
     marginBottom: spacing.md,
   },

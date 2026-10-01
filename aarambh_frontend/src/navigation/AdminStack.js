@@ -15,11 +15,12 @@ import AdminBatchListScreen from '../screens/admin/AdminBatchListScreen';
 import AdminBatchFormScreen from '../screens/admin/AdminBatchFormScreen';
 import AdminPulseFormScreen from '../screens/admin/AdminPulseFormScreen';
 import AdminDoubtsScreen from '../screens/admin/AdminDoubtsScreen';
-import headerOptions from './headerOptions';
+import { useHeaderOptions } from './headerOptions';
 
 const Stack = createNativeStackNavigator();
 
 export default function AdminStack() {
+  const headerOptions = useHeaderOptions();
   return (
     <Stack.Navigator screenOptions={headerOptions}>
       <Stack.Screen name="AdminHub" component={AdminHubScreen} options={{ title: 'Admin' }} />

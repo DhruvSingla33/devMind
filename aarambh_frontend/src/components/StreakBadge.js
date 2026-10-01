@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { getMyStreak } from '../api/mentors.api';
-import colors from '../theme/colors';
-import { radius, spacing, typography } from '../theme/theme';
+import { radius, spacing } from '../theme/theme';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 export default function StreakBadge() {
+  const styles = useThemedStyles(makeStyles);
   const [streak, setStreak] = useState(null);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function StreakBadge() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   pill: {
     alignSelf: 'flex-start',
     backgroundColor: colors.primaryMuted,

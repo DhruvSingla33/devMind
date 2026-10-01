@@ -5,12 +5,14 @@ import TextField from '../../components/TextField';
 import Button from '../../components/Button';
 import { adminCreateBatch, adminUpdateBatch } from '../../api/batches.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 const TARGET_EXAMS = ['NEET', 'JEE_MAIN', 'JEE_ADVANCED', 'BOARD_12', 'BOARD_10'];
 
 export default function AdminBatchFormScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const existing = route.params?.batch;
   const isEditing = !!existing;
 
@@ -112,7 +114,7 @@ export default function AdminBatchFormScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

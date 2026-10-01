@@ -12,8 +12,8 @@ import {
 import LoadingState from '../../components/LoadingState';
 import { getNote, upsertNote, deleteNote } from '../../utils/notesStorage';
 import { confirmAsync } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { radius, spacing, typography } from '../../theme/theme';
+import { radius, spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 // Paper page geometry.
 const PAGE_HEIGHT = 1000;
@@ -65,6 +65,7 @@ function noteToBlocks(note) {
 
 // --- Toolbar icons ---
 function AlignIcon({ type, color }) {
+  const styles = useThemedStyles(makeStyles);
   const self = type === 'center' ? 'center' : type === 'right' ? 'flex-end' : 'flex-start';
   return (
     <View style={styles.iconBox}>
@@ -76,6 +77,7 @@ function AlignIcon({ type, color }) {
 }
 
 function ToolButton({ active, onPress, children }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <Pressable onPress={onPress} style={[styles.tool, active && styles.toolActive]} accessibilityRole="button">
       {children}
@@ -84,6 +86,8 @@ function ToolButton({ active, onPress, children }) {
 }
 
 export default function NoteEditorScreen({ route, navigation }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const routeId = route.params?.id || null;
 
   const [title, setTitle] = useState('');
@@ -441,7 +445,7 @@ export default function NoteEditorScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   canvas: { flex: 1, backgroundColor: colors.backgroundElevated },
   toolbar: {
     flexDirection: 'row',

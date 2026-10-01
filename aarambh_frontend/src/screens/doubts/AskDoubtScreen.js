@@ -5,12 +5,13 @@ import TextField from '../../components/TextField';
 import Button from '../../components/Button';
 import { submitDoubt } from '../../api/doubts.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useThemedStyles } from '../../theme/ThemeContext';
 
 const SUBJECTS = ['Physics', 'Chemistry', 'Biology', 'Botany', 'Zoology', 'Mathematics'];
 
 export default function AskDoubtScreen({ navigation }) {
+  const styles = useThemedStyles(makeStyles);
   const [subject, setSubject] = useState(SUBJECTS[0]);
   const [chapter, setChapter] = useState('');
   const [questionText, setQuestionText] = useState('');
@@ -73,7 +74,7 @@ export default function AskDoubtScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

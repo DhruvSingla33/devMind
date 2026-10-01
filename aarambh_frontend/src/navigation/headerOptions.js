@@ -1,21 +1,27 @@
-import colors from '../theme/colors';
+import { useTheme } from '../theme/ThemeContext';
 
 // Shared native-stack header look — imported by every Stack navigator so a
 // single tweak (color, weight, border) updates the whole app's chrome at once
 // instead of drifting across five duplicated screenOptions objects.
-const headerOptions = {
+//
+// `makeHeaderOptions(colors)` builds it for a palette; `useHeaderOptions()`
+// reads the live palette so header chrome repaints on theme change.
+export const makeHeaderOptions = (c) => ({
   headerStyle: {
-    backgroundColor: colors.backgroundElevated,
+    backgroundColor: c.backgroundElevated,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: c.border,
   },
-  headerTintColor: colors.primary,
+  headerTintColor: c.primary,
   headerTitleStyle: {
-    color: colors.textPrimary,
+    color: c.textPrimary,
     fontWeight: '700',
     fontSize: 17,
   },
   headerShadowVisible: false,
-};
+});
 
-export default headerOptions;
+export function useHeaderOptions() {
+  const { colors: live } = useTheme();
+  return makeHeaderOptions(live);
+}

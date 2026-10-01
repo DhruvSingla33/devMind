@@ -4,8 +4,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/home/HomeScreen';
 import LeaderboardScreen from '../screens/leaderboard/LeaderboardScreen';
 import SubscriptionScreen from '../screens/premium/SubscriptionScreen';
-import colors from '../theme/colors';
-import headerOptions from './headerOptions';
+import { useTheme } from '../theme/ThemeContext';
+import { useHeaderOptions } from './headerOptions';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,6 +21,8 @@ const TAB_ICONS = {
 // the 3 screens actually shown avoids the layout/label-width issues that come
 // from registering hidden tabs here.
 export default function AppTabs() {
+  const { colors } = useTheme();
+  const headerOptions = useHeaderOptions();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({

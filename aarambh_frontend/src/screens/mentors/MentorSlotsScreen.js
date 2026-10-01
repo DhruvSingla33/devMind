@@ -7,8 +7,8 @@ import LoadingState from '../../components/LoadingState';
 import ErrorState from '../../components/ErrorState';
 import { getMentorSlots, getMyStreak, bookMentorSession } from '../../api/mentors.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { radius, spacing, typography } from '../../theme/theme';
+import { radius, spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 function formatSlot(startTime, endTime) {
   const start = new Date(startTime);
@@ -20,6 +20,8 @@ function formatSlot(startTime, endTime) {
 }
 
 export default function MentorSlotsScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { mentorId, mentorName } = route.params;
   const [slotsData, setSlotsData] = useState(null);
   const [hasFreeCredit, setHasFreeCredit] = useState(false);
@@ -132,7 +134,7 @@ export default function MentorSlotsScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

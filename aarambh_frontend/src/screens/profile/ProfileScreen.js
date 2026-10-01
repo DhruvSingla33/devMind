@@ -5,9 +5,8 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import StreakBadge from '../../components/StreakBadge';
 import { useAuth } from '../../context/AuthContext';
-import colors from '../../theme/colors';
-import { getThemeMode, setThemeMode } from '../../theme/themeMode';
-import { radius, spacing, typography } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
+import { radius, spacing } from '../../theme/theme';
 import { hexToRgba } from '../../utils/color';
 
 const THEME_OPTIONS = [
@@ -74,18 +73,19 @@ const MORE_LINKS = [
 
 export default function ProfileScreen({ navigation }) {
   const { user, logout } = useAuth();
+  const { colors, typography, mode: currentMode, setMode } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const initial = (user?.name?.[0] || '?').toUpperCase();
-  const currentMode = getThemeMode();
 
   // The content-management panel needs real file pickers, so it's web-only —
   // admins on a phone just use the normal app.
   const canManageContent = user?.role === 'admin' && Platform.OS === 'web';
 
-  // Changing the theme reloads the app so every screen re-picks the palette;
+  // Live theme switch via ThemeContext — the app repaints in place, no reload;
   // no-op if the tapped mode is already active.
   const onSelectTheme = (mode) => {
     if (mode !== currentMode) {
-      setThemeMode(mode);
+      setMode(mode);
     }
   };
 
@@ -100,7 +100,7 @@ export default function ProfileScreen({ navigation }) {
         </Pressable>
       ),
     });
-  }, [navigation, logout]);
+  }, [navigation, logout, styles]);
 
   return (
     <ScreenContainer maxWidth={640}>
@@ -199,7 +199,7 @@ export default function ProfileScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingBottom: spacing.xl,
   },

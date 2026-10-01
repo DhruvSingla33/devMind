@@ -9,10 +9,12 @@ import ErrorState from '../../components/ErrorState';
 import { listBatches, adminDeleteBatch } from '../../api/batches.api';
 import { extractErrorMessage } from '../../api/client';
 import { confirmAsync, notify } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function AdminBatchListScreen({ navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [batches, setBatches] = useState([]);
   const [status, setStatus] = useState('loading');
   const [errorMessage, setErrorMessage] = useState(null);
@@ -86,7 +88,7 @@ export default function AdminBatchListScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   header: {
     paddingVertical: spacing.md,
   },

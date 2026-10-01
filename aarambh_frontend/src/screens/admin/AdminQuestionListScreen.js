@@ -10,10 +10,12 @@ import { listTextbooks, getTextbook } from '../../api/textbooks.api';
 import { listQuestions, adminDeleteQuestion } from '../../api/questions.api';
 import { extractErrorMessage } from '../../api/client';
 import { confirmAsync, notify } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function AdminQuestionListScreen({ navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [textbooks, setTextbooks] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
   const [chapters, setChapters] = useState([]);
@@ -175,7 +177,7 @@ export default function AdminQuestionListScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   pickerRow: {
     marginTop: spacing.md,
   },

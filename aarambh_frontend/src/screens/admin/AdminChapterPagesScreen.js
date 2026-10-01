@@ -9,10 +9,12 @@ import ErrorState from '../../components/ErrorState';
 import { adminListChapterPages, adminDeletePage } from '../../api/textbooks.api';
 import { extractErrorMessage } from '../../api/client';
 import { confirmAsync, notify } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function AdminChapterPagesScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { chapterId, textbookId, chapterTitle } = route.params;
   const [pages, setPages] = useState([]);
   const [status, setStatus] = useState('loading');
@@ -122,7 +124,7 @@ export default function AdminChapterPagesScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   list: {
     paddingBottom: spacing.xl,
   },

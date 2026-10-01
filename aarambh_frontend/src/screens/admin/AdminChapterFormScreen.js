@@ -10,12 +10,14 @@ import {
 } from '../../api/textbooks.api';
 import { extractErrorMessage } from '../../api/client';
 import { confirmAsync } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 const EXAM_TAGS = ['NEET', 'JEE', 'BOARDS'];
 
 export default function AdminChapterFormScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { textbookId, chapter: existing } = route.params;
   const isEditing = !!existing;
 
@@ -188,7 +190,7 @@ export default function AdminChapterFormScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text } from 'react-native';
-import colors from '../theme/colors';
-import { radius, spacing, typography } from '../theme/theme';
+import { radius, spacing } from '../theme/theme';
+import { useTheme, useThemedStyles } from '../theme/ThemeContext';
 
-const VARIANTS = {
+// Variant palettes depend on the theme, so they're built per-render from the
+// live colors rather than frozen at module-load.
+const makeVariants = (colors) => ({
   primary: { bg: colors.primary, border: colors.primary, text: colors.textOnDark, glow: true },
   outline: { bg: 'transparent', border: colors.border, text: colors.textPrimary },
   ghost: { bg: 'transparent', border: 'transparent', text: colors.primary },
   light: { bg: colors.white, border: colors.border, text: colors.textOnLight },
-};
+});
 
 export default function Button({
   title,
@@ -19,7 +21,10 @@ export default function Button({
   style,
   textColor,
 }) {
+  const { colors, typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [isHovered, setIsHovered] = useState(false);
+  const VARIANTS = makeVariants(colors);
   const basePalette = VARIANTS[variant] || VARIANTS.primary;
   const palette = textColor ? { ...basePalette, text: textColor } : basePalette;
   const isDisabled = disabled || loading;
@@ -54,7 +59,7 @@ export default function Button({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   base: {
     borderWidth: 1,
     borderRadius: radius.md,

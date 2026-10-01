@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { spacing } from '../theme/theme';
-import colors from '../theme/colors';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 // A self-advancing, swipeable pager with dot indicators. Auto-advance pauses
 // while the viewer is actively dragging/hovering so it never fights a
@@ -37,6 +37,7 @@ export default function Carousel({
   maxHeight = Infinity,
   onIndexChange,
 }) {
+  const styles = useThemedStyles(makeStyles);
   const scrollRef = useRef(null);
   const [index, setIndex] = useState(0);
   const [width, setWidth] = useState(Dimensions.get('window').width);
@@ -130,7 +131,7 @@ export default function Carousel({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   wrapper: {
     width: '100%',
   },

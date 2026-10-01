@@ -3,12 +3,12 @@ import { Platform, ScrollView, StyleSheet, Text } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import TextField from '../../components/TextField';
 import Button from '../../components/Button';
-import { AuthCard, AuthField, authErrorStyle } from '../../components/AuthCard';
+import { AuthCard, AuthField, AuthMessage } from '../../components/AuthCard';
 import { useAuth } from '../../context/AuthContext';
 import { extractErrorMessage } from '../../api/client';
 import { notify } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 function useResetOtpLogic(navigation, target) {
   const { requestOtp } = useAuth();
@@ -58,7 +58,7 @@ function WebResetOtp({ navigation, target }) {
         placeholder="123456"
       />
 
-      {error ? <Text style={authErrorStyle()}>{error}</Text> : null}
+      {error ? <AuthMessage>{error}</AuthMessage> : null}
 
       <Button title="Continue" onPress={handleContinue} />
       <Button title="Resend code" variant="ghost" onPress={handleResend} loading={isResending} />
@@ -67,6 +67,8 @@ function WebResetOtp({ navigation, target }) {
 }
 
 function NativeResetOtp({ navigation, target }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { otpCode, setOtpCode, isResending, error, handleContinue, handleResend } = useResetOtpLogic(
     navigation,
     target
@@ -112,7 +114,7 @@ export default function ResetOtpScreen({ navigation, route }) {
   return <NativeResetOtp navigation={navigation} target={target} />;
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   content: {
     paddingTop: spacing.xl,
     paddingBottom: spacing.xl,

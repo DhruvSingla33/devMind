@@ -6,10 +6,12 @@ import LoadingState from '../../components/LoadingState';
 import ErrorState from '../../components/ErrorState';
 import { getTodayPulse } from '../../api/pulse.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function PulseScreen() {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [pulse, setPulse] = useState(null);
   const [status, setStatus] = useState('loading');
   const [errorMessage, setErrorMessage] = useState(null);
@@ -65,7 +67,7 @@ export default function PulseScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

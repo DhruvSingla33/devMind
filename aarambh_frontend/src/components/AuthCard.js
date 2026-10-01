@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import colors, { isDarkTheme } from '../theme/colors';
 import { radius, shadow, spacing } from '../theme/theme';
+import { useTheme, useThemedStyles } from '../theme/ThemeContext';
 import Logo from './Logo';
-
-// colors.background is a light *grey* (#F3F4F7, by design — it's the shared
-// page canvas everywhere else, kept a shade off colors.surface so cards lift
-// off it). That reads fine on Home where lots of colored content sits on it,
-// but on this mostly-empty auth backdrop it just reads as "grey", not white.
-// Auth pages default to pure white instead; dark mode is untouched.
-const pageBackground = isDarkTheme ? colors.background : colors.white;
 
 // The floating-card auth layout used by the web variant of Login/Signup/etc.
 // Uses the app's shared theme tokens (colors.js) so it follows the same
@@ -17,6 +10,7 @@ const pageBackground = isDarkTheme ? colors.background : colors.white;
 // permanent dark palette here, which is why it never picked up light mode.
 
 export function AuthCard({ title, subtitle, children, footer, onLogoPress }) {
+  const styles = useThemedStyles(makeStyles);
   const logo = <Logo size="md" align="column" />;
 
   return (
@@ -45,6 +39,8 @@ export function AuthCard({ title, subtitle, children, footer, onLogoPress }) {
 }
 
 export function AuthField({ label, secureEntry, style, ...inputProps }) {
+  const { colors } = useTheme();
+  const fieldStyles = useThemedStyles(makeFieldStyles);
   const [isHidden, setIsHidden] = useState(!!secureEntry);
 
   return (
@@ -72,6 +68,8 @@ export function AuthField({ label, secureEntry, style, ...inputProps }) {
 }
 
 export function AuthSelect({ label, value, options, onSelect, placeholder = 'Select', style }) {
+  const fieldStyles = useThemedStyles(makeFieldStyles);
+  const selectStyles = useThemedStyles(makeSelectStyles);
   const [isOpen, setIsOpen] = useState(false);
   const selected = options.find((option) => option.value === value);
 
@@ -112,6 +110,7 @@ export function AuthSelect({ label, value, options, onSelect, placeholder = 'Sel
 }
 
 export function AuthDivider({ label = 'or' }) {
+  const dividerStyles = useThemedStyles(makeDividerStyles);
   return (
     <View style={dividerStyles.row}>
       <View style={dividerStyles.line} />
@@ -122,6 +121,8 @@ export function AuthDivider({ label = 'or' }) {
 }
 
 export function GoogleButton({ title = 'Continue with Google', onPress, loading, disabled }) {
+  const { colors } = useTheme();
+  const googleStyles = useThemedStyles(makeGoogleStyles);
   const isDisabled = disabled || loading;
   return (
     <Pressable
@@ -146,6 +147,7 @@ export function GoogleButton({ title = 'Continue with Google', onPress, loading,
 }
 
 export function AuthFooterLink({ prompt, actionLabel, onPress }) {
+  const footerStyles = useThemedStyles(makeFooterStyles);
   return (
     <Pressable onPress={onPress} hitSlop={8}>
       <Text style={footerStyles.text}>
@@ -155,71 +157,80 @@ export function AuthFooterLink({ prompt, actionLabel, onPress }) {
   );
 }
 
-export function authErrorStyle() {
-  return { color: colors.danger, marginBottom: spacing.md, textAlign: 'center' };
+// Error/info line under auth forms. A component (not a style helper) so it
+// reads the live palette and repaints on theme change.
+export function AuthMessage({ type = 'error', children }) {
+  const { colors } = useTheme();
+  const color = type === 'info' ? colors.textMuted : colors.danger;
+  return <Text style={{ color, marginBottom: spacing.md, textAlign: 'center' }}>{children}</Text>;
 }
 
-export function authInfoStyle() {
-  return { color: colors.textMuted, marginBottom: spacing.md, textAlign: 'center' };
-}
+const makeStyles = ({ colors, isDark }) => {
+  // colors.background is a light *grey* (#F3F4F7, by design — it's the shared
+  // page canvas everywhere else, kept a shade off colors.surface so cards lift
+  // off it). That reads fine on Home where lots of colored content sits on it,
+  // but on this mostly-empty auth backdrop it just reads as "grey", not white.
+  // Auth pages default to pure white instead; dark mode is untouched.
+  const pageBackground = isDark ? colors.background : colors.white;
 
-const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-    backgroundColor: pageBackground,
-  },
-  page: {
-    flexGrow: 1,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xxl,
-    paddingHorizontal: spacing.md,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 440,
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingTop: spacing.xl,
-    paddingHorizontal: spacing.xl,
-    overflow: 'hidden',
-    ...shadow.card,
-  },
-  logoPressable: {
-    alignSelf: 'center',
-    ...Platform.select({ web: { cursor: 'pointer' }, default: {} }),
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginTop: spacing.md,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.xs,
-    paddingHorizontal: spacing.sm,
-  },
-  body: {
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.xl,
-  },
-  footer: {
-    marginHorizontal: -spacing.xl,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-  },
-});
+  return StyleSheet.create({
+    scroll: {
+      flex: 1,
+      backgroundColor: pageBackground,
+    },
+    page: {
+      flexGrow: 1,
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.xxl,
+      paddingHorizontal: spacing.md,
+    },
+    card: {
+      width: '100%',
+      maxWidth: 440,
+      backgroundColor: colors.surface,
+      borderRadius: radius.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingTop: spacing.xl,
+      paddingHorizontal: spacing.xl,
+      overflow: 'hidden',
+      ...shadow.card,
+    },
+    logoPressable: {
+      alignSelf: 'center',
+      ...Platform.select({ web: { cursor: 'pointer' }, default: {} }),
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: colors.textPrimary,
+      textAlign: 'center',
+      marginTop: spacing.md,
+    },
+    subtitle: {
+      fontSize: 14,
+      color: colors.textMuted,
+      textAlign: 'center',
+      marginTop: spacing.xs,
+      paddingHorizontal: spacing.sm,
+    },
+    body: {
+      paddingTop: spacing.lg,
+      paddingBottom: spacing.xl,
+    },
+    footer: {
+      marginHorizontal: -spacing.xl,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingVertical: spacing.md,
+      alignItems: 'center',
+    },
+  });
+};
 
-const fieldStyles = StyleSheet.create({
+const makeFieldStyles = ({ colors }) => StyleSheet.create({
   wrapper: {
     marginBottom: spacing.md,
   },
@@ -252,7 +263,7 @@ const fieldStyles = StyleSheet.create({
   },
 });
 
-const selectStyles = StyleSheet.create({
+const makeSelectStyles = ({ colors }) => StyleSheet.create({
   wrapperOpen: {
     zIndex: 20,
   },
@@ -321,7 +332,7 @@ const selectStyles = StyleSheet.create({
   },
 });
 
-const dividerStyles = StyleSheet.create({
+const makeDividerStyles = ({ colors }) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -339,7 +350,7 @@ const dividerStyles = StyleSheet.create({
   },
 });
 
-const googleStyles = StyleSheet.create({
+const makeGoogleStyles = ({ colors }) => StyleSheet.create({
   button: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -369,7 +380,7 @@ const googleStyles = StyleSheet.create({
   },
 });
 
-const footerStyles = StyleSheet.create({
+const makeFooterStyles = ({ colors }) => StyleSheet.create({
   text: {
     fontSize: 14,
     color: colors.textMuted,

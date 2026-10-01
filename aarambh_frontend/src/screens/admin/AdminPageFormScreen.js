@@ -6,8 +6,8 @@ import TextField from '../../components/TextField';
 import Button from '../../components/Button';
 import { adminCreatePage, adminUpdatePage } from '../../api/textbooks.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 const BLOCK_TYPES = ['text', 'image', 'table'];
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
@@ -68,6 +68,8 @@ const mapServerQuestion = (q) => ({
 });
 
 export default function AdminPageFormScreen({ route, navigation }) {
+  const { colors, typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { chapterId, textbookId, page: existing } = route.params;
   const isEditing = !!existing;
 
@@ -442,7 +444,7 @@ export default function AdminPageFormScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

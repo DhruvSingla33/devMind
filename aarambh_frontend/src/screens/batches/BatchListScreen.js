@@ -8,8 +8,8 @@ import LoadingState from '../../components/LoadingState';
 import ErrorState from '../../components/ErrorState';
 import { listBatches } from '../../api/batches.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 const EXAM_FILTERS = [
   { value: undefined, label: 'All' },
@@ -21,6 +21,8 @@ const EXAM_FILTERS = [
 ];
 
 export default function BatchListScreen({ navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [exam, setExam] = useState(undefined);
   const [batches, setBatches] = useState([]);
   const [status, setStatus] = useState('loading');
@@ -90,7 +92,7 @@ export default function BatchListScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   filterRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',

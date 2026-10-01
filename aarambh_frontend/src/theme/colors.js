@@ -5,11 +5,9 @@
 // deliberately a different value from `surface` (cards/inputs) so cards lift
 // off the page — impossible when both share one value.
 //
-// The ACTIVE palette is chosen once, at module-load time, from the user's saved
-// preference (see theme/themeMode.js and index.js). Because almost every screen
-// imports `colors`/`typography` statically, selecting here means the whole app
-// picks up the right theme without any per-screen changes. Switching themes
-// reloads the app so these modules re-evaluate with the new palette.
+// Screens get the live palette from ThemeContext (useTheme), which calls
+// pickColors() on every theme change. The static `colors` export below is the
+// boot palette, kept only for non-React code that needs a value at load time.
 import { Appearance } from 'react-native';
 
 export const lightColors = {
@@ -99,6 +97,9 @@ function resolveScheme() {
   }
   return Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
 }
+
+// Palette for an explicit scheme ('light' | 'dark'). Used by ThemeContext.
+export const pickColors = (scheme) => (scheme === 'dark' ? darkColors : lightColors);
 
 export const activeScheme = resolveScheme();
 export const isDarkTheme = activeScheme === 'dark';

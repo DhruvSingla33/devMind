@@ -3,6 +3,7 @@ import { TestAttempt } from '../models/testAttempt.model.js';
 import { Question } from '../models/question.model.js';
 import { Chapter } from '../models/chapter.model.js';
 import { ApiError } from '../utils/ApiError.js';
+import { buildBankFilter } from './question.service.js';
 
 export const listMockTests = async (query = {}) => {
   const filter = { isActive: true };
@@ -14,27 +15,50 @@ export const listMockTests = async (query = {}) => {
     .sort({ createdAt: -1 });
 };
 
-export const createCustomMixQuiz = async ({ chapterIds, questionCount = 30, title, exam = 'NEET' }) => {
-  const filter = { isActive: true };
-  if (chapterIds && chapterIds.length > 0) {
-    // Chapters are page-ranges now, so map each selected chapter to a
-    // { book + pageNumber range } clause and match questions across all of them.
-    const chapters = await Chapter.find({ _id: { $in: chapterIds } });
-    const ranges = chapters
-      .filter((c) => c.startPage && c.endPage)
-      .map((c) => ({
-        textbookId: c.textbookId,
-        pageNumber: { $gte: c.startPage, $lte: c.endPage },
-      }));
-    if (ranges.length === 0) {
-      throw new ApiError(400, 'Selected chapters have no page range configured');
+// Builds a quiz either from questions the user hand-picked (`questionIds`) or
+// by randomly sampling `questionCount` questions matching the bank filters
+// (same filters as GET /questions) and/or the legacy `chapterIds`.
+export const createCustomMixQuiz = async ({
+  chapterIds,
+  questionIds,
+  questionCount = 30,
+  title,
+  exam = 'NEET',
+  filters = {},
+}) => {
+  let availableQuestions;
+
+  if (Array.isArray(questionIds) && questionIds.length > 0) {
+    if (questionIds.length > 200) {
+      throw new ApiError(400, 'A quiz can have at most 200 questions');
     }
-    filter.$or = ranges;
+    availableQuestions = await Question.find({ _id: { $in: questionIds }, isActive: true });
+    // Keep the order the user picked them in.
+    const order = new Map(questionIds.map((id, i) => [String(id), i]));
+    availableQuestions.sort((a, b) => order.get(String(a._id)) - order.get(String(b._id)));
+  } else {
+    const filter = { isActive: true, ...(await buildBankFilter(filters)) };
+    if (chapterIds && chapterIds.length > 0) {
+      // Chapters are page-ranges now, so map each selected chapter to a
+      // { book + pageNumber range } clause and match questions across all of them.
+      const chapters = await Chapter.find({ _id: { $in: chapterIds } });
+      const ranges = chapters
+        .filter((c) => c.startPage && c.endPage)
+        .map((c) => ({
+          textbookId: c.textbookId,
+          pageNumber: { $gte: c.startPage, $lte: c.endPage },
+        }));
+      if (ranges.length === 0) {
+        throw new ApiError(400, 'Selected chapters have no page range configured');
+      }
+      filter.$or = ranges;
+    }
+    const size = Math.min(Math.max(Number(questionCount) || 30, 1), 200);
+    availableQuestions = await Question.aggregate([{ $match: filter }, { $sample: { size } }]);
   }
 
-  const availableQuestions = await Question.find(filter).limit(Number(questionCount));
   if (availableQuestions.length === 0) {
-    throw new ApiError(400, 'No questions found for the selected chapters');
+    throw new ApiError(400, 'No questions match the selected filters');
   }
 
   const mockTest = await MockTest.create({

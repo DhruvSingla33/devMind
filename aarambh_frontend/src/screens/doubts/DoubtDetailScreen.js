@@ -6,16 +6,19 @@ import LoadingState from '../../components/LoadingState';
 import ErrorState from '../../components/ErrorState';
 import { getDoubt } from '../../api/doubts.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
-const STATUS_COLORS = {
+const makeStatusColors = (colors) => ({
   PENDING: colors.warning,
   IN_PROGRESS: colors.primary,
   RESOLVED: colors.success,
-};
+});
 
 export default function DoubtDetailScreen({ route }) {
+  const { colors, typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
+  const STATUS_COLORS = makeStatusColors(colors);
   const { doubtId } = route.params;
   const [doubt, setDoubt] = useState(null);
   const [status, setStatus] = useState('loading');
@@ -66,7 +69,7 @@ export default function DoubtDetailScreen({ route }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = () => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

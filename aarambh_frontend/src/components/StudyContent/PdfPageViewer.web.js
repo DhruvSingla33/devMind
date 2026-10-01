@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
-import { colors, radius, spacing } from "../../theme/theme";
+import { radius, spacing } from "../../theme/theme";
+import { useTheme, useThemedStyles } from "../../theme/ThemeContext";
 
 // Web build of the single-page PDF viewer. react-native-webview has no web
 // support, so here pdf.js (UMD build, loaded once from the CDN) draws the
@@ -33,6 +34,8 @@ function loadPdfJs() {
 }
 
 const PdfPageViewer = ({ url, page, onDocumentLoad, onError }) => {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const canvasRef = useRef(null);
   const [doc, setDoc] = useState(null);
   const [width, setWidth] = useState(0);
@@ -127,7 +130,7 @@ const PdfPageViewer = ({ url, page, onDocumentLoad, onError }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   sheet: {
     minHeight: 320,
     borderRadius: radius.md,

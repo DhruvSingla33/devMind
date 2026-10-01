@@ -8,13 +8,15 @@ import ErrorState from '../../components/ErrorState';
 import { getChapter, getChapterPdf } from '../../api/textbooks.api';
 import { listQuestions, submitAnswer } from '../../api/questions.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { radius, spacing, typography } from '../../theme/theme';
+import { radius, spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { useBreakpoint } from '../../theme/responsive';
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
 function PracticeQuestion({ question, index }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [selectedOption, setSelectedOption] = useState(null);
   const [result, setResult] = useState(null);
   const [isChecking, setIsChecking] = useState(false);
@@ -98,6 +100,8 @@ function PracticeQuestion({ question, index }) {
 }
 
 export default function PublicChapterReaderScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { code, chapterNumber, title } = route.params;
   const { isDesktop } = useBreakpoint();
   const [data, setData] = useState(null);
@@ -198,7 +202,7 @@ export default function PublicChapterReaderScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

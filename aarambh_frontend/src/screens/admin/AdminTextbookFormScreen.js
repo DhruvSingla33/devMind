@@ -6,14 +6,16 @@ import Button from '../../components/Button';
 import FilePickerButton from '../../components/FilePickerButton';
 import { adminCreateTextbook, adminUpdateTextbook } from '../../api/textbooks.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 const SUBJECTS = ['Biology', 'Physics', 'Chemistry', 'Maths'];
 const CLASS_LEVELS = ['XI', 'XII'];
 const EXAM_TAGS = ['NEET', 'JEE', 'BOARDS'];
 
 export default function AdminTextbookFormScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const existing = route.params?.textbook;
   const isEditing = !!existing;
 
@@ -149,7 +151,7 @@ export default function AdminTextbookFormScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

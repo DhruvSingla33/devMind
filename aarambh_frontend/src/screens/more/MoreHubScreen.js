@@ -3,8 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Grid from '../../components/Grid';
 import Card from '../../components/Card';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 const ENTRIES = [
   {
@@ -59,6 +59,8 @@ const ENTRIES = [
 ];
 
 export default function MoreHubScreen({ navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <ScreenContainer>
       <Grid
@@ -83,7 +85,7 @@ export default function MoreHubScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   list: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

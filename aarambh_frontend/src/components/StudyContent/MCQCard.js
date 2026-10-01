@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colors, radius, spacing } from "../../theme/theme";
+import { radius, spacing } from "../../theme/theme";
+import { useTheme, useThemedStyles } from "../../theme/ThemeContext";
 
-const DIFFICULTY_COLORS = {
+const difficultyColors = (colors) => ({
   Easy: colors.success,
   Medium: colors.primary,
   Hard: colors.danger
-};
+});
 
 const MCQCard = ({ question, questionNumber }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
 
   const difficultyColor =
-    DIFFICULTY_COLORS[question.difficulty] || colors.muted;
+    difficultyColors(colors)[question.difficulty] || colors.muted;
 
   return (
     <View style={styles.card}>
@@ -109,7 +112,7 @@ const MCQCard = ({ question, questionNumber }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   card: {
     padding: spacing.lg,
     borderRadius: radius.lg,

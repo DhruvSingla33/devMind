@@ -7,10 +7,12 @@ import LoadingState from '../../components/LoadingState';
 import ErrorState from '../../components/ErrorState';
 import { getMyAttempts } from '../../api/tests.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function MyAttemptsScreen() {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [attempts, setAttempts] = useState([]);
   const [status, setStatus] = useState('loading');
   const [errorMessage, setErrorMessage] = useState(null);
@@ -62,7 +64,7 @@ export default function MyAttemptsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   list: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

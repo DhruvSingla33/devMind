@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, insets, radius, spacing } from "../../theme/theme";
+import { insets, radius, spacing } from "../../theme/theme";
+import { useThemedStyles } from "../../theme/ThemeContext";
 import ViewModeToggle from "./ViewModeToggle";
 
 const ModuleHeader = ({
@@ -10,6 +11,7 @@ const ModuleHeader = ({
   viewMode,
   onViewModeChange
 }) => {
+  const styles = useThemedStyles(makeStyles);
   const progress = totalPages > 0 ? (currentPage / totalPages) * 100 : 0;
 
   return (
@@ -47,7 +49,7 @@ const ModuleHeader = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   header: {
     paddingTop: insets.top + spacing.sm,
     paddingHorizontal: spacing.lg,

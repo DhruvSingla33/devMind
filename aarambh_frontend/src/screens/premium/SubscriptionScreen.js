@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Button from '../../components/Button';
-import { radius, spacing, typography } from '../../theme/theme';
+import { radius, spacing } from '../../theme/theme';
 import { useBreakpoint } from '../../theme/responsive';
 import { notify } from '../../utils/alert';
 

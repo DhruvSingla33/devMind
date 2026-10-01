@@ -14,11 +14,12 @@ import ResetPasswordOtpScreen from '../screens/auth/ResetPasswordScreen';
 // import OtpScreen from '../screens/auth/OtpScreen';
 import PublicBookDetailScreen from '../screens/public/PublicBookDetailScreen';
 import PublicChapterReaderScreen from '../screens/public/PublicChapterReaderScreen';
-import headerOptions from './headerOptions';
+import { useHeaderOptions } from './headerOptions';
 
 const Stack = createNativeStackNavigator();
 
 export default function AuthStack() {
+  const headerOptions = useHeaderOptions();
   return (
     <Stack.Navigator
       screenOptions={{

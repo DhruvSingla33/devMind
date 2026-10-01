@@ -1,14 +1,17 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../theme/ThemeContext';
 import AuthStack from './AuthStack';
 import MainStack from './MainStack';
 import LoadingState from '../components/LoadingState';
-import navigationTheme from './navigationTheme';
+import { makeNavigationTheme } from './navigationTheme';
 import linking from './linking';
 
 export default function RootNavigator() {
   const { isAuthenticated, isBootstrapping } = useAuth();
+  const { colors, isDark } = useTheme();
+  const navigationTheme = makeNavigationTheme(colors, isDark);
 
   if (isBootstrapping) {
     return <LoadingState label="Preparing Aarambh…" />;

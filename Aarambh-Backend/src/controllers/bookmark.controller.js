@@ -24,8 +24,12 @@ export const toggleBookmark = asyncHandler(async (req, res) => {
 
 export const getMyBookmarks = asyncHandler(async (req, res) => {
   const bookmarks = await Bookmark.find({ userId: req.user._id })
-    .populate('questionId')
+    .populate({
+      path: 'questionId',
+      populate: { path: 'textbookId', select: 'title subject classLevel' },
+    })
     .sort({ createdAt: -1 });
 
-  sendSuccess(res, HTTP_STATUS.OK, bookmarks, 'Bookmarked questions retrieved successfully');
+  // Drop bookmarks whose question was deleted since.
+  sendSuccess(res, HTTP_STATUS.OK, bookmarks.filter((b) => b.questionId), 'Bookmarked questions retrieved successfully');
 });

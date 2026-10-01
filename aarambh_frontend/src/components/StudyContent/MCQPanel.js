@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import MCQCard from "./MCQCard";
-import { colors, radius, spacing } from "../../theme/theme";
+import { radius, spacing } from "../../theme/theme";
+import { useThemedStyles } from "../../theme/ThemeContext";
 
 const FILTERS = ["ALL", "NEET"];
 
 const MCQPanel = ({ questions = [] }) => {
   const [activeFilter, setActiveFilter] = useState("ALL");
+  const styles = useThemedStyles(makeStyles);
 
   return (
     <View style={styles.panel}>
@@ -75,7 +77,7 @@ const MCQPanel = ({ questions = [] }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   panel: {
     gap: spacing.md
   },

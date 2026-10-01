@@ -11,13 +11,13 @@ import {
   AuthDivider,
   GoogleButton,
   AuthFooterLink,
-  authErrorStyle,
+  AuthMessage,
 } from '../../components/AuthCard';
 import { useAuth } from '../../context/AuthContext';
 import { extractErrorMessage } from '../../api/client';
 import { notify } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 const CLASS_OPTIONS = [
   { label: '11th', value: '11th' },
@@ -93,6 +93,7 @@ function useSignupLogic() {
 }
 
 function WebSignup({ navigation }) {
+  const styles = useThemedStyles(makeStyles);
   const {
     name,
     setName,
@@ -160,7 +161,7 @@ function WebSignup({ navigation }) {
         placeholder="At least 6 characters"
       />
 
-      {error ? <Text style={authErrorStyle()}>{error}</Text> : null}
+      {error ? <AuthMessage>{error}</AuthMessage> : null}
 
       <Button title="Continue" onPress={handleSignup} loading={isSubmitting} />
 
@@ -172,6 +173,8 @@ function WebSignup({ navigation }) {
 }
 
 function NativeSignup({ navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const {
     name,
     setName,
@@ -254,7 +257,7 @@ export default function SignupScreen({ navigation }) {
   return <NativeSignup navigation={navigation} />;
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingTop: spacing.xl,
     paddingBottom: spacing.xl,

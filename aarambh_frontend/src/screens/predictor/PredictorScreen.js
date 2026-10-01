@@ -6,14 +6,15 @@ import Button from '../../components/Button';
 import Card from '../../components/Card';
 import { predictRank, predictColleges } from '../../api/predictor.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 const CATEGORIES = ['GEN', 'OBC', 'SC', 'ST', 'EWS'];
 const YEARS = [2026, 2025, 2024, 2023];
 const DEFAULT_YEAR = YEARS[0];
 
 function YearSelector({ year, onChange }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <>
       <Text style={styles.label}>NEET year</Text>
@@ -33,6 +34,7 @@ function YearSelector({ year, onChange }) {
 }
 
 export default function PredictorScreen() {
+  const styles = useThemedStyles(makeStyles);
   const [mode, setMode] = useState('rank');
 
   return (
@@ -58,6 +60,8 @@ export default function PredictorScreen() {
 }
 
 function RankPredictor() {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [marks, setMarks] = useState('');
   const [year, setYear] = useState(DEFAULT_YEAR);
   const [result, setResult] = useState(null);
@@ -110,6 +114,8 @@ function RankPredictor() {
 }
 
 function CollegePredictor() {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [marks, setMarks] = useState('');
   const [category, setCategory] = useState('GEN');
   const [state, setState] = useState('');
@@ -196,7 +202,7 @@ function CollegePredictor() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   modeRow: {
     flexDirection: 'row',
     gap: spacing.sm,

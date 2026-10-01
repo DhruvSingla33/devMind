@@ -1,9 +1,11 @@
 import { StyleSheet, Text, View } from "react-native";
 
 import ContentBlock from "./ContentBlock";
-import { colors, radius, spacing } from "../../theme/theme";
+import { radius, spacing } from "../../theme/theme";
+import { useThemedStyles } from "../../theme/ThemeContext";
 
 const PageRenderer = ({ page }) => {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.article}>
       {page.sections.map((section) => (
@@ -23,7 +25,7 @@ const PageRenderer = ({ page }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   article: {
     // Fill the column's width. Without this, a react-native-web ScrollView
     // shrink-wraps its content and text wraps at half width.

@@ -8,9 +8,12 @@ import LoadingState from '../../components/LoadingState';
 import ErrorState from '../../components/ErrorState';
 import { listTests, startTest } from '../../api/tests.api';
 import { extractErrorMessage } from '../../api/client';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function TestListScreen({ navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [tests, setTests] = useState([]);
   const [status, setStatus] = useState('loading');
   const [errorMessage, setErrorMessage] = useState(null);
@@ -81,7 +84,7 @@ export default function TestListScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = () => StyleSheet.create({
   header: {
     paddingVertical: spacing.md,
   },

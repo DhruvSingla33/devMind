@@ -3,12 +3,12 @@ import { Platform, ScrollView, StyleSheet, Text } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import TextField from '../../components/TextField';
 import Button from '../../components/Button';
-import { AuthCard, AuthField, authErrorStyle } from '../../components/AuthCard';
+import { AuthCard, AuthField, AuthMessage } from '../../components/AuthCard';
 import { useAuth } from '../../context/AuthContext';
 import { extractErrorMessage } from '../../api/client';
 import { notify } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 function useResetPasswordLogic(navigation, target, otpCode) {
   const { resetPassword } = useAuth();
@@ -64,7 +64,7 @@ function WebResetPassword({ navigation, target, otpCode }) {
         placeholder="Re-enter new password"
       />
 
-      {error ? <Text style={authErrorStyle()}>{error}</Text> : null}
+      {error ? <AuthMessage>{error}</AuthMessage> : null}
 
       <Button title={isSubmitting ? 'Submitting...' : 'Submit'} onPress={handleSubmit} loading={isSubmitting} />
     </AuthCard>
@@ -72,6 +72,8 @@ function WebResetPassword({ navigation, target, otpCode }) {
 }
 
 function NativeResetPassword({ navigation, target, otpCode }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const {
     newPassword,
     setNewPassword,
@@ -124,7 +126,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
   return <NativeResetPassword navigation={navigation} target={target} otpCode={otpCode} />;
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   content: {
     paddingTop: spacing.xl,
     paddingBottom: spacing.xl,

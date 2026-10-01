@@ -7,10 +7,12 @@ import { toggleBookmark } from '../../api/bookmarks.api';
 import { logPractice } from '../../api/mentors.api';
 import { extractErrorMessage } from '../../api/client';
 import { confirmAsync, notify } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { radius, spacing, typography } from '../../theme/theme';
+import { radius, spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function TestAttemptScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { session } = route.params;
   const questions = session.mockTest.questions;
 
@@ -171,7 +173,7 @@ export default function TestAttemptScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   progressRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -5,14 +5,16 @@ import Button from '../../components/Button';
 import { adminImportQuestionsCsv } from '../../api/questions.api';
 import { extractErrorMessage } from '../../api/client';
 import { pickFile } from '../../utils/webUpload';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 // CSV columns the backend expects (matched case/space/dot-insensitively):
 //   Question No., Question, Options, Answer, Solution, NCERT Page, PYQ Year
 // Options are ";"-separated inside one cell; Answer is 1-4 / A-D / exact text;
 // NCERT Page = the book page number the quiz belongs to.
 export default function AdminBulkQuestionUploadScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { textbookId, bookTitle } = route.params;
   const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -118,7 +120,7 @@ export default function AdminBulkQuestionUploadScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

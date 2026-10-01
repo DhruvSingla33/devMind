@@ -9,10 +9,12 @@ import ErrorState from '../../components/ErrorState';
 import { getTextbook, adminDeleteTextbook } from '../../api/textbooks.api';
 import { extractErrorMessage } from '../../api/client';
 import { confirmAsync, notify } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function AdminTextbookDetailScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { code } = route.params;
   const [book, setBook] = useState(null);
   const [status, setStatus] = useState('loading');
@@ -133,7 +135,7 @@ export default function AdminTextbookDetailScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   list: {
     paddingBottom: spacing.xl,
   },

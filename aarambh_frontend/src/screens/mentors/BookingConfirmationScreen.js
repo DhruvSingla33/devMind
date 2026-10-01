@@ -3,10 +3,12 @@ import { StyleSheet, Text, View } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function BookingConfirmationScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { booking } = route.params;
   const start = new Date(booking.slot.startTime);
   const end = new Date(booking.slot.endTime);
@@ -42,7 +44,7 @@ export default function BookingConfirmationScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   hero: {
     alignItems: 'center',
     paddingVertical: spacing.xl,

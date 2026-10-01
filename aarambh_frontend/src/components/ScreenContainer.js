@@ -1,13 +1,14 @@
 import React from 'react';
 import { Platform, SafeAreaView, StyleSheet, View } from 'react-native';
-import colors from '../theme/colors';
 import { spacing } from '../theme/theme';
+import { useThemedStyles } from '../theme/ThemeContext';
 import { useBreakpoint } from '../theme/responsive';
 
 const DEFAULT_MAX_WIDTH = 1120;
 
 export default function ScreenContainer({ children, style, noPadding, maxWidth }) {
   const { isWeb, isDesktop, isTablet } = useBreakpoint();
+  const styles = useThemedStyles(makeStyles);
 
   const webHorizontalPadding = isDesktop ? spacing.xl : isTablet ? spacing.lg : spacing.md;
 
@@ -32,7 +33,7 @@ export default function ScreenContainer({ children, style, noPadding, maxWidth }
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,

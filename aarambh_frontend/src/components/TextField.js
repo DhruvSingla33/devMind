@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import colors from '../theme/colors';
-import { radius, spacing, typography } from '../theme/theme';
+import { radius, spacing } from '../theme/theme';
+import { useTheme, useThemedStyles } from '../theme/ThemeContext';
 
 export default function TextField({ label, error, style, ...inputProps }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [isFocused, setIsFocused] = useState(false);
 
   return (
@@ -31,7 +33,7 @@ export default function TextField({ label, error, style, ...inputProps }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   wrapper: {
     marginBottom: spacing.md,
   },

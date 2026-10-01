@@ -15,10 +15,12 @@ import StudySection from '../StudySection/StudySection';
 import mapStudyData from '../StudySection/mapStudyData';
 import { getChapter, getChapterPdf } from '../../api/textbooks.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function ChapterScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { code, chapterNumber, title } = route.params;
   const [data, setData] = useState(null);
   const [status, setStatus] = useState('loading');
@@ -121,7 +123,7 @@ export default function ChapterScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   reader: {
     flex: 1,
   },

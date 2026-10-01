@@ -3,9 +3,18 @@ import apiClient from './client';
 export const listTests = (params = {}) =>
   apiClient.get('/tests', { params }).then((res) => res.data.data);
 
-export const createMixQuiz = ({ chapterIds = [], questionCount = 30, title, exam = 'NEET' }) =>
+// Either `questionIds` (hand-picked quiz bank) or a random sample of
+// `questionCount` questions matching `filters` (same keys as listQuestions).
+export const createMixQuiz = ({
+  chapterIds = [],
+  questionIds,
+  questionCount = 30,
+  title,
+  exam = 'NEET',
+  filters,
+}) =>
   apiClient
-    .post('/tests/create-mix-quiz', { chapterIds, questionCount, title, exam })
+    .post('/tests/create-mix-quiz', { chapterIds, questionIds, questionCount, title, exam, filters })
     .then((res) => res.data.data);
 
 export const startTest = (testId) =>

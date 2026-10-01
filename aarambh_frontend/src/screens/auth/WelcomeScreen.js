@@ -22,8 +22,8 @@ import ThemeToggle from '../../components/ThemeToggle';
 import { listTextbooks } from '../../api/textbooks.api';
 import { predictRank } from '../../api/predictor.api';
 import { getPublicStats } from '../../api/stats.api';
-import colors from '../../theme/colors';
-import { radius, shadow, spacing, typography } from '../../theme/theme';
+import { radius, shadow, spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { useBreakpoint, useColumns } from '../../theme/responsive';
 
 // Real marketing creatives, text baked into the artwork — used as-is for
@@ -182,6 +182,7 @@ const NAV_LINKS = [
 ];
 
 function NavPill({ label, onPress }) {
+  const styles = useThemedStyles(makeStyles);
   const [isHovered, setIsHovered] = useState(false);
   return (
     <Pressable
@@ -197,6 +198,8 @@ function NavPill({ label, onPress }) {
 }
 
 function NavBar({ navigation, maxWidth, onNavigate, isScrolled }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { isTablet } = useBreakpoint();
   return (
     <View style={[styles.navBar, isScrolled && styles.navBarScrolled]}>
@@ -232,6 +235,8 @@ function NavBar({ navigation, maxWidth, onNavigate, isScrolled }) {
 }
 
 function FaqItem({ index, question, answer }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -260,6 +265,7 @@ function FaqItem({ index, question, answer }) {
 }
 
 function ContactLink({ contact }) {
+  const styles = useThemedStyles(makeStyles);
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -297,6 +303,7 @@ function activityTint(accuracy) {
 }
 
 function ActivityCard({ activity }) {
+  const styles = useThemedStyles(makeStyles);
   const [isHovered, setIsHovered] = useState(false);
   const tint = activityTint(activity.accuracy);
 
@@ -324,7 +331,11 @@ function ActivityCard({ activity }) {
 
 // A small continuously-pulsing dot — the "this is live" indicator next to
 // the Recent Activity heading, in place of a static green circle emoji.
-function PulsingDot({ color = colors.success, size = 8 }) {
+function PulsingDot({ color, size = 8 }) {
+  const { colors } = useTheme();
+  if (color === undefined) {
+    color = colors.success;
+  }
   const pulse = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -449,6 +460,7 @@ function RevealOnMount({ children, style, delay = 0 }) {
 }
 
 function Section({ background, children, maxWidth, style, onLayout }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={[styles.section, background && { backgroundColor: background }]} onLayout={onLayout}>
       <View style={[styles.band, { maxWidth }, style]}>{children}</View>
@@ -457,6 +469,8 @@ function Section({ background, children, maxWidth, style, onLayout }) {
 }
 
 function RankPredictorWidget() {
+  const { colors, typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [marks, setMarks] = useState('');
   const [result, setResult] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | loading | error
@@ -514,6 +528,8 @@ function RankPredictorWidget() {
 }
 
 function WebLanding({ navigation }) {
+  const { colors, typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { isDesktop, isTablet } = useBreakpoint();
   // Phone-width viewports get a genuinely compact banner (row layout, small
   // icon, no secondary copy) instead of the stacked column layout, which
@@ -1087,6 +1103,8 @@ function WebLanding({ navigation }) {
 }
 
 function NativeWelcome({ navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <ScreenContainer>
       <View style={styles.hero}>
@@ -1123,7 +1141,7 @@ export default function WelcomeScreen({ navigation }) {
   return <NativeWelcome navigation={navigation} />;
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   // --- web landing ---
   page: {
     flex: 1,

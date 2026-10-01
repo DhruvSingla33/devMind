@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 import DataTable from "./DataTable";
-import { colors, radius, spacing } from "../../theme/theme";
+import { radius, spacing } from "../../theme/theme";
+import { useThemedStyles } from "../../theme/ThemeContext";
 
 const ContentImage = ({ item }) => {
+  const styles = useThemedStyles(makeStyles);
   const [failed, setFailed] = useState(false);
 
   return (
@@ -35,6 +37,8 @@ const ContentImage = ({ item }) => {
 };
 
 const ContentBlock = ({ item }) => {
+  const styles = useThemedStyles(makeStyles);
+
   switch (item.type) {
     case "text":
       return <Text style={styles.text}>{item.value}</Text>;
@@ -63,7 +67,7 @@ const ContentBlock = ({ item }) => {
   }
 };
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   text: {
     marginTop: spacing.md,
     color: colors.text,

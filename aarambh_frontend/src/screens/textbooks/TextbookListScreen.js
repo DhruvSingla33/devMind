@@ -8,8 +8,8 @@ import LoadingState from '../../components/LoadingState';
 import ErrorState from '../../components/ErrorState';
 import { listTextbooks } from '../../api/textbooks.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { radius, spacing, typography } from '../../theme/theme';
+import { radius, spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { hexToRgba } from '../../utils/color';
 
 const SUBJECT_ICONS = {
@@ -27,6 +27,8 @@ const SUBJECT_COLORS = {
 };
 
 export default function TextbookListScreen({ navigation }) {
+  const { colors, typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [textbooks, setTextbooks] = useState([]);
   const [status, setStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
   const [errorMessage, setErrorMessage] = useState(null);
@@ -100,7 +102,7 @@ export default function TextbookListScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = () => StyleSheet.create({
   list: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

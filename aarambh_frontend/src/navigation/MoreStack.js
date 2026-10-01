@@ -14,11 +14,12 @@ import PulseScreen from '../screens/pulse/PulseScreen';
 import PredictorScreen from '../screens/predictor/PredictorScreen';
 import NotesListScreen from '../screens/notes/NotesListScreen';
 import NoteEditorScreen from '../screens/notes/NoteEditorScreen';
-import headerOptions from './headerOptions';
+import { useHeaderOptions } from './headerOptions';
 
 const Stack = createNativeStackNavigator();
 
 export default function MoreStack() {
+  const headerOptions = useHeaderOptions();
   return (
     <Stack.Navigator screenOptions={headerOptions}>
       <Stack.Screen name="MoreHub" component={MoreHubScreen} options={{ title: 'More' }} />

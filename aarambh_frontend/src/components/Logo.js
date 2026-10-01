@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image } from 'react-native';
-import { isDarkTheme } from '../theme/colors';
+import { useTheme } from '../theme/ThemeContext';
 
 // The real brand artwork (cropped from the marketing banner, background
 // keyed out to transparent) — not a code-drawn approximation. The flattened
@@ -24,7 +24,8 @@ const MARK_HEIGHT = {
 };
 
 export default function Logo({ size = 'md', style }) {
-  if (!isDarkTheme) {
+  const { isDark } = useTheme();
+  if (!isDark) {
     const width = LOCKUP_WIDTH[size] || LOCKUP_WIDTH.md;
     return (
       <Image

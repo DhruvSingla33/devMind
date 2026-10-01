@@ -8,17 +8,20 @@ import LoadingState from '../../components/LoadingState';
 import ErrorState from '../../components/ErrorState';
 import { adminListDoubts, adminAnswerDoubt } from '../../api/doubts.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 const STATUS_FILTERS = ['PENDING', 'IN_PROGRESS', 'RESOLVED'];
-const STATUS_COLORS = {
+const makeStatusColors = (colors) => ({
   PENDING: colors.warning,
   IN_PROGRESS: colors.primary,
   RESOLVED: colors.success,
-};
+});
 
 export default function AdminDoubtsScreen() {
+  const { colors, typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
+  const STATUS_COLORS = makeStatusColors(colors);
   const [statusFilter, setStatusFilter] = useState('PENDING');
   const [doubts, setDoubts] = useState([]);
   const [loadStatus, setLoadStatus] = useState('loading');
@@ -150,7 +153,7 @@ export default function AdminDoubtsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   filterRow: {
     flexDirection: 'row',
     gap: spacing.xs,

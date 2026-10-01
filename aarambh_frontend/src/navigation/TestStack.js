@@ -5,11 +5,12 @@ import MixQuizSetupScreen from '../screens/tests/MixQuizSetupScreen';
 import TestAttemptScreen from '../screens/tests/TestAttemptScreen';
 import TestResultScreen from '../screens/tests/TestResultScreen';
 import MyAttemptsScreen from '../screens/tests/MyAttemptsScreen';
-import headerOptions from './headerOptions';
+import { useHeaderOptions } from './headerOptions';
 
 const Stack = createNativeStackNavigator();
 
 export default function TestStack() {
+  const headerOptions = useHeaderOptions();
   return (
     <Stack.Navigator screenOptions={headerOptions}>
       <Stack.Screen name="TestList" component={TestListScreen} options={{ title: 'Tests' }} />

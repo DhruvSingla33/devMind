@@ -8,10 +8,12 @@ import ErrorState from '../../components/ErrorState';
 import { getBatch, enrollBatch } from '../../api/batches.api';
 import { extractErrorMessage } from '../../api/client';
 import { notify } from '../../utils/alert';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function BatchDetailScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { batchId } = route.params;
   const [batch, setBatch] = useState(null);
   const [status, setStatus] = useState('loading');
@@ -117,7 +119,7 @@ export default function BatchDetailScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

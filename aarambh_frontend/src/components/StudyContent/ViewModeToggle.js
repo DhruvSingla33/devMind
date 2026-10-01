@@ -1,6 +1,7 @@
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { colors, radius, spacing } from "../../theme/theme";
+import { radius, spacing } from "../../theme/theme";
+import { useThemedStyles } from "../../theme/ThemeContext";
 
 const OPTIONS = [
   { value: "text", label: "📝 Notes" },
@@ -8,7 +9,9 @@ const OPTIONS = [
 ];
 
 // Segmented switch between the structured notes and the NCERT PDF pages.
-const ViewModeToggle = ({ value, onChange }) => (
+const ViewModeToggle = ({ value, onChange }) => {
+  const styles = useThemedStyles(makeStyles);
+  return (
   <View style={styles.track} accessibilityRole="tablist">
     {OPTIONS.map((option) => {
       const isActive = option.value === value;
@@ -27,9 +30,10 @@ const ViewModeToggle = ({ value, onChange }) => (
       );
     })}
   </View>
-);
+  );
+};
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   track: {
     flexDirection: "row",
     alignSelf: "flex-start",

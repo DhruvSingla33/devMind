@@ -6,10 +6,12 @@ import Button from '../../components/Button';
 import Card from '../../components/Card';
 import { listMentors, adminCreateMentor, adminAddMentorSlots } from '../../api/mentors.api';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function AdminMentorFormScreen() {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   // --- create mentor ---
   const [name, setName] = useState('');
   const [rankInfo, setRankInfo] = useState('');
@@ -172,7 +174,7 @@ export default function AdminMentorFormScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   content: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

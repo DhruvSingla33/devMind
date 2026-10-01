@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { WebView } from "react-native-webview";
 
-import { colors, radius, spacing } from "../../theme/theme";
+import { radius, spacing } from "../../theme/theme";
+import { useTheme, useThemedStyles } from "../../theme/ThemeContext";
 
 // Native build of the single-page PDF viewer: a WebView running pdf.js that
 // draws one page at a time. The page number is pushed in with
@@ -75,6 +76,8 @@ function buildHtml(url, initialPage) {
 }
 
 const PdfPageViewer = ({ url, page, onDocumentLoad, onError }) => {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const webViewRef = useRef(null);
   const [isRendering, setIsRendering] = useState(true);
 
@@ -123,7 +126,7 @@ const PdfPageViewer = ({ url, page, onDocumentLoad, onError }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   sheet: {
     flex: 1,
     borderRadius: radius.md,

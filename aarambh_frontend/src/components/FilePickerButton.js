@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Button from './Button';
 import { pickFile, uploadFile } from '../utils/webUpload';
-import colors from '../theme/colors';
-import { spacing, typography } from '../theme/theme';
+import { spacing } from '../theme/theme';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 export default function FilePickerButton({
   label = 'Upload file',
@@ -12,6 +12,7 @@ export default function FilePickerButton({
   value,
   onUploaded,
 }) {
+  const styles = useThemedStyles(makeStyles);
   const [status, setStatus] = useState('idle'); // idle | picking | uploading | error
   const [error, setError] = useState(null);
   const [fileName, setFileName] = useState(null);
@@ -53,7 +54,7 @@ export default function FilePickerButton({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   wrapper: {
     marginBottom: spacing.md,
   },

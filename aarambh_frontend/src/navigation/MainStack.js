@@ -7,7 +7,7 @@ import TestStack from './TestStack';
 import MoreStack from './MoreStack';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import ResetPasswordScreen from '../screens/profile/ResetPasswordScreen';
-import headerOptions from './headerOptions';
+import { useHeaderOptions } from './headerOptions';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +18,7 @@ const Stack = createNativeStackNavigator();
 // made from inside the Tab.Navigator bubble up and resolve here, the same
 // way `navigate('Admin')` already did before this screen existed.
 export default function MainStack() {
+  const headerOptions = useHeaderOptions();
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Tabs" component={AppTabs} />

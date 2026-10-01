@@ -29,15 +29,22 @@ export const radius = {
   pill: 999,
 };
 
-export const typography = {
-  h1: { fontSize: 28, fontWeight: '700', color: colors.textPrimary },
-  h2: { fontSize: 22, fontWeight: '700', color: colors.textPrimary },
-  h3: { fontSize: 18, fontWeight: '600', color: colors.textPrimary },
-  body: { fontSize: 15, fontWeight: '400', color: colors.textPrimary },
-  bodyMuted: { fontSize: 14, fontWeight: '400', color: colors.textSecondary },
-  caption: { fontSize: 12, fontWeight: '500', color: colors.textMuted },
+// Typography carries text colors, so it is theme-dependent: `makeTypography`
+// builds the set for a given palette. The static `typography` export below is
+// the light/dark set resolved at module-load (backward compat for screens not
+// yet migrated to useTheme()); live theming reads it from the ThemeContext,
+// which calls makeTypography with the active palette.
+export const makeTypography = (c) => ({
+  h1: { fontSize: 28, fontWeight: '700', color: c.textPrimary },
+  h2: { fontSize: 22, fontWeight: '700', color: c.textPrimary },
+  h3: { fontSize: 18, fontWeight: '600', color: c.textPrimary },
+  body: { fontSize: 15, fontWeight: '400', color: c.textPrimary },
+  bodyMuted: { fontSize: 14, fontWeight: '400', color: c.textSecondary },
+  caption: { fontSize: 12, fontWeight: '500', color: c.textMuted },
   button: { fontSize: 16, fontWeight: '600' },
-};
+});
+
+export const typography = makeTypography(colors);
 
 export const shadow = {
   card: {

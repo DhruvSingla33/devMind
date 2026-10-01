@@ -3,11 +3,11 @@ import { Platform, ScrollView, StyleSheet, Text } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import TextField from '../../components/TextField';
 import Button from '../../components/Button';
-import { AuthCard, AuthField, AuthFooterLink, authErrorStyle } from '../../components/AuthCard';
+import { AuthCard, AuthField, AuthFooterLink, AuthMessage } from '../../components/AuthCard';
 import { useAuth } from '../../context/AuthContext';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 function useForgotPasswordLogic(navigation) {
   const { requestOtp } = useAuth();
@@ -59,7 +59,7 @@ function WebForgotPassword({ navigation }) {
         placeholder="you@example.com or 9876543210"
       />
 
-      {error ? <Text style={authErrorStyle()}>{error}</Text> : null}
+      {error ? <AuthMessage>{error}</AuthMessage> : null}
 
       <Button title="Submit" onPress={handleSubmit} loading={isSubmitting} />
     </AuthCard>
@@ -67,6 +67,8 @@ function WebForgotPassword({ navigation }) {
 }
 
 function NativeForgotPassword({ navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { target, setTarget, isSubmitting, error, handleSubmit } = useForgotPasswordLogic(navigation);
 
   return (
@@ -107,7 +109,7 @@ export default function ForgotPasswordScreen({ navigation }) {
   return <NativeForgotPassword navigation={navigation} />;
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   content: {
     paddingTop: spacing.xl,
     paddingBottom: spacing.xl,

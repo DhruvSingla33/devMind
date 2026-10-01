@@ -1,9 +1,12 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function LeaderboardScreen() {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   return (
     <ScreenContainer maxWidth={640}>
       <View style={styles.hero}>
@@ -18,7 +21,7 @@ export default function LeaderboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = () => StyleSheet.create({
   hero: {
     flex: 1,
     alignItems: 'center',

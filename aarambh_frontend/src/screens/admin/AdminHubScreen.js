@@ -5,8 +5,8 @@ import Grid from '../../components/Grid';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import { useAuth } from '../../context/AuthContext';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme } from '../../theme/ThemeContext';
 
 const SECTIONS = [
   {
@@ -54,6 +54,7 @@ const SECTIONS = [
 ];
 
 export default function AdminHubScreen({ navigation }) {
+  const { typography } = useTheme();
   const { user, logout } = useAuth();
 
   return (

@@ -7,9 +7,8 @@ import { listTextbooks } from '../../api/textbooks.api';
 import { listQuestions } from '../../api/questions.api';
 import { getMyStreak } from '../../api/mentors.api';
 import { useAuth } from '../../context/AuthContext';
-import colors, { isDarkTheme } from '../../theme/colors';
-import { setThemeMode } from '../../theme/themeMode';
-import { radius, spacing, typography } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
+import { radius, spacing } from '../../theme/theme';
 import { hexToRgba } from '../../utils/color';
 import { notify } from '../../utils/alert';
 
@@ -87,10 +86,11 @@ function optionLabel(index) {
 
 export default function HomeScreen({ navigation }) {
   const { user } = useAuth();
+  const { colors, typography, isDark, setMode } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const firstName = user?.name?.split(' ')?.[0] || 'there';
   const today = new Date();
 
-  const [isDark] = useState(isDarkTheme);
   const [streak, setStreak] = useState(null);
   const [subjects, setSubjects] = useState(FALLBACK_SUBJECTS);
   const [pyq, setPyq] = useState(null);
@@ -116,8 +116,7 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
   const toggleTheme = () => {
-    const next = isDark ? 'light' : 'dark';
-    setThemeMode(next);
+    setMode(isDark ? 'light' : 'dark');
   };
 
   const streakDays = streak?.currentStreakDays || 0;
@@ -456,7 +455,7 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   scroll: {
     paddingBottom: spacing.xxl,
   },

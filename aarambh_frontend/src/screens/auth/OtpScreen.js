@@ -3,11 +3,11 @@ import { Platform, ScrollView, StyleSheet, Text } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import TextField from '../../components/TextField';
 import Button from '../../components/Button';
-import { AuthCard, AuthField, AuthFooterLink, authErrorStyle, authInfoStyle } from '../../components/AuthCard';
+import { AuthCard, AuthField, AuthFooterLink, AuthMessage } from '../../components/AuthCard';
 import { useAuth } from '../../context/AuthContext';
 import { extractErrorMessage } from '../../api/client';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 function useOtpLogic() {
   const { requestOtp, confirmOtp } = useAuth();
@@ -63,6 +63,7 @@ function useOtpLogic() {
 }
 
 function WebOtp({ navigation }) {
+  const styles = useThemedStyles(makeStyles);
   const {
     step,
     setStep,
@@ -101,12 +102,12 @@ function WebOtp({ navigation }) {
             autoCapitalize="none"
             placeholder="+919876543210 or you@example.com"
           />
-          {error ? <Text style={authErrorStyle()}>{error}</Text> : null}
+          {error ? <AuthMessage>{error}</AuthMessage> : null}
           <Button title="Send OTP" onPress={handleSendOtp} loading={isSubmitting} />
         </>
       ) : (
         <>
-          {info ? <Text style={authInfoStyle()}>{info}</Text> : null}
+          {info ? <AuthMessage type="info">{info}</AuthMessage> : null}
           <AuthField
             label="Name (only needed for new accounts)"
             value={name}
@@ -121,7 +122,7 @@ function WebOtp({ navigation }) {
             maxLength={6}
             placeholder="123456"
           />
-          {error ? <Text style={authErrorStyle()}>{error}</Text> : null}
+          {error ? <AuthMessage>{error}</AuthMessage> : null}
           <Button title="Verify & continue" onPress={handleVerifyOtp} loading={isSubmitting} />
           <Button
             title="Change phone / email"
@@ -136,6 +137,8 @@ function WebOtp({ navigation }) {
 }
 
 function NativeOtp() {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const {
     step,
     setStep,
@@ -211,7 +214,7 @@ export default function OtpScreen({ navigation }) {
   return <NativeOtp />;
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   webGhost: {
     marginTop: spacing.xs,
   },

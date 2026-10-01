@@ -7,10 +7,12 @@ import LoadingState from '../../components/LoadingState';
 import ErrorState from '../../components/ErrorState';
 import { getTextbook } from '../../api/textbooks.api';
 import { extractErrorMessage } from '../../api/client';
-import { spacing, typography } from '../../theme/theme';
-import colors from '../../theme/colors';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 export default function TextbookDetailScreen({ route, navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { code, title } = route.params;
   const [textbook, setTextbook] = useState(null);
   const [status, setStatus] = useState('loading');
@@ -74,7 +76,7 @@ export default function TextbookDetailScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   list: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

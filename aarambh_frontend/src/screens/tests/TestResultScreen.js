@@ -3,10 +3,11 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
-import colors from '../../theme/colors';
-import { spacing, typography } from '../../theme/theme';
+import { spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 function StatTile({ label, value, tint }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.tile}>
       <Text style={[styles.tileValue, tint && { color: tint }]}>{value}</Text>
@@ -16,6 +17,8 @@ function StatTile({ label, value, tint }) {
 }
 
 export default function TestResultScreen({ route, navigation }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const { result } = route.params;
   const unansweredCount = result.totalQuestions - result.answeredCount;
 
@@ -48,7 +51,7 @@ export default function TestResultScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   content: {
     paddingTop: spacing.lg,
     paddingBottom: spacing.xl,

@@ -5,8 +5,8 @@ import ScreenContainer from '../../components/ScreenContainer';
 import Card from '../../components/Card';
 import LoadingState from '../../components/LoadingState';
 import { getNotes } from '../../utils/notesStorage';
-import colors from '../../theme/colors';
-import { radius, spacing, typography } from '../../theme/theme';
+import { radius, spacing } from '../../theme/theme';
+import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
 function previewText(note) {
   const body = (note.body || '').trim();
@@ -35,6 +35,8 @@ function formatDate(ts) {
 }
 
 export default function NotesListScreen({ navigation }) {
+  const { typography } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [notes, setNotes] = useState(null);
 
   const load = useCallback(() => {
@@ -113,7 +115,7 @@ export default function NotesListScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors, typography }) => StyleSheet.create({
   list: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
-import colors from '../theme/colors';
 import { radius, shadow, spacing } from '../theme/theme';
+import { useThemedStyles } from '../theme/ThemeContext';
 
 export default function Card({ children, onPress, style, noPadding }) {
   const [isHovered, setIsHovered] = useState(false);
+  const styles = useThemedStyles(makeStyles);
   const content = (
     <View
       style={[
@@ -32,7 +33,7 @@ export default function Card({ children, onPress, style, noPadding }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   pressable: Platform.select({ web: { cursor: 'pointer' }, default: {} }),
   card: {
     backgroundColor: colors.surface,

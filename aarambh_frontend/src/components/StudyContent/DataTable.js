@@ -1,10 +1,13 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { colors, radius, spacing } from "../../theme/theme";
+import { radius, spacing } from "../../theme/theme";
+import { useThemedStyles } from "../../theme/ThemeContext";
 
 const COLUMN_WIDTH = 180;
 
 const DataTable = ({ columns = [], rows = [] }) => {
+  const styles = useThemedStyles(makeStyles);
+
   if (columns.length === 0) {
     return null;
   }
@@ -47,7 +50,7 @@ const DataTable = ({ columns = [], rows = [] }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   wrapper: {
     marginTop: spacing.md,
     borderWidth: StyleSheet.hairlineWidth,

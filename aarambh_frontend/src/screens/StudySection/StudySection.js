@@ -16,12 +16,15 @@ import PageRenderer from "../../components/StudyContent/PageRenderer";
 import MCQPanel from "../../components/StudyContent/MCQPanel";
 import PageNavigation from "../../components/StudyContent/PageNavigation";
 import PdfPageViewer from "../../components/StudyContent/PdfPageViewer";
-import { colors, radius, spacing, WIDE_BREAKPOINT } from "../../theme/theme";
+import { radius, spacing, WIDE_BREAKPOINT } from "../../theme/theme";
+import { useTheme, useThemedStyles } from "../../theme/ThemeContext";
 
 // `loadPdfUrl` (optional) resolves to the chapter PDF's URL. When given, the
 // reader offers a Notes / PDF toggle; with no notes pages it opens straight
 // into the PDF.
 const StudySection = ({ studyData, loadPdfUrl }) => {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(makeStyles);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
   const { width } = useWindowDimensions();
@@ -333,7 +336,7 @@ const StudySection = ({ studyData, loadPdfUrl }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = ({ colors }) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background
