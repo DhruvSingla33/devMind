@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Button from '../../components/Button';
+import AppModal from '../../components/AppModal';
 import { radius, spacing } from '../../theme/theme';
 import { useBreakpoint } from '../../theme/responsive';
-import { notify } from '../../utils/alert';
 
 // This screen is a fixed dark "promo" surface (like the marketing creative it
 // mirrors) rather than following the light/dark app theme — so colors below
@@ -27,13 +27,21 @@ const COUPON_CODE = 'MUKUL7';
 
 export default function SubscriptionScreen() {
   const { isDesktop } = useBreakpoint();
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
-  const handleUnlock = () => {
-    notify('Aarambh+', 'Checkout is coming soon — stay tuned!');
-  };
+  const handleUnlock = () => setShowComingSoon(true);
 
   return (
     <ScrollView style={styles.page} contentContainerStyle={styles.content}>
+      <AppModal
+        visible={showComingSoon}
+        onClose={() => setShowComingSoon(false)}
+        emoji="🚀"
+        title="Aarambh+ is almost here"
+        message="Secure checkout is coming soon. Stay tuned — you'll be the first to unlock it!"
+        actionLabel="Got it"
+        accent={ACCENT}
+      />
       <View style={[styles.layout, isDesktop && styles.layoutDesktop]}>
         <View style={[styles.left, isDesktop && styles.leftDesktop]}>
           <View style={styles.brandRow}>

@@ -85,10 +85,17 @@ function ToolButton({ active, onPress, children }) {
   );
 }
 
-export default function NoteEditorScreen({ route, navigation }) {
+export default function NoteEditorScreen({ route, navigation, noteId: propNoteId, onClose }) {
   const { colors } = useTheme();
   const styles = useThemedStyles(makeStyles);
-  const routeId = route.params?.id || null;
+  const routeId = propNoteId ?? route?.params?.id ?? null;
+  // Embedded in the dashboard (onClose provided) → no native header, so we show
+  // an in-editor action bar and return via onClose instead of goBack().
+  const embedded = !!onClose;
+  const close = useCallback(() => {
+    if (onClose) return onClose();
+    return navigation?.goBack?.();
+  }, [onClose, navigation]);
 
   const [title, setTitle] = useState('');
   const [blocks, setBlocks] = useState([{ id: uid(), type: 'paragraph', text: '', align: 'left' }]);
@@ -271,25 +278,26 @@ export default function NoteEditorScreen({ route, navigation }) {
     dirtyRef.current = false;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     if (idRef.current) await deleteNote(idRef.current);
-    navigation.goBack();
-  }, [navigation]);
+    close();
+  }, [close]);
 
+  const handleSave = useCallback(async () => {
+    await persist();
+    close();
+  }, [persist, close]);
+
+  // Native-header Save button — only when pushed as a route (not embedded).
   useEffect(() => {
+    if (embedded || !navigation?.setOptions) return;
     navigation.setOptions({
       title: routeId ? 'Edit note' : 'New note',
       headerRight: () => (
-        <Pressable
-          onPress={async () => {
-            await persist();
-            navigation.goBack();
-          }}
-          style={styles.headerBtn}
-        >
+        <Pressable onPress={handleSave} style={styles.headerBtn}>
           <Text style={styles.headerBtnText}>Save</Text>
         </Pressable>
       ),
     });
-  }, [navigation, routeId, persist]);
+  }, [navigation, routeId, handleSave, embedded]);
 
   if (loading) return <LoadingState label="Loading note…" />;
 
@@ -322,6 +330,20 @@ export default function NoteEditorScreen({ route, navigation }) {
 
   return (
     <KeyboardAvoidingView style={styles.canvas} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      {/* Action bar (embedded mode: replaces the native header) */}
+      {embedded ? (
+        <View style={styles.actionBar}>
+          <Pressable onPress={close} style={styles.actionBack} accessibilityLabel="Back to notes">
+            <Text style={{ fontSize: 18, color: colors.textSecondary }}>←</Text>
+          </Pressable>
+          <Text style={styles.actionTitle}>{routeId ? 'Edit note' : 'New note'}</Text>
+          <View style={{ flex: 1 }} />
+          <Pressable onPress={handleSave} style={styles.saveBtn}>
+            <Text style={styles.saveBtnText}>Save</Text>
+          </Pressable>
+        </View>
+      ) : null}
+
       {/* Toolbar */}
       <View style={styles.toolbar}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolbarRow}>
@@ -447,6 +469,34 @@ export default function NoteEditorScreen({ route, navigation }) {
 
 const makeStyles = ({ colors, typography }) => StyleSheet.create({
   canvas: { flex: 1, backgroundColor: colors.backgroundElevated },
+  actionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.background,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  actionBack: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({ web: { cursor: 'pointer' }, default: {} }),
+  },
+  actionTitle: { fontSize: 16, fontWeight: '700', color: colors.textPrimary },
+  saveBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm + 2,
+    ...Platform.select({ web: { cursor: 'pointer' }, default: {} }),
+  },
+  saveBtnText: { color: colors.white, fontWeight: '700', fontSize: 14 },
   toolbar: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -165,6 +165,37 @@ export const changePasswordService = async ({ userId, oldPassword, newPassword }
 };
 
 /**
+ * Update the signed-in user's editable profile details. Only whitelisted
+ * fields are applied; phone uniqueness is enforced just like at signup.
+ */
+export const updateProfileService = async ({ userId, ...fields }) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(HTTP_STATUS.NOT_FOUND, 'User not found');
+  }
+
+  const ALLOWED = ['name', 'phone', 'classLevel', 'targetExam', 'targetYear', 'institute'];
+
+  if (fields.phone && fields.phone !== user.phone) {
+    const existingPhone = await User.findOne({ phone: fields.phone, _id: { $ne: userId } });
+    if (existingPhone) {
+      throw new ApiError(HTTP_STATUS.CONFLICT, 'User with this mobile number already exists');
+    }
+  }
+
+  ALLOWED.forEach((key) => {
+    if (fields[key] !== undefined) {
+      user[key] = fields[key];
+    }
+  });
+
+  await user.save();
+
+  // Return the sanitized user (toJSON strips password/refreshToken).
+  return { user: user.toJSON() };
+};
+
+/**
  * Refresh Access Token
  */
 export const refreshTokensService = async ({ refreshToken }) => {

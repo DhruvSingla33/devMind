@@ -184,7 +184,9 @@ export default function PublicChapterReaderScreen({ route, navigation }) {
             </View>
           </View>
 
-          <View style={[styles.column, isDesktop && styles.questionsColumn]}>
+          <View
+            style={[styles.column, isDesktop ? styles.questionsColumn : styles.questionsColumnMobile]}
+          >
             <Text style={[typography.h3, styles.questionsHeading]}>
               High-probability exam questions
             </Text>
@@ -215,14 +217,24 @@ const makeStyles = ({ colors }) => StyleSheet.create({
     alignItems: 'flex-start',
     gap: spacing.lg,
   },
+  // No flex here: on mobile the layout is a vertical column inside a
+  // ScrollView, and `flex: 1` on stacked children in an unbounded-height
+  // column collapses them so the two sections overlap. Flex is applied only
+  // in the desktop row layout (questionsColumn), where the width is bounded.
   column: {
-    flex: 1,
+    minWidth: 0,
   },
   readerColumn: {
+    flex: 1,
     maxWidth: 420,
   },
   questionsColumn: {
     flex: 1,
+  },
+  // Mobile: the questions stack below the signup card, so give them breathing
+  // room above the heading instead of butting right up against the card.
+  questionsColumnMobile: {
+    marginTop: spacing.xl,
   },
   description: {
     marginTop: spacing.sm,

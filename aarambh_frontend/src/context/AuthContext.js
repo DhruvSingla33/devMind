@@ -117,6 +117,12 @@ export function AuthProvider({ children }) {
     []
   );
 
+  const updateProfile = useCallback(async (payload) => {
+    const updated = await authApi.updateProfile(payload);
+    setUser(updated);
+    return updated;
+  }, []);
+
   const logout = useCallback(async () => {
     await clearTokens();
     setUser(null);
@@ -133,6 +139,7 @@ export function AuthProvider({ children }) {
       confirmOtp,
       resetPassword,
       changePassword,
+      updateProfile,
       requestGoogleSignIn,
       isGoogleReady: !!request,
       logout,
@@ -147,6 +154,7 @@ export function AuthProvider({ children }) {
       confirmOtp,
       resetPassword,
       changePassword,
+      updateProfile,
       requestGoogleSignIn,
       request,
       logout,

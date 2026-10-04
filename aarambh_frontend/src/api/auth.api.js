@@ -27,3 +27,7 @@ export const googleAuth = (idToken) =>
   apiClient.post('/auth/google', { idToken }).then((res) => res.data.data);
 
 export const getMe = () => apiClient.get('/auth/me').then((res) => res.data.data.user);
+
+// Partial profile update — send only the changed fields.
+export const updateProfile = (payload) =>
+  apiClient.patch('/auth/me', payload).then((res) => res.data.data.user);

@@ -9,6 +9,7 @@ import {
   resetPassword,
   refreshToken,
   getMe,
+  updateProfile,
 } from '../controllers/auth.controller.js';
 import { validate } from '../middlewares/validate.middleware.js';
 import { authenticateJWT } from '../middlewares/auth.middleware.js';
@@ -21,6 +22,7 @@ import {
   resetPasswordSchema,
   googleAuthSchema,
   refreshTokenSchema,
+  updateProfileSchema,
 } from '../validations/auth.validation.js';
 
 const router = Router();
@@ -161,5 +163,6 @@ router.post('/change-password', authenticateJWT, validate(changePasswordSchema),
 
 router.post('/refresh-token', validate(refreshTokenSchema), refreshToken);
 router.get('/me', authenticateJWT, getMe);
+router.patch('/me', authenticateJWT, validate(updateProfileSchema), updateProfile);
 
 export default router;

@@ -35,6 +35,25 @@ export const changePasswordSchema = Joi.object({
   }),
 });
 
+// Profile edit — every field optional, but at least one must be present so an
+// empty PATCH is rejected.
+export const updateProfileSchema = Joi.object({
+  name: Joi.string().trim().min(2).max(100).messages({
+    'string.min': 'Name must be at least 2 characters long',
+  }),
+  phone: Joi.string().trim().pattern(/^[6-9]\d{9}$/).messages({
+    'string.pattern.base': 'Must be a valid 10-digit mobile number',
+  }),
+  classLevel: Joi.string().valid('11th', '12th', 'dropper').messages({
+    'any.only': 'Class must be one of 11th, 12th or Dropper',
+  }),
+  targetExam: Joi.string().trim().allow('').max(60),
+  targetYear: Joi.number().integer().min(2000).max(2100).allow(null),
+  institute: Joi.string().trim().allow('').max(120),
+})
+  .min(1)
+  .messages({ 'object.min': 'Provide at least one field to update' });
+
 export const resetPasswordSchema = Joi.object({
   target: Joi.string().trim().required().messages({
     'any.required': 'Email or mobile number is required',
