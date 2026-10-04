@@ -29,6 +29,25 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['11th', '12th', 'dropper'],
     },
+    // Editable academic profile details shown on the student profile page.
+    targetExam: {
+      type: String,
+      trim: true,
+      maxlength: [60, 'Target exam cannot exceed 60 characters'],
+      default: '',
+    },
+    targetYear: {
+      type: Number,
+      min: [2000, 'Target year looks invalid'],
+      max: [2100, 'Target year looks invalid'],
+      default: null,
+    },
+    institute: {
+      type: String,
+      trim: true,
+      maxlength: [120, 'Institute name cannot exceed 120 characters'],
+      default: '',
+    },
     password: {
       type: String,
       required: function () {

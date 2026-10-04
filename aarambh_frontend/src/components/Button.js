@@ -16,6 +16,7 @@ export default function Button({
   title,
   onPress,
   variant = 'primary',
+  size = 'md',
   loading = false,
   disabled = false,
   style,
@@ -28,6 +29,7 @@ export default function Button({
   const basePalette = VARIANTS[variant] || VARIANTS.primary;
   const palette = textColor ? { ...basePalette, text: textColor } : basePalette;
   const isDisabled = disabled || loading;
+  const isSmall = size === 'sm';
 
   return (
     <Pressable
@@ -37,6 +39,7 @@ export default function Button({
       onHoverOut={() => setIsHovered(false)}
       style={({ pressed }) => [
         styles.base,
+        isSmall && styles.baseSm,
         palette.glow && !isDisabled && styles.glow,
         {
           backgroundColor: palette.bg,
@@ -53,7 +56,9 @@ export default function Button({
       {loading ? (
         <ActivityIndicator color={palette.text} />
       ) : (
-        <Text style={[typography.button, { color: palette.text }]}>{title}</Text>
+        <Text style={[typography.button, isSmall && styles.textSm, { color: palette.text }]}>
+          {title}
+        </Text>
       )}
     </Pressable>
   );
@@ -75,6 +80,15 @@ const makeStyles = ({ colors }) => StyleSheet.create({
       },
       default: {},
     }),
+  },
+  // Compact size for dense rows like the mobile top bar.
+  baseSm: {
+    paddingVertical: spacing.xs + 1,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.sm,
+  },
+  textSm: {
+    fontSize: 13,
   },
   glow: {
     shadowColor: colors.primary,

@@ -7,6 +7,7 @@ import {
   googleAuthService,
   changePasswordService,
   refreshTokensService,
+  updateProfileService,
 } from '../services/auth.service.js';
 import { sendOtpService, verifyOtpService, resetPasswordService } from '../services/otp.service.js';
 
@@ -52,4 +53,9 @@ export const refreshToken = asyncHandler(async (req, res) => {
 
 export const getMe = asyncHandler(async (req, res) => {
   sendSuccess(res, HTTP_STATUS.OK, { user: req.user }, 'Current user profile fetched successfully');
+});
+
+export const updateProfile = asyncHandler(async (req, res) => {
+  const result = await updateProfileService({ userId: req.user._id, ...req.body });
+  sendSuccess(res, HTTP_STATUS.OK, result, 'Profile updated successfully');
 });

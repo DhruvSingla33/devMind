@@ -96,6 +96,19 @@ export default function NotesListScreen({ navigation }) {
         data={notes}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
+        ListHeaderComponent={
+          <View style={styles.listHeader}>
+            <View>
+              <Text style={typography.h3}>My Notes</Text>
+              <Text style={[typography.caption, { marginTop: 2 }]}>
+                {notes.length} {notes.length === 1 ? 'note' : 'notes'}
+              </Text>
+            </View>
+            <Pressable onPress={() => navigation.navigate('NoteEditor', {})} style={styles.newNoteBtn}>
+              <Text style={styles.newNoteBtnText}>＋ New Note</Text>
+            </Pressable>
+          </View>
+        }
         renderItem={({ item }) => (
           <Card
             onPress={() => navigation.navigate('NoteEditor', { id: item.id })}
@@ -119,6 +132,24 @@ const makeStyles = ({ colors, typography }) => StyleSheet.create({
   list: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
+  },
+  listHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
+  newNoteBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
+    ...Platform.select({ web: { cursor: 'pointer' }, default: {} }),
+  },
+  newNoteBtnText: {
+    color: colors.white,
+    fontWeight: '700',
+    fontSize: 14,
   },
   card: {
     marginBottom: spacing.md,

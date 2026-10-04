@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/home/HomeScreen';
+import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import LeaderboardScreen from '../screens/leaderboard/LeaderboardScreen';
 import SubscriptionScreen from '../screens/premium/SubscriptionScreen';
 import { useTheme } from '../theme/ThemeContext';
@@ -27,7 +27,9 @@ export default function AppTabs() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         ...headerOptions,
-        tabBarStyle: { backgroundColor: colors.backgroundElevated, borderTopColor: colors.border },
+        // Bottom tab bar is hidden: all navigation now lives in the dashboard's
+        // left sidebar (Home / Analytics / Leaderboard / Aarambh+ / …).
+        tabBarStyle: { display: 'none' },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: { fontWeight: '600', fontSize: 11 },
@@ -38,7 +40,7 @@ export default function AppTabs() {
         ),
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Home" component={DashboardScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Leaderboard" component={LeaderboardScreen} />
       <Tab.Screen
         name="AarambhPlus"

@@ -3,7 +3,11 @@ import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { radius, shadow, spacing } from '../theme/theme';
 import { useThemedStyles } from '../theme/ThemeContext';
 
-export default function Card({ children, onPress, style, noPadding }) {
+// `fill` makes the card stretch to fill its parent's height — needed when
+// cards sit in an `alignItems: 'stretch'` row and must all match the tallest
+// one. Without it the wrapping Pressable only takes its content height, so
+// equal-height grids come out ragged.
+export default function Card({ children, onPress, style, noPadding, fill }) {
   const [isHovered, setIsHovered] = useState(false);
   const styles = useThemedStyles(makeStyles);
   const content = (
@@ -11,6 +15,7 @@ export default function Card({ children, onPress, style, noPadding }) {
       style={[
         styles.card,
         noPadding && styles.noPadding,
+        fill && styles.fill,
         isHovered && !!onPress && styles.cardHovered,
         style,
       ]}
@@ -26,7 +31,11 @@ export default function Card({ children, onPress, style, noPadding }) {
       onPress={onPress}
       onHoverIn={() => setIsHovered(true)}
       onHoverOut={() => setIsHovered(false)}
-      style={({ pressed }) => [styles.pressable, { opacity: pressed ? 0.85 : 1 }]}
+      style={({ pressed }) => [
+        styles.pressable,
+        fill && styles.fill,
+        { opacity: pressed ? 0.85 : 1 },
+      ]}
     >
       {content}
     </Pressable>
@@ -35,6 +44,9 @@ export default function Card({ children, onPress, style, noPadding }) {
 
 const makeStyles = ({ colors }) => StyleSheet.create({
   pressable: Platform.select({ web: { cursor: 'pointer' }, default: {} }),
+  fill: {
+    flex: 1,
+  },
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
