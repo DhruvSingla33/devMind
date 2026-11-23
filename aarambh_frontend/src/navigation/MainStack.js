@@ -7,6 +7,8 @@ import TestStack from './TestStack';
 import MoreStack from './MoreStack';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import ResetPasswordScreen from '../screens/profile/ResetPasswordScreen';
+import BlogListScreen from '../screens/public/blog/BlogListScreen';
+import BlogPostScreen from '../screens/public/blog/BlogPostScreen';
 import { useHeaderOptions } from './headerOptions';
 
 const Stack = createNativeStackNavigator();
@@ -35,6 +37,17 @@ export default function MainStack() {
         name="ResetPassword"
         component={ResetPasswordScreen}
         options={{ ...headerOptions, headerShown: true, title: 'Reset password' }}
+      />
+      {/* Public blog — also reachable while logged in */}
+      <Stack.Screen
+        name="Blog"
+        component={BlogListScreen}
+        options={{ ...headerOptions, headerShown: true, title: 'Blog' }}
+      />
+      <Stack.Screen
+        name="BlogPost"
+        component={BlogPostScreen}
+        options={{ ...headerOptions, headerShown: true, title: 'Blog' }}
       />
     </Stack.Navigator>
   );

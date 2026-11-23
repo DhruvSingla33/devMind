@@ -14,6 +14,8 @@ import ResetPasswordOtpScreen from '../screens/auth/ResetPasswordScreen';
 // import OtpScreen from '../screens/auth/OtpScreen';
 import PublicBookDetailScreen from '../screens/public/PublicBookDetailScreen';
 import PublicChapterReaderScreen from '../screens/public/PublicChapterReaderScreen';
+import BlogListScreen from '../screens/public/blog/BlogListScreen';
+import BlogPostScreen from '../screens/public/blog/BlogPostScreen';
 import { useHeaderOptions } from './headerOptions';
 
 const Stack = createNativeStackNavigator();
@@ -57,6 +59,17 @@ export default function AuthStack() {
         name="PublicChapterReader"
         component={PublicChapterReaderScreen}
         options={{ headerShown: true }}
+      />
+      {/* Public blog — opens without login */}
+      <Stack.Screen
+        name="Blog"
+        component={BlogListScreen}
+        options={{ headerShown: true, title: 'Blog' }}
+      />
+      <Stack.Screen
+        name="BlogPost"
+        component={BlogPostScreen}
+        options={{ headerShown: true, title: 'Blog' }}
       />
     </Stack.Navigator>
   );

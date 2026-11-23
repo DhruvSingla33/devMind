@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Heart Murmur Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2f0; --surface:#ffffff; --surface2:#e3e9e6; --ink:#14232b; --muted:#5d6d72; --line:#d3dcd8;
+  --accent:#c8323c; --accent-ink:#ffffff;
+  --oxy:#f6d3d1; --deoxy:#d4ddf1; --wall:#8b2f36; --vwall:#3e5a96;
+  --valve:#14232b; --calc:#c99520; --jet:#e8890c; --defect:#8a4fb0;
+  --paper:#fdf4f2; --grid1:#f3d5d1; --grid2:#e9b4ad; --trace:#14232b;
+  color-scheme: light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1619; --surface:#152127; --surface2:#1c2b32; --ink:#e4edef; --muted:#93a6ab; --line:#26373e;
+    --accent:#ff5d63; --accent-ink:#150a0b;
+    --oxy:#4a2026; --deoxy:#1f2c4d; --wall:#e0727a; --vwall:#8aa6e8;
+    --valve:#e4edef; --calc:#f0c04a; --jet:#ffa733; --defect:#c58be6;
+    --paper:#1a1416; --grid1:#2e2023; --grid2:#4a2c30; --trace:#f1e6e6;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1619; --surface:#152127; --surface2:#1c2b32; --ink:#e4edef; --muted:#93a6ab; --line:#26373e;
+  --accent:#ff5d63; --accent-ink:#150a0b;
+  --oxy:#4a2026; --deoxy:#1f2c4d; --wall:#e0727a; --vwall:#8aa6e8;
+  --valve:#e4edef; --calc:#f0c04a; --jet:#ffa733; --defect:#c58be6;
+  --paper:#1a1416; --grid1:#2e2023; --grid2:#4a2c30; --trace:#f1e6e6;
+  color-scheme: dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:18px 14px 40px}
+h1,h2,h3{font-family:'Bricolage Grotesque','Atkinson Hyperlegible',system-ui,sans-serif;margin:0;letter-spacing:-.015em}
+h1{font-size:clamp(30px,6vw,46px);font-weight:800;line-height:1.02}
+h2{font-size:24px;font-weight:800}
+h3{font-size:17px;font-weight:600}
+.sub{color:var(--muted);margin:8px 0 18px;max-width:62ch}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--jet);outline-offset:2px}
+
+/* picker */
+.picker{display:grid;gap:10px;margin-bottom:16px}
+.grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.grp-label{font-size:13px;color:var(--muted);width:100%;margin-bottom:-1px}
+@media(min-width:760px){.grp{flex-wrap:wrap}.grp-label{width:150px;margin:0}}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:15px;line-height:1.2;transition:background .15s,border-color .15s}
+.chip:hover{border-color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* layout */
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+.col{display:contents}
+.heartcard{order:1}.pcgcard{order:2}.ctrl{order:3}.chest{order:4}.info{order:5}
+@media(min-width:880px){
+  .grid{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:start}
+  .col{display:flex;flex-direction:column;gap:14px}
+}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px}
+.heartcard{position:relative;padding:10px 10px 12px}
+#heart{display:block;width:100%;height:auto;max-height:62vh;margin:0 auto}
+.phase{position:absolute;top:12px;left:12px;right:12px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;pointer-events:none}
+.phase b{font-family:'Bricolage Grotesque',sans-serif;font-size:15px;padding:3px 10px;border-radius:999px;background:var(--surface2)}
+.phase b.sys{background:var(--accent);color:var(--accent-ink)}
+.phase span{font-size:13px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);padding:2px 6px 0}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
+
+/* svg styling */
+.ch{stroke:var(--wall);stroke-width:3.5}
+.ch.o{fill:var(--oxy)} .ch.d{fill:var(--deoxy);stroke:var(--vwall)}
+.ch.rvh{stroke-width:9}
+.sept{fill:var(--wall)}
+.vw{fill:none;stroke:var(--wall)} .vw.d{stroke:var(--vwall)}
+.vl{fill:none} .vl.o{stroke:var(--oxy)} .vl.d{stroke:var(--deoxy)}
+.chan.o{fill:var(--oxy)} .chan.d{fill:var(--deoxy)}
+.chanEdge{stroke:var(--wall);stroke-width:3.5} .chanEdge.d{stroke:var(--vwall)}
+.leaf{stroke:var(--valve);stroke-width:4;stroke-linecap:round}
+.leaf.calc{stroke:var(--calc);stroke-width:7}
+.nub{fill:var(--valve)}
+.clabel{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px;fill:var(--ink);opacity:.75;text-anchor:middle}
+.vlabel{font-size:11px;fill:var(--ink);opacity:.7;text-anchor:middle}
+.dlabel{font-size:11px;font-weight:700;fill:var(--defect);text-anchor:middle}
+.defect{display:none}
+.defect.on{display:inline}
+.hole{fill:var(--defect);fill-opacity:.35;stroke:var(--defect);stroke-width:2;stroke-dasharray:3 2}
+.jet{fill:none;stroke:var(--jet);stroke-width:6;stroke-linecap:round;stroke-dasharray:9 8;animation:flow var(--jd,.9s) linear infinite;opacity:0}
+.ahp{fill:var(--jet)}
+.fdot{pointer-events:none}.fdot.d{fill:var(--vwall)}.fdot.o{fill:var(--wall)}
+.fpath{fill:none;stroke:none}
+.flowbtn{border:1.5px solid var(--line);background:var(--surface2);border-radius:999px;padding:2px 11px;font-size:13px}
+.flowbtn[aria-pressed="true"]{border-color:var(--ink)}
+@keyframes flow{to{stroke-dashoffset:-17}}
+@media (prefers-reduced-motion: reduce){.jet{animation:none;stroke-dasharray:none}}
+
+/* controls */
+.play{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:14px;padding:14px;font-size:18px;font-weight:700}
+.play svg{width:22px;height:22px}
+.hint{font-size:13px;color:var(--muted);margin:8px 2px 12px}
+.row{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:10px;margin:6px 0}
+.row label{font-size:14px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.lbl{font-size:14px;font-weight:700;margin:14px 0 6px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1.5px solid var(--line);background:var(--surface2);border-radius:10px;padding:7px 11px;font-size:14px}
+.seg button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.effect{font-size:14px;margin:10px 0 0;padding:10px 12px;border-radius:12px;background:var(--surface2);min-height:44px}
+.effect strong{font-weight:700}
+
+/* pcg */
+.pcghead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 4px 8px}
+.pcghead span{font-size:13px;color:var(--muted)}
+#pcg{display:block;width:100%;height:160px;border-radius:12px}
+
+/* chest */
+.chestwrap{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:center;margin-top:6px}
+#chestsvg{width:150px;height:auto;display:block}
+.torso{fill:var(--surface2);stroke:var(--line);stroke-width:2}
+.bone{fill:none;stroke:var(--muted);stroke-width:1.5;opacity:.45}
+.site circle{fill:var(--surface);stroke:var(--muted);stroke-width:2;cursor:pointer}
+.site text{font-size:10px;font-weight:700;fill:var(--ink);text-anchor:middle;pointer-events:none}
+.site.best circle{stroke:var(--accent);stroke-width:3}
+.site.sel circle{fill:var(--accent);stroke:var(--accent)}
+.site.sel text{fill:var(--accent-ink)}
+.rad{fill:none;stroke:var(--jet);stroke-width:2.5;stroke-dasharray:4 3;display:none}
+.rad.on{display:inline}
+.radt{font-size:9px;fill:var(--jet);font-weight:700;display:none}
+.radt.on{display:inline}
+.sitename{font-weight:700}
+.sitewhere{font-size:14px;color:var(--muted)}
+.siteloud{font-size:14px;margin-top:6px}
+.tapnote{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* info */
+.info .tag{display:inline-block;font-size:13px;padding:2px 10px;border-radius:999px;background:var(--surface2);margin:6px 0 10px}
+.info p{margin:0 0 12px;max-width:66ch}
+.info dl{display:grid;grid-template-columns:1fr;gap:0;margin:0}
+.info dl div{padding:9px 0;border-top:1px solid var(--line)}
+.info dt{font-size:13px;color:var(--muted)}
+.info dd{margin:2px 0 0}
+@media(min-width:560px){.info dl div{display:grid;grid-template-columns:130px 1fr;gap:12px}.info dd{margin:0}}
+.foot{font-size:13px;color:var(--muted);margin-top:22px;max-width:70ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Heart Murmur Lab</h1>
+    <p class="sub">Choose a condition and press Listen. The valves, the abnormal blood flow and the sound trace all move in time with what you hear.</p>
+  </header>
+
+  <nav class="picker" id="picker" aria-label="Conditions"></nav>
+
+  <div class="grid">
+    <div class="col">
+      <section class="panel heartcard">
+        <div class="phase" aria-live="off"><b id="phaseName">Systole</b><span id="phaseText"></span></div>
+        <svg id="heart" viewBox="0 0 420 450" role="img" aria-label="Schematic heart showing chambers, valves and blood flow">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3.2" markerHeight="3.2" orient="auto-start-reverse"><path class="ahp" d="M0,0 L10,5 L0,10 z"/></marker>
+          </defs>
+          <g id="atria">
+            <rect class="ch d" x="70" y="118" width="125" height="97" rx="16"/>
+            <rect class="ch o" x="205" y="118" width="140" height="97" rx="16"/>
+          </g>
+          <g id="vents">
+            <path id="rv" class="ch d" d="M30,240 H195 V392 Q152,418 112,388 Q72,356 70,300 L70,282 Q34,282 30,262 Z"/>
+            <path class="ch o" d="M205,240 H385 V262 Q382,282 346,284 L346,322 Q342,396 276,424 Q228,440 205,408 Z"/>
+          </g>
+          <rect class="sept" x="195" y="118" width="10" height="97"/>
+          <rect class="sept" x="195" y="238" width="10" height="164"/>
+          <!-- AV channels -->
+          <rect class="chan d" x="80" y="206" width="105" height="40"/>
+          <rect class="chan o" x="215" y="206" width="120" height="40"/>
+          <path class="chanEdge d" d="M80,213 V243 M185,213 V243"/>
+          <path class="chanEdge" d="M215,213 V243 M335,213 V243"/>
+          <!-- HCM septum -->
+          <g id="d-hcm" class="defect"><path class="sept" d="M195,246 Q168,300 192,388 L208,388 Q236,300 205,246 Z"/><text class="dlabel" x="200" y="442">thickened septum</text></g>
+          <!-- vessels -->
+          <g id="vessels">
+            <path class="vw d" d="M45,240 V90" stroke-width="32"/>
+            <path class="vw d" d="M45,94 L16,52 M45,94 L76,54" stroke-width="20"/>
+            <path class="vw" d="M370,240 V75 Q370,35 330,35 H180 Q145,35 145,70 V98" stroke-width="32"/>
+            <g id="d-pda" class="defect"><path class="vw" d="M56,82 H134" stroke-width="13"/><path class="vl o" d="M52,82 H138" stroke-width="7"/><text class="dlabel" x="95" y="72">PDA</text></g>
+            <path class="vl d" d="M45,247 V90" stroke-width="25"/>
+            <path class="vl d" d="M45,94 L16,52 M45,94 L76,54" stroke-width="13"/>
+            <path class="vl o" d="M370,247 V75 Q370,35 330,35 H180 Q145,35 145,70 V98" stroke-width="25"/>
+            <g id="d-coa" class="defect"><path class="sept" d="M180,19 L190,31 L200,19 Z M180,51 L190,39 L200,51 Z"/><text class="dlabel" x="190" y="66">coarctation</text></g>
+          </g>
+          <!-- defects -->
+          <g id="d-asd" class="defect"><rect class="hole" x="192" y="150" width="16" height="28" rx="5"/><text class="dlabel" x="200" y="144">ASD</text></g>
+          <g id="d-vsd" class="defect"><rect class="hole" x="192" y="272" width="16" height="30" rx="5"/><text class="dlabel" x="200" y="318">VSD</text></g>
+          <!-- labels -->
+          <text class="clabel" x="132" y="173">RA</text>
+          <text class="clabel" x="276" y="173">LA</text>
+          <text class="clabel" x="132" y="335">RV</text>
+          <text class="clabel" x="276" y="350">LV</text>
+          <text class="vlabel" x="45" y="170">PA</text>
+          <text class="vlabel" x="370" y="170">Ao</text>
+          <text class="vlabel" x="46" y="64">lungs</text>
+          <text class="vlabel" x="145" y="112">body</text>
+          <g id="flow"></g>
+          <g id="valves"></g>
+          <g id="jets"></g>
+        </svg>
+        <div class="legend">
+          <span><i style="background:var(--oxy);border:1px solid var(--wall)"></i>Oxygen-rich</span>
+          <span><i style="background:var(--deoxy);border:1px solid var(--vwall)"></i>Oxygen-poor</span>
+          <span><i style="background:var(--jet)"></i>Turbulent flow (the murmur)</span>
+          <span><i style="background:var(--calc)"></i>Stiff, narrowed valve</span>
+          <button class="flowbtn" id="flowbtn" aria-pressed="true">Blood flow on</button>
+        </div>
+      </section>
+
+      <section class="panel pcgcard">
+        <div class="pcghead"><h3>Phonocardiogram</h3><span>One heartbeat, drawn from the sound you hear</span></div>
+        <canvas id="pcg" aria-label="Sound trace of one heartbeat"></canvas>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel ctrl">
+        <button class="play" id="play" aria-pressed="false">
+          <svg viewBox="0 0 24 24" id="playIcon" aria-hidden="true"><path fill="currentColor" d="M7 4.5v15l12-7.5z"/></svg>
+          <span id="playLabel">Listen</span>
+        </button>
+        <p class="hint">Use headphones: real heart sounds are low-pitched and phone speakers lose most of them. On iPhone, switch off silent mode.</p>
+        <div class="row"><label for="hr">Heart rate <b id="hrv">68</b> bpm</label><input type="range" id="hr" min="45" max="130" value="68"></div>
+        <div class="row"><label for="vol">Volume</label><input type="range" id="vol" min="0" max="100" value="70"></div>
+        <div class="row"><label for="mvol">Murmur level</label><input type="range" id="mvol" min="0" max="100" value="40"></div>
+        <div class="row"><label>Speed</label><div class="seg" id="speed" role="group" aria-label="Playback speed"><button data-sp="0.25" aria-pressed="false">0.25×</button><button data-sp="0.5" aria-pressed="true">0.5×</button><button data-sp="1" aria-pressed="false">1× real time</button></div></div>
+        <div class="lbl">Bedside maneuver</div>
+        <div class="seg" id="seg" role="group" aria-label="Maneuver"></div>
+        <p class="effect" id="effect"></p>
+      </section>
+
+      <section class="panel chest">
+        <h3>Where to listen</h3>
+        <div class="chestwrap">
+          <svg id="chestsvg" viewBox="0 0 200 200" aria-label="Chest with listening areas">
+            <path class="torso" d="M80,4 V20 Q50,24 30,42 L22,196 H178 L170,42 Q150,24 120,20 V4"/>
+            <rect class="bone" x="93" y="34" width="14" height="100" rx="5"/>
+            <path class="bone" d="M95,34 L46,28 M105,34 L154,28"/>
+            <path class="bone" d="M93,62 Q62,58 40,70 M107,62 Q138,58 160,70 M93,86 Q60,84 38,98 M107,86 Q140,84 162,98 M93,110 Q60,110 36,126 M107,110 Q140,110 164,126 M95,132 Q62,136 36,154 M105,132 Q138,136 164,154"/>
+            <path id="r-carotid" class="rad" d="M82,42 Q78,26 84,8"/>
+            <path id="r-leftneck" class="rad" d="M118,42 Q122,26 116,8"/>
+            <path id="r-axilla" class="rad" d="M158,118 Q172,110 184,96"/>
+            <path id="r-back" class="rad" d="M128,52 Q160,42 190,56"/>
+            <path id="r-lsb" class="rad" d="M120,86 Q124,104 136,118"/>
+            <path id="r-rsb" class="rad" d="M102,104 H76"/>
+            <text id="t-carotid" class="radt" x="62" y="14">carotids</text>
+            <text id="t-leftneck" class="radt" x="124" y="12">left neck</text>
+            <text id="t-axilla" class="radt" x="160" y="92">axilla</text>
+            <text id="t-back" class="radt" x="164" y="42">back</text>
+            <text id="t-lsb" class="radt" x="130" y="132">toward apex</text>
+            <text id="t-rsb" class="radt" x="44" y="100">right border</text>
+            <g id="sites"></g>
+          </svg>
+          <div>
+            <div class="sitename" id="siteName"></div>
+            <div class="sitewhere" id="siteWhere"></div>
+            <div class="siteloud" id="siteLoud"></div>
+            <div class="tapnote">Tap a circle to move the stethoscope. The red ring marks the best spot.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel info" id="info" aria-live="polite"></section>
+    </div>
+  </div>
+  <p class="foot">Sounds are synthesised to show timing, shape and pitch. They are teaching models, not recordings of patients, and not a substitute for clinical training.</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const NS='http://www.w3.org/2000/svg';
+
+const SITES={
+  A:{name:'Aortic area',where:'2nd right intercostal space at the sternal border',x:82,y:52},
+  P:{name:'Pulmonic area',where:'2nd left intercostal space at the sternal border',x:118,y:52},
+  E:{name:'Erb’s point',where:'3rd left intercostal space at the sternal border',x:118,y:76},
+  T:{name:'Tricuspid area',where:'4th–5th intercostal space, lower left sternal border',x:112,y:102},
+  M:{name:'Mitral area (apex)',where:'5th intercostal space, mid-clavicular line',x:148,y:122}
+};
+const S1SITE={M:1,T:.9,E:.75,P:.6,A:.6}, A2SITE={A:1,P:.9,E:.85,T:.6,M:.55}, P2SITE={P:1,E:.75,A:.5,T:.45,M:.25};
+
+const MAN=[
+  {id:'none',name:'Resting'},
+  {id:'insp',name:'Inspiration',why:'Breathing in pulls more blood into the right heart.'},
+  {id:'valsalva',name:'Valsalva / standing',why:'Straining or standing reduces blood returning to the heart (less preload).'},
+  {id:'squat',name:'Squatting',why:'Squatting raises venous return and systemic resistance.'},
+  {id:'handgrip',name:'Handgrip',why:'A sustained fist raises systemic resistance (afterload).'}
+];
+
+const CONDS=[
+{id:'normal',group:'Normal',name:'Normal heart',tag:'No murmur',
+ sites:{},best:'M',radiation:[],murmurs:[],extras:[],jets:[],valves:{},defects:[],man:{},
+ info:{summary:'Two sounds per beat. S1 (“lub”) is the mitral and tricuspid valves closing as the ventricles start to squeeze. S2 (“dub”) is the aortic and pulmonary valves closing as they relax. Breathing in delays pulmonary closure, so S2 splits into A2 and P2.',
+ timing:'No murmur',sound:'Crisp S1 and S2',best:'S1 loudest at the apex, S2 loudest at the base (upper sternal borders)',radiation:'None',maneuvers:'Inspiration widens the split of S2; listen at the pulmonic area with Inspiration on and off',clues:'Physiological splitting of S2',causes:'None'}},
+{id:'as',group:'Valvular',name:'Aortic stenosis',tag:'Systolic ejection murmur',a2:.4,
+ extras:[{type:'click',p:.07,g:.45},{type:'S4',p:1.88,g:.35}],
+ murmurs:[{pts:[[.1,0],[.52,1],[.93,0]],f:230,q:.9,g:.9}],
+ sites:{A:1,P:.7,E:.7,T:.45,M:.55},best:'A',radiation:['carotid'],
+ valves:{aortic:'stenosis'},defects:[],jets:[{d:'M370,210 V108'}],
+ man:{insp:.9,valsalva:.55,squat:1.3,handgrip:.7},
+ info:{summary:'A narrowed, often calcified aortic valve makes the left ventricle eject through a small opening. Turbulence builds and fades with ejection, giving a diamond-shaped murmur between S1 and S2.',
+ timing:'Mid-systolic, crescendo–decrescendo (diamond). The later it peaks, the more severe',sound:'Harsh, medium pitch',best:'Aortic area, 2nd right intercostal space',radiation:'Carotid arteries',maneuvers:'Louder with squatting or leg raise; softer with Valsalva, standing and handgrip',clues:'Ejection click (bicuspid valve), soft A2, S4, slow-rising weak pulse (pulsus parvus et tardus); angina, syncope and heart failure on exertion',causes:'Age-related calcification, bicuspid aortic valve, rheumatic heart disease'}},
+{id:'ar',group:'Valvular',name:'Aortic regurgitation',tag:'Early diastolic murmur',a2:.8,
+ murmurs:[{pts:[[1.01,0],[1.04,1],[1.6,.3],[1.97,0]],f:520,q:1.1,g:.75}],
+ sites:{A:.75,P:.6,E:1,T:.65,M:.4},best:'E',radiation:['lsb'],
+ valves:{aortic:'regurg'},defects:[],jets:[{d:'M370,228 Q366,268 318,302'}],
+ man:{insp:.85,valsalva:.6,squat:1.2,handgrip:1.4},
+ info:{summary:'The aortic valve does not seal, so blood leaks back into the left ventricle as soon as it closes. The leak is fastest just after S2 and fades as the pressures even out.',
+ timing:'Early diastolic, decrescendo, starting right after S2',sound:'High-pitched and blowing, easy to miss',best:'Erb’s point and left sternal border, patient sitting forward with breath held out',radiation:'Down the left sternal border toward the apex',maneuvers:'Louder with handgrip and squatting; softer with Valsalva',clues:'Wide pulse pressure, collapsing (water-hammer) pulse, head bobbing; Austin Flint rumble at the apex',causes:'Aortic root dilation (hypertension, Marfan syndrome), bicuspid valve, infective endocarditis, rheumatic disease'}},
+{id:'ms',group:'Valvular',name:'Mitral stenosis',tag:'Diastolic rumble',s1:1.5,
+ extras:[{type:'snap',p:1.11,g:.7}],
+ murmurs:[{pts:[[1.16,0],[1.24,.85],[1.5,.35],[1.75,.3],[1.96,.95],[2,0]],f:95,q:.8,g:.95,am:[22,.45]}],
+ sites:{M:1,T:.5,E:.4,A:.2,P:.25},best:'M',radiation:[],
+ valves:{mitral:'stenosis'},defects:[],jets:[{d:'M275,232 Q276,290 282,342'}],
+ man:{insp:.9,valsalva:.6,squat:1.2,handgrip:1.15},
+ info:{summary:'A narrowed mitral valve blocks filling of the left ventricle. The stiff valve snaps open after S2, blood rumbles through, and the murmur swells again when the atrium contracts.',
+ timing:'Diastolic: opening snap, mid-diastolic rumble, then presystolic accentuation',sound:'Low-pitched rumble, heard with the bell',best:'Apex, with the patient rolled onto their left side',radiation:'Usually stays at the apex',maneuvers:'Louder with exercise, left lateral position and expiration; softer with Valsalva',clues:'Loud S1. A shorter gap between S2 and the opening snap means more severe stenosis. The presystolic swell disappears in atrial fibrillation',causes:'Rheumatic heart disease (by far the most common), mitral annular calcification'}},
+{id:'mr',group:'Valvular',name:'Mitral regurgitation',tag:'Holosystolic murmur',s1:.6,
+ extras:[{type:'S3',p:1.25,g:.4}],
+ murmurs:[{pts:[[0,0],[.03,.85],[.95,.85],[1,0]],f:480,q:1,g:.7}],
+ sites:{M:1,T:.6,E:.55,A:.3,P:.35},best:'M',radiation:['axilla'],
+ valves:{mitral:'regurg'},defects:[],jets:[{d:'M275,222 Q270,180 302,146'}],
+ man:{insp:.85,valsalva:.6,squat:1.2,handgrip:1.4},
+ info:{summary:'A leaky mitral valve lets the left ventricle push blood back into the left atrium for the whole of systole, so the murmur fills the gap between S1 and S2.',
+ timing:'Holosystolic (pansystolic), flat plateau',sound:'High-pitched, blowing',best:'Apex',radiation:'Left axilla',maneuvers:'Louder with handgrip and squatting; softer with Valsalva and standing',clues:'Soft S1, S3 from volume overload, displaced apex beat',causes:'Mitral valve prolapse, ischaemic papillary muscle dysfunction, dilated left ventricle, rheumatic disease, endocarditis'}},
+{id:'mvp',group:'Valvular',name:'Mitral valve prolapse',tag:'Click + late systolic murmur',
+ extras:[{type:'click',p:.55,g:.75}],
+ murmurs:[{pts:[[.57,0],[.62,.6],[.98,.9],[1,0]],f:460,q:1,g:.65}],
+ shift:{valsalva:-.22,squat:.15,handgrip:.12},
+ sites:{M:1,T:.6,E:.55,A:.3,P:.35},best:'M',radiation:['axilla'],
+ valves:{mitral:'prolapse'},defects:[],jets:[{d:'M275,222 Q270,180 302,146'}],
+ man:{insp:.95,valsalva:1.2,squat:.8,handgrip:.85},
+ info:{summary:'Floppy mitral leaflets balloon back into the left atrium during systole. The chordae tighten suddenly, making a click, and the valve then leaks for the rest of systole.',
+ timing:'Mid-systolic click, then a late systolic murmur',sound:'Sharp click followed by a high-pitched murmur',best:'Apex',radiation:'Axilla, if it leaks',maneuvers:'Valsalva or standing (smaller ventricle) bring the click earlier and lengthen the murmur; squatting and handgrip delay it. Try it',clues:'Often young women; palpitations, atypical chest pain',causes:'Myxomatous degeneration, Marfan and Ehlers–Danlos syndromes, polycystic kidney disease'}},
+{id:'tr',group:'Valvular',name:'Tricuspid regurgitation',tag:'Holosystolic murmur',
+ murmurs:[{pts:[[0,0],[.03,.8],[.95,.8],[1,0]],f:300,q:.9,g:.65}],
+ sites:{T:1,E:.6,M:.4,P:.35,A:.2},best:'T',radiation:['rsb'],
+ valves:{tricuspid:'regurg'},defects:[],jets:[{d:'M132,222 Q128,180 106,148'}],
+ man:{insp:1.6,valsalva:.6,squat:1.1,handgrip:1},
+ info:{summary:'Blood leaks from the right ventricle back into the right atrium throughout systole. Breathing in sends more blood to the right heart, so the murmur gets louder.',
+ timing:'Holosystolic, plateau',sound:'Blowing, medium pitch',best:'Tricuspid area, lower left sternal border',radiation:'Right sternal border, liver',maneuvers:'Louder with inspiration (Carvallo’s sign); softer with Valsalva',clues:'Giant v waves in the jugular pulse, pulsatile liver, leg swelling',causes:'Right ventricular dilation from pulmonary hypertension or left heart failure, endocarditis in IV drug use, rheumatic disease, Ebstein anomaly, carcinoid'}},
+{id:'ps',group:'Valvular',name:'Pulmonary stenosis',tag:'Systolic ejection murmur',p2:.35,split:{exp:50,insp:85},
+ extras:[{type:'click',p:.06,g:.55,insp:.35}],
+ murmurs:[{pts:[[.1,0],[.45,1],[.95,0]],f:240,q:.9,g:.85}],
+ sites:{P:1,E:.7,A:.5,T:.4,M:.3},best:'P',radiation:['leftneck'],
+ valves:{pulmonary:'stenosis'},defects:[],jets:[{d:'M45,210 V118'}],
+ man:{insp:1.45,valsalva:.6,squat:1.2,handgrip:.9},
+ info:{summary:'The right ventricle ejects through a narrowed pulmonary valve, producing a diamond-shaped murmur high on the left chest and a late, soft pulmonary closure sound.',
+ timing:'Systolic ejection, crescendo–decrescendo',sound:'Harsh',best:'Pulmonic area, 2nd left intercostal space',radiation:'Left neck and shoulder, back',maneuvers:'Murmur louder with inspiration, while the ejection click gets softer (the only right-sided sound that does)',clues:'Ejection click, widely split S2 with a soft P2, right ventricular heave',causes:'Congenital (isolated or with Noonan syndrome), part of tetralogy of Fallot, carcinoid'}},
+{id:'vsd',group:'Congenital and structural',name:'Ventricular septal defect',tag:'Holosystolic murmur',
+ murmurs:[{pts:[[0,0],[.03,.9],[.95,.95],[1,0]],f:260,q:.6,g:.95}],
+ sites:{T:1,E:.85,M:.55,P:.5,A:.35},best:'T',radiation:[],
+ valves:{},defects:['vsd'],jets:[{d:'M244,287 H150'}],
+ man:{insp:.9,valsalva:.6,squat:1.2,handgrip:1.4},
+ info:{summary:'A hole in the wall between the ventricles lets high-pressure blood jet from left to right throughout systole. Small holes make the loudest murmurs.',
+ timing:'Holosystolic',sound:'Harsh, often with a palpable thrill',best:'Lower left sternal border, 3rd–4th intercostal space',radiation:'Across the front of the chest',maneuvers:'Louder with handgrip; softer with Valsalva',clues:'The most common congenital heart defect. Small muscular holes often close on their own; large untreated shunts can reverse (Eisenmenger syndrome)',causes:'Congenital (isolated, Down syndrome, fetal alcohol syndrome); septal rupture after a heart attack in adults'}},
+{id:'asd',group:'Congenital and structural',name:'Atrial septal defect',tag:'Fixed split S2',p2:.85,split:{exp:60,insp:60},
+ murmurs:[{pts:[[.1,0],[.42,.65],[.9,0]],f:230,q:.9,g:.65},{pts:[[1.12,0],[1.28,.4],[1.55,0]],f:95,q:.8,g:.6,sites:{T:1,E:.5,M:.4,P:.2,A:.1}}],
+ sites:{P:1,E:.7,A:.4,T:.5,M:.3},best:'P',radiation:[],
+ valves:{},defects:['asd'],jets:[{d:'M248,164 H150',env:.55},{d:'M45,210 V122'}],
+ man:{insp:1.15,valsalva:.6,squat:1.1,handgrip:1},
+ info:{summary:'Blood crosses from the left to the right atrium at low pressure, which is silent. The murmur comes from the extra blood flowing across a normal pulmonary valve, and the overloaded right side keeps S2 split by the same amount in every breath.',
+ timing:'Systolic ejection (pulmonary flow); a mid-diastolic rumble at the lower left sternal border if the shunt is large',sound:'Soft, medium pitch',best:'Pulmonic area, upper left sternal border',radiation:'None',maneuvers:'The S2 split does not change with breathing. Toggle Inspiration to compare with the normal heart',clues:'Wide, fixed splitting of S2; paradoxical embolism, atrial arrhythmias',causes:'Ostium secundum (most common), ostium primum (Down syndrome), sinus venosus'}},
+{id:'pda',group:'Congenital and structural',name:'Patent ductus arteriosus',tag:'Continuous murmur',
+ murmurs:[{pts:[[0,.3],[.55,.65],[1,1],[1.5,.55],[2,.3]],f:320,q:.7,g:.8,am:[14,.4]}],
+ sites:{P:1,E:.6,A:.55,T:.35,M:.3},best:'P',radiation:['back'],
+ valves:{},defects:['pda'],jets:[{d:'M132,82 H62'}],
+ man:{insp:.95,valsalva:.6,squat:1.15,handgrip:1.3},
+ info:{summary:'The fetal duct between the aorta and pulmonary artery stays open. Aortic pressure is higher in both systole and diastole, so blood flows into the pulmonary artery all the time.',
+ timing:'Continuous through S2, loudest around S2',sound:'“Machinery” murmur',best:'Left infraclavicular area and pulmonic area',radiation:'Back',maneuvers:'Louder with handgrip; softer with Valsalva',clues:'Bounding pulses, wide pulse pressure. Closed with indomethacin or ibuprofen; kept open with prostaglandin E1 when needed',causes:'Prematurity, congenital rubella, birth at high altitude'}},
+{id:'coa',group:'Congenital and structural',name:'Coarctation of the aorta',tag:'Systolic murmur, back',
+ extras:[{type:'click',p:.06,g:.35}],
+ murmurs:[{pts:[[.2,0],[.7,.75],[1,.45],[1.18,0]],f:260,q:.8,g:.7}],
+ sites:{P:1,E:.6,A:.6,T:.3,M:.3},best:'P',radiation:['back'],
+ valves:{},defects:['coa'],jets:[{d:'M190,35 H168 Q145,35 145,88'}],
+ man:{insp:1,valsalva:.75,squat:1.1,handgrip:1.1},
+ info:{summary:'The aorta is pinched just beyond the arch. Blood speeds through the narrowing in systole; in severe cases collateral arteries add a continuous murmur.',
+ timing:'Systolic, may spill past S2',sound:'Harsh to soft',best:'Upper left sternal border and between the shoulder blades',radiation:'Back (interscapular)',maneuvers:'Little change with standard maneuvers',clues:'High blood pressure in the arms, weak and delayed femoral pulses, rib notching on X-ray; often a bicuspid aortic valve (click)',causes:'Congenital; strongly linked to Turner syndrome'}},
+{id:'tof',group:'Congenital and structural',name:'Tetralogy of Fallot',tag:'Systolic ejection murmur',p2:0,
+ murmurs:[{pts:[[.1,0],[.45,1],[.95,0]],f:230,q:.7,g:.9}],
+ sites:{E:1,P:.85,T:.7,A:.5,M:.3},best:'E',radiation:[],
+ valves:{pulmonary:'stenosis'},defects:['vsd','rvh'],jets:[{d:'M45,210 V122'},{d:'M150,288 Q262,290 360,244',env:'sys'}],
+ man:{insp:1.1,valsalva:.55,squat:1.45,handgrip:1.25},
+ info:{summary:'Four linked defects: VSD, an aorta that overrides the septum, right ventricular outflow obstruction and right ventricular hypertrophy. The murmur comes from the narrowed outflow; the large VSD itself is silent because the pressures are equal.',
+ timing:'Systolic ejection, crescendo–decrescendo',sound:'Harsh',best:'Left sternal border, 2nd–3rd intercostal space',radiation:'None',maneuvers:'Squatting raises systemic resistance and pushes more blood to the lungs: louder murmur, less cyanosis',clues:'Single S2 (P2 inaudible), cyanosis, “tet spells” during which the murmur softens, boot-shaped heart on X-ray',causes:'Congenital; associated with 22q11 deletion (DiGeorge) syndrome'}},
+{id:'hcm',group:'Congenital and structural',name:'Hypertrophic cardiomyopathy',tag:'Systolic, louder with Valsalva',
+ extras:[{type:'S4',p:1.88,g:.45}],
+ murmurs:[{pts:[[.12,0],[.5,.9],[.92,0]],f:250,q:.8,g:.8}],
+ sites:{T:1,M:.85,E:.8,A:.4,P:.4},best:'T',radiation:[],
+ valves:{},defects:['hcm'],jets:[{d:'M300,302 Q356,286 368,234'}],
+ man:{insp:.9,valsalva:1.6,squat:.5,handgrip:.55},
+ info:{summary:'A thickened septum, together with the mitral leaflet pulled forward in systole, blocks the left ventricular outflow. Anything that makes the ventricle smaller worsens the obstruction.',
+ timing:'Systolic ejection, crescendo–decrescendo',sound:'Harsh',best:'Lower left sternal border and apex',radiation:'Not to the carotids, unlike aortic stenosis',maneuvers:'Louder with Valsalva and standing; softer with squatting, leg raise and handgrip. The opposite of aortic stenosis',clues:'S4, bisferiens pulse, family history of sudden death in the young; often with mitral regurgitation',causes:'Autosomal dominant mutations in sarcomere proteins such as β-myosin heavy chain'}}
+];
+
+const VALVES={
+  tricuspid:{h:[[80,228],[185,228]],L:52.5,dir:1,av:true},
+  mitral:{h:[[215,228],[335,228]],L:60,dir:1,av:true},
+  pulmonary:{h:[[33,222],[57,222]],L:12,dir:-1,av:false},
+  aortic:{h:[[358,222],[382,222]],L:12,dir:-1,av:false}
+};
+
+const S={cond:CONDS[0],site:'M',man:'none',hr:68,vol:.7,speed:.5,mvol:.4};
+let E=null;
+
+/* ---------- helpers ---------- */
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ramp=(p,a,b)=>clamp((p-a)/(b-a));
+const sysDur=T=>0.1+0.25*T;
+function envAt(pts,p){
+  if(p<pts[0][0]||p>pts[pts.length-1][0]) return 0;
+  for(let i=0;i<pts.length-1;i++){const [p0,a0]=pts[i],[p1,a1]=pts[i+1]; if(p<=p1) return p1===p0?a1:a0+(a1-a0)*(p-p0)/(p1-p0);}
+  return 0;
+}
+function siteOf(obj,site){return obj&&obj[site]!=null?obj[site]:.5;}
+
+function computeE(){
+  const c=S.cond, m=S.man, site=S.site;
+  const mm=m==='none'?1:((c.man||{})[m]??1);
+  const sh=(c.shift||{})[m]||0;
+  const split=c.split||{exp:8,insp:40};
+  const insp=m==='insp';
+  return {
+    s1g:(c.s1??1)*S1SITE[site],
+    a2g:(c.a2??1)*A2SITE[site],
+    p2g:(c.p2??.6)*P2SITE[site],
+    split:insp?split.insp:split.exp,
+    extras:(c.extras||[]).map(x=>({...x,p:x.type==='click'?x.p+sh:x.p,g:x.g*(insp&&x.insp?x.insp:1)*((x.type==='S3'||x.type==='S4')?S1SITE[site]:1)})),
+    murmurs:(c.murmurs||[]).map(mu=>({...mu,pts:mu.pts.map(([p,a])=>[p<.99&&sh?Math.max(.08,p+sh):p,a]),gain:mu.g*mm*siteOf(mu.sites||c.sites,site)})),
+    manMul:mm,shift:sh
+  };
+}
+
+/* ---------- picker ---------- */
+function buildPicker(){
+  const groups=[...new Set(CONDS.map(c=>c.group))];
+  const nav=$('#picker');
+  groups.forEach(g=>{
+    const row=document.createElement('div');row.className='grp';
+    row.innerHTML=`<span class="grp-label">${g}</span>`;
+    CONDS.filter(c=>c.group===g).forEach(c=>{
+      const b=document.createElement('button');b.className='chip';b.textContent=c.name;b.dataset.id=c.id;
+      b.addEventListener('click',()=>setCond(c.id));row.appendChild(b);
+    });
+    nav.appendChild(row);
+  });
+  const seg=$('#seg');
+  MAN.forEach(m=>{const b=document.createElement('button');b.textContent=m.name;b.dataset.id=m.id;b.addEventListener('click',()=>{S.man=m.id;refresh();});seg.appendChild(b);});
+}
+
+/* ---------- heart svg ---------- */
+const valveEls={};
+function buildValves(){
+  const root=$('#valves');
+  for(const [k,v] of Object.entries(VALVES)){
+    const g=document.createElementNS(NS,'g');
+    const ls=v.h.map(([x,y],i)=>{const l=document.createElementNS(NS,'line');l.setAttribute('x1',x);l.setAttribute('y1',y);l.setAttribute('x2',i===0?x+v.L:x-v.L);l.setAttribute('y2',y);l.setAttribute('class','leaf');g.appendChild(l);return l;});
+    v.h.forEach(([x,y])=>{const c=document.createElementNS(NS,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',v.av?4:2.5);c.setAttribute('class','nub');g.appendChild(c);});
+    root.appendChild(g);valveEls[k]={ls};
+  }
+}
+let jetEls=[];
+function buildJets(){
+  const root=$('#jets');root.innerHTML='';
+  jetEls=(S.cond.jets||[]).map(j=>{const p=document.createElementNS(NS,'path');p.setAttribute('d',j.d);p.setAttribute('class','jet');p.setAttribute('marker-end','url(#ah)');root.appendChild(p);return {el:p,env:j.env};});
+}
+function setValve(k,ang){
+  const v=VALVES[k],e=valveEls[k];
+  e.ls[0].setAttribute('transform',`rotate(${(ang*v.dir).toFixed(2)} ${v.h[0][0]} ${v.h[0][1]})`);
+  e.ls[1].setAttribute('transform',`rotate(${(-ang*v.dir).toFixed(2)} ${v.h[1][0]} ${v.h[1][1]})`);
+}
+function updateHeart(p){
+  const vs=p<1?1-0.055*Math.sin(Math.PI*p):1;
+  const as=p>=1.72?1-0.07*Math.sin(Math.PI*(p-1.72)/0.28):1;
+  $('#vents').setAttribute('transform',`translate(200 240) scale(${vs.toFixed(4)} ${(1-(1-vs)*1.5).toFixed(4)}) translate(-200 -240)`);
+  $('#atria').setAttribute('transform',`translate(200 215) scale(${as.toFixed(4)} ${as.toFixed(4)}) translate(-200 -215)`);
+  const oAV=ramp(p,1.06,1.16)*(1-ramp(p,1.94,2));
+  const oSL=ramp(p,.05,.12)*(1-ramp(p,.9,.99));
+  lastO={av:oAV,sl:oSL,p};
+  const clickP=(E.extras.find(x=>x.type==='click')||{p:.55}).p;
+  for(const k in VALVES){
+    const st=S.cond.valves[k]||'normal', v=VALVES[k];
+    const o=v.av?oAV:oSL;
+    const open=v.av?(st==='stenosis'?24:74):(st==='stenosis'?30:80);
+    let closed=st==='regurg'?13:0;
+    if(st==='prolapse') closed=p<1?-30*ramp(p,clickP-.08,clickP+.02):-30*(1-ramp(p,1,1.05));
+    setValve(k,closed+(open-closed)*o);
+  }
+  jetEls.forEach(j=>{
+    let a;
+    if(typeof j.env==='number') a=j.env;
+    else if(j.env==='sys') a=(p>.08&&p<.92)?.8:0;
+    else {const mu=E.murmurs[0]; a=mu?envAt(mu.pts,p)*Math.min(1.2,E.manMul):0;}
+    j.el.style.opacity=Math.min(1,a*1.15).toFixed(3);
+  });
+}
+let lastPhaseKey='';
+function updatePhase(p){
+  let name,text;
+  if(p<1){name='Systole';text=p<.06?'S1: mitral and tricuspid valves close':'Ventricles squeeze; aortic and pulmonary valves open';}
+  else{name='Diastole';text=p<1.07?'S2: aortic and pulmonary valves close':(p<1.72?'Ventricles relax and fill':'Atria contract to top up the ventricles');}
+  const key=name+text; if(key===lastPhaseKey) return; lastPhaseKey=key;
+  const n=$('#phaseName');n.textContent=name;n.className=p<1?'sys':'';$('#phaseText').textContent=text;
+}
+
+/* ---------- blood flow ---------- */
+const FLOW=[
+  {d:'M112,128 Q124,176 132,214',c:'d',gate:'in',n:4},
+  {d:'M132,214 Q134,262 128,314',c:'d',gate:'av',n:4},
+  {d:'M120,332 Q60,322 45,262 V96 L22,58',c:'d',gate:'sl',n:9},
+  {d:'M45,112 V96 L72,58',c:'d',gate:'sl',n:2},
+  {d:'M292,128 Q284,176 275,214',c:'o',gate:'in',n:4},
+  {d:'M275,214 Q276,268 282,332',c:'o',gate:'av',n:4},
+  {d:'M300,352 Q358,326 368,272 L370,250 V75 Q370,35 330,35 H180 Q145,35 145,96',c:'o',gate:'slA',n:13}
+];
+let lastO={av:0,sl:0,p:0},flowOn=!window.matchMedia('(prefers-reduced-motion: reduce)').matches,flowParts=[],lastT=performance.now();
+function buildFlow(){
+  const root=$('#flow');
+  FLOW.forEach(f=>{
+    const path=document.createElementNS(NS,'path');path.setAttribute('d',f.d);path.setAttribute('class','fpath');root.appendChild(path);
+    const len=path.getTotalLength();
+    for(let i=0;i<f.n;i++){const c=document.createElementNS(NS,'circle');c.setAttribute('r',3.4);c.setAttribute('class','fdot '+f.c);root.appendChild(c);flowParts.push({f,path,len,s:i/f.n,el:c});}
+  });
+  setFlow(flowOn);
+  $('#flowbtn').addEventListener('click',()=>setFlow(!flowOn));
+}
+function setFlow(on){flowOn=on;$('#flow').style.display=on?'':'none';const b=$('#flowbtn');b.setAttribute('aria-pressed',on);b.textContent=on?'Blood flow on':'Blood flow off';}
+function gate(g){const {av,sl,p}=lastO;
+  if(g==='in') return .45;
+  if(g==='av') return av*(p>1.72?1.7:1.1);
+  if(g==='sl') return sl*1.7;
+  return sl*1.7+.12;}
+function updateFlow(dt){
+  if(!flowOn) return;
+  flowParts.forEach(q=>{
+    q.s+=dt*150*S.speed*gate(q.f.gate)/q.len; if(q.s>=1) q.s-=1;
+    const pt=q.path.getPointAtLength(q.s*q.len);
+    q.el.setAttribute('cx',pt.x.toFixed(1));q.el.setAttribute('cy',pt.y.toFixed(1));
+    q.el.style.opacity=Math.min(.9,q.s*5,(1-q.s)*5).toFixed(2);
+  });
+}
+
+/* ---------- chest ---------- */
+function buildChest(){
+  const g=$('#sites');
+  for(const [k,s] of Object.entries(SITES)){
+    const el=document.createElementNS(NS,'g');el.setAttribute('class','site');el.dataset.k=k;el.setAttribute('tabindex','0');el.setAttribute('role','button');el.setAttribute('aria-label',s.name);
+    el.innerHTML=`<circle cx="${s.x}" cy="${s.y}" r="10"/><text x="${s.x}" y="${s.y+3.5}">${k}</text>`;
+    const go=()=>{S.site=k;refresh();};
+    el.addEventListener('click',go);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});
+    g.appendChild(el);
+  }
+}
+function updateChest(){
+  const c=S.cond;
+  document.querySelectorAll('.site').forEach(el=>{el.classList.toggle('sel',el.dataset.k===S.site);el.classList.toggle('best',el.dataset.k===c.best);});
+  ['carotid','leftneck','axilla','back','lsb','rsb'].forEach(r=>{const on=c.radiation.includes(r);$('#r-'+r).classList.toggle('on',on);$('#t-'+r).classList.toggle('on',on);});
+  const s=SITES[S.site];$('#siteName').textContent='Listening at: '+s.name;$('#siteWhere').textContent=s.where;
+  let loud;
+  if(!c.murmurs.length){
+    loud=(S.site==='M'||S.site==='T')?'S1 is louder than S2 here.':'S2 is louder than S1 here.';
+    if(S.site==='P') loud+=' Best spot to hear S2 split.';
+  } else {
+    const f=siteOf(c.murmurs[0].sites||c.sites,S.site);
+    loud=f>=.95?'Murmur loudest here.':f>=.6?'Murmur clearly audible here.':f>=.4?'Murmur softer here.':'Murmur faint here.';
+  }
+  $('#siteLoud').textContent=loud;
+}
+
+/* ---------- info & effect ---------- */
+function updateInfo(){
+  const c=S.cond,i=c.info;
+  const rows=[['Timing',i.timing],['Sound',i.sound],['Best heard',i.best],['Radiates to',i.radiation],['Maneuvers',i.maneuvers],['Other clues',i.clues],['Causes',i.causes]];
+  $('#info').innerHTML=`<h2>${c.name}</h2><span class="tag">${c.tag}</span><p>${i.summary}</p><dl>${rows.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>`;
+}
+function updateEffect(){
+  const c=S.cond,m=MAN.find(x=>x.id===S.man);
+  let t;
+  if(S.man==='none') t='Pick a maneuver to hear how the sounds change.';
+  else if(!c.murmurs.length) t=S.man==='insp'?'<strong>S2 splits into A2 and P2.</strong> Listen at the pulmonic area. '+m.why:'<strong>No murmur to change.</strong> '+m.why;
+  else{
+    const mm=E.manMul;
+    let r=mm>1.08?'Murmur louder':mm<.92?'Murmur softer':'Little change';
+    if(E.shift<0) r='Click earlier, murmur longer'; else if(E.shift>0) r='Click later, murmur shorter';
+    let extra='';
+    if(c.id==='asd'&&S.man==='insp') extra=' S2 split stays fixed.';
+    if(c.id==='ps'&&S.man==='insp') extra=' Ejection click softer.';
+    t=`<strong>${r}.</strong>${extra} ${m.why}`;
+  }
+  $('#effect').innerHTML=t;
+}
+
+/* ---------- audio ---------- */
+let actx=null,comp=null,master=null,noiseBuf=null,playing=false;
+function ensureAudio(){
+  if(actx) return;
+  const AC=window.AudioContext||window.webkitAudioContext; actx=new AC();
+  comp=actx.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=4;comp.attack.value=.003;comp.release.value=.15;comp.connect(actx.destination);
+  newMaster();
+  const len=actx.sampleRate*2;noiseBuf=actx.createBuffer(1,len,actx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
+}
+function newMaster(){master=actx.createGain();master.gain.value=S.vol;master.connect(comp);}
+function thump(t,f,dur,g){
+  if(g<.01) return;
+  [[f,1],[f*2.1,.6],[f*3.3,.35]].forEach(([fr,k])=>{
+    const o=actx.createOscillator(),gn=actx.createGain();
+    o.frequency.setValueAtTime(fr*1.25,t);o.frequency.exponentialRampToValueAtTime(fr,t+dur*.6);
+    gn.gain.setValueAtTime(.0001,t);gn.gain.exponentialRampToValueAtTime(g*k,t+.008);gn.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(gn);gn.connect(master);o.start(t);o.stop(t+dur+.03);
+  });
+  const n=actx.createBufferSource();n.buffer=noiseBuf;const lp=actx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=f*5;const ng=actx.createGain();
+  ng.gain.setValueAtTime(.0001,t);ng.gain.exponentialRampToValueAtTime(g*.35,t+.005);ng.gain.exponentialRampToValueAtTime(.0001,t+dur*.7);
+  n.connect(lp);lp.connect(ng);ng.connect(master);n.start(t,Math.random());n.stop(t+dur);
+}
+function click(t,g,f){
+  if(g<.01) return;
+  const o=actx.createOscillator(),gn=actx.createGain();o.frequency.value=f;
+  gn.gain.setValueAtTime(.0001,t);gn.gain.exponentialRampToValueAtTime(g*.8,t+.002);gn.gain.exponentialRampToValueAtTime(.0001,t+.035);
+  o.connect(gn);gn.connect(master);o.start(t);o.stop(t+.05);
+  const n=actx.createBufferSource();n.buffer=noiseBuf;const hp=actx.createBiquadFilter();hp.type='bandpass';hp.frequency.value=f*2;hp.Q.value=1;const ng=actx.createGain();
+  ng.gain.setValueAtTime(.0001,t);ng.gain.exponentialRampToValueAtTime(g*.9,t+.002);ng.gain.exponentialRampToValueAtTime(.0001,t+.025);
+  n.connect(hp);hp.connect(ng);ng.connect(master);n.start(t,Math.random());n.stop(t+.04);
+}
+function murmurSound(mu,tp){
+  if(mu.gain<.02) return;
+  const pts=mu.pts,tA=tp(pts[0][0]),tB=tp(pts[pts.length-1][0]);
+  const src=actx.createBufferSource();src.buffer=noiseBuf;
+  const bp=actx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=mu.f;bp.Q.value=mu.q;
+  const norm=.2*S.mvol*Math.pow(250/mu.f,.3)/(.577*Math.sqrt((Math.PI/2)*mu.f/mu.q/(actx.sampleRate/2)));
+  const env=actx.createGain();
+  pts.forEach(([p,a],i)=>{const t=tp(p),v=a*mu.gain*norm;if(i===0)env.gain.setValueAtTime(v,t);else env.gain.linearRampToValueAtTime(v,t);});
+  src.connect(bp);let node=bp;
+  if(mu.am){const amg=actx.createGain();amg.gain.value=1-mu.am[1]/2;const l=actx.createOscillator();l.frequency.value=mu.am[0];const lg=actx.createGain();lg.gain.value=mu.am[1]/2;l.connect(lg);lg.connect(amg.gain);bp.connect(amg);node=amg;l.start(tA);l.stop(tB+.05);}
+  node.connect(env);env.connect(master);
+  src.start(tA,Math.random()*.5);src.stop(tB+.02);
+}
+function scheduleAudio(c){
+  const t0=c.start,sys=c.sys,dia=c.T-c.sys;
+  const tp=p=>t0+(p<1?p*sys:sys+(p-1)*dia);
+  thump(t0,58,.12,.95*E.s1g);
+  const tS2=tp(1);
+  thump(tS2,72,.09,.85*E.a2g);
+  if(E.p2g>.02) thump(tS2+E.split/1000,78,.08,.85*E.p2g);
+  E.extras.forEach(x=>{const t=tp(x.p);
+    if(x.type==='click') click(t,x.g,380);
+    else if(x.type==='snap') click(t,x.g,260);
+    else thump(t,40,.09,x.g*.55);
+  });
+  E.murmurs.forEach(mu=>murmurSound(mu,tp));
+}
+
+/* ---------- clock ---------- */
+let cycles=[],nextStart=0;
+const now=()=>(playing&&actx)?actx.currentTime:performance.now()/1000;
+function resetClock(){cycles=[];nextStart=now()+.06;}
+function pump(){
+  const n=now();
+  while(nextStart<n+.3){
+    const T0=60/S.hr,T=T0/S.speed,c={start:nextStart,T,sys:sysDur(T0)/S.speed};
+    cycles.push(c); if(playing) scheduleAudio(c); nextStart+=T;
+  }
+  while(cycles.length>3&&cycles[1].start<n) cycles.shift();
+}
+function phaseNow(n){
+  let c=cycles[0];for(const x of cycles){if(x.start<=n)c=x;}
+  if(!c) return null;
+  const dt=Math.max(0,n-c.start);const p=dt<c.sys?dt/c.sys:1+(dt-c.sys)/(c.T-c.sys);
+  return {c,p:Math.min(p,1.9999)};
+}
+
+/* ---------- phonocardiogram ---------- */
+const base=document.createElement('canvas');let map=null;
+function cssv(k){return getComputedStyle(document.documentElement).getPropertyValue(k).trim();}
+function drawPCG(){
+  const cv=$('#pcg'),r=cv.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);
+  const W=Math.max(300,Math.round(r.width*dpr)),H=Math.round(160*dpr);
+  cv.width=W;cv.height=H;base.width=W;base.height=H;
+  const g=base.getContext('2d');
+  const T=60/S.hr,sys=sysDur(T),dia=T-sys,t0=-.06,t1=T-.06;
+  const X=t=>(t-t0)/(t1-t0)*W, tOf=p=>p<1?p*sys:sys+(p-1)*dia;
+  const pOf=t=>{t=((t%T)+T)%T;return t<sys?t/sys:1+(t-sys)/dia;};
+  const padT=22*dpr,padB=24*dpr,mid=(padT+H-padB)/2,amp=(H-padB-padT)/2*.95;
+  // paper
+  g.fillStyle=cssv('--paper');g.fillRect(0,0,W,H);
+  const px=W/(t1-t0);
+  g.lineWidth=1;
+  for(let t=Math.ceil(t0/.04)*.04;t<t1;t+=.04){const x=Math.round(X(t))+.5;const major=Math.abs(Math.round(t/.04)%5)===0;g.strokeStyle=cssv(major?'--grid2':'--grid1');g.beginPath();g.moveTo(x,0);g.lineTo(x,H-padB);g.stroke();}
+  for(let k=-5;k<=5;k++){const y=Math.round(mid+k*amp/5)+.5;g.strokeStyle=cssv(k%5===0?'--grid2':'--grid1');g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
+  // phase band
+  const fs=11*dpr;g.font=`${fs}px 'Atkinson Hyperlegible',system-ui,sans-serif`;g.textBaseline='middle';
+  g.fillStyle=cssv('--accent');g.globalAlpha=.85;g.fillRect(X(0),H-padB+6*dpr,X(sys)-X(0),4*dpr);g.globalAlpha=.35;g.fillStyle=cssv('--muted');g.fillRect(X(sys),H-padB+6*dpr,W-X(sys),4*dpr);g.globalAlpha=1;
+  g.fillStyle=cssv('--ink');g.textAlign='left';g.fillText('systole',X(0)+2*dpr,H-7*dpr);g.fillText('diastole',X(sys)+6*dpr,H-7*dpr);
+  // murmur envelopes
+  g.fillStyle=cssv('--jet');
+  E.murmurs.forEach(mu=>{const k=Math.min(1,mu.gain*1.1)*.6;if(k<.02)return;g.globalAlpha=.22;g.beginPath();
+    for(let x=0;x<=W;x+=2){const t=t0+x/px;g.lineTo(x,mid-envAt(mu.pts,pOf(t))*k*amp);}
+    for(let x=W;x>=0;x-=2){const t=t0+x/px;g.lineTo(x,mid+envAt(mu.pts,pOf(t))*k*amp);}
+    g.closePath();g.fill();});
+  g.globalAlpha=1;
+  // events
+  const ev=[{t:0,g:E.s1g*.9,f:42,tau:.022,label:'S1'}];
+  const splitVis=E.p2g>.05&&E.split>=25;
+  ev.push({t:sys,g:E.a2g*.8,f:55,tau:.016,label:splitVis?'A2':'S2'});
+  if(E.p2g>.05) ev.push({t:sys+E.split/1000,g:E.p2g*.8,f:58,tau:.015,label:splitVis?'P2':''});
+  E.extras.forEach(x=>{const low=x.type==='S3'||x.type==='S4';ev.push({t:tOf(x.p),g:x.g*(low?.55:.85),f:low?28:120,tau:low?.028:.006,label:{click:'click',snap:'OS',S3:'S3',S4:'S4'}[x.type]});});
+  let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647*2-1;};
+  const sm=E.murmurs.map(()=>0);
+  g.strokeStyle=cssv('--trace');g.lineWidth=1.3*dpr;g.beginPath();
+  for(let x=0;x<W;x++){
+    const t=t0+x/px;let y=0;
+    for(const e of ev){const dt=t-e.t;if(dt>=0&&dt<e.tau*6)y+=e.g*Math.exp(-dt/e.tau)*Math.sin(2*Math.PI*e.f*dt);}
+    E.murmurs.forEach((mu,i)=>{const a=envAt(mu.pts,pOf(t))*Math.min(1,mu.gain*1.1);let n=rnd();if(mu.f<150){sm[i]=sm[i]*.8+n*.2;n=sm[i]*2.6;}y+=a*n*.6;});
+    y=clamp(y,-1,1);x===0?g.moveTo(x,mid-y*amp):g.lineTo(x,mid-y*amp);
+  }
+  g.stroke();
+  // labels
+  g.fillStyle=cssv('--ink');g.textAlign='center';g.font=`700 ${fs}px 'Atkinson Hyperlegible',system-ui,sans-serif`;
+  let lastX=-99;
+  ev.filter(e=>e.label).sort((a,b)=>a.t-b.t).forEach(e=>{let x=X(e.t)+4*dpr;if(x-lastX<22*dpr)x=lastX+22*dpr;lastX=x;g.fillText(e.label,x,11*dpr);});
+  map={t0,t1,T,W,X};
+}
+function drawPlayhead(ph){
+  const cv=$('#pcg'),g=cv.getContext('2d');if(!map)return;
+  g.drawImage(base,0,0);
+  const c=ph.c,p=ph.p;let t=p<1?p*c.sys:c.sys+(p-1)*(c.T-c.sys);
+  t=t*(map.T/c.T); if(t>map.t1)t-=map.T;
+  const x=map.X(t);const dpr=cv.height/160;
+  g.strokeStyle=cssv('--accent');g.lineWidth=2*dpr;g.beginPath();g.moveTo(x,0);g.lineTo(x,cv.height-24*dpr);g.stroke();
+}
+
+/* ---------- state ---------- */
+function setCond(id){
+  S.cond=CONDS.find(c=>c.id===id);S.site=S.cond.best;
+  document.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===id));
+  ['asd','vsd','pda','coa','hcm'].forEach(d=>$('#d-'+d).classList.toggle('on',S.cond.defects.includes(d)));
+  $('#rv').classList.toggle('rvh',S.cond.defects.includes('rvh'));
+  for(const k in VALVES) valveEls[k].ls.forEach(l=>l.classList.toggle('calc',S.cond.valves[k]==='stenosis'));
+  buildJets();updateInfo();refresh();
+}
+function refresh(){
+  E=computeE();
+  document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===S.man));
+  updateChest();updateEffect();drawPCG();
+}
+
+/* ---------- controls ---------- */
+$('#play').addEventListener('click',()=>{
+  ensureAudio();
+  if(!playing){
+    if(actx.state!=='running') actx.resume();
+    if(!master||master.__dead) newMaster();
+    playing=true;resetClock();
+    $('#playLabel').textContent='Pause';$('#playIcon').innerHTML='<path fill="currentColor" d="M6 4h4v16H6zM14 4h4v16h-4z"/>';$('#play').setAttribute('aria-pressed','true');
+  } else {
+    playing=false;const old=master;old.__dead=true;old.gain.setTargetAtTime(0,actx.currentTime,.01);setTimeout(()=>old.disconnect(),150);newMaster();resetClock();
+    $('#playLabel').textContent='Listen';$('#playIcon').innerHTML='<path fill="currentColor" d="M7 4.5v15l12-7.5z"/>';$('#play').setAttribute('aria-pressed','false');
+  }
+});
+$('#hr').addEventListener('input',e=>{S.hr=+e.target.value;$('#hrv').textContent=S.hr;drawPCG();});
+document.querySelectorAll('#speed button').forEach(b=>b.addEventListener('click',()=>{
+  S.speed=+b.dataset.sp;
+  document.querySelectorAll('#speed button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  $('#jets').style.setProperty('--jd',(.45/S.speed)+'s');
+}));
+$('#mvol').addEventListener('input',e=>{S.mvol=e.target.value/100;});
+$('#vol').addEventListener('input',e=>{S.vol=e.target.value/100;if(master)master.gain.setTargetAtTime(S.vol,actx.currentTime,.03);});
+
+/* ---------- loop ---------- */
+function frame(){
+  pump();
+  const tn=performance.now(),dt=Math.min(.1,(tn-lastT)/1000);lastT=tn;
+  const ph=phaseNow(now());
+  if(ph){updateHeart(ph.p);updatePhase(ph.p);drawPlayhead(ph);updateFlow(dt);}
+  requestAnimationFrame(frame);
+}
+setInterval(()=>{if(playing)pump();},50);
+
+buildPicker();buildValves();buildChest();buildFlow();
+setCond('normal');resetClock();
+new ResizeObserver(()=>drawPCG()).observe($('#pcg'));
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>drawPCG());
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

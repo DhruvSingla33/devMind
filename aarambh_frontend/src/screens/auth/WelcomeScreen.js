@@ -620,6 +620,7 @@ const NAV_LINKS = [
   { key: 'subjects', label: 'Subjects' },
   { key: 'features', label: 'Features' },
   { key: 'predictor', label: 'Try it' },
+  { key: 'blog', label: 'Blog' },
   { key: 'faq', label: 'FAQ' },
   { key: 'contact', label: 'Contact' },
 ];
@@ -1240,6 +1241,12 @@ function WebLanding({ navigation }) {
   };
 
   const scrollToSection = (key) => {
+    // The Blog nav link opens a separate public screen rather than scrolling
+    // to a section on this page.
+    if (key === 'blog') {
+      navigation.navigate('Blog');
+      return;
+    }
     const y = sectionOffsets.current[key];
     if (y != null && scrollRef.current) {
       scrollRef.current.scrollTo({ y: Math.max(y - 24, 0), animated: true });

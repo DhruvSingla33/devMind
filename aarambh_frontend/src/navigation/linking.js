@@ -18,6 +18,10 @@ const linking = {
       PublicBookDetail: 'book/:code',
       PublicChapterReader: 'book/:code/chapter/:chapterNumber',
 
+      // Public blog (works logged-out via AuthStack and logged-in via MainStack)
+      Blog: 'blog',
+      BlogPost: 'blog/:slug',
+
       // Authenticated app shell (MainStack): the 3-tab app (Home / Leaderboard
       // / Aarambh+) plus Textbooks/Tests/More/Profile/Admin, each pushed on
       // top of it rather than being a tab — see MainStack.js.
