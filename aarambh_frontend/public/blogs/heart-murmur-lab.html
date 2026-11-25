@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="An interactive lab to learn heart murmurs: pick a condition and press Listen. The valves, the abnormal blood flow and the sound trace all move in time with what you hear.">
+<meta name="theme-color" content="#eef2f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1619" media="(prefers-color-scheme: dark)">
 <title>Heart Murmur Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,7 +54,7 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px so
 .picker{display:grid;gap:10px;margin-bottom:16px}
 .grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .grp-label{font-size:13px;color:var(--muted);width:100%;margin-bottom:-1px}
-@media(min-width:760px){.grp{flex-wrap:wrap}.grp-label{width:150px;margin:0}}
+@media(min-width:760px){.grp{position:relative;flex-wrap:wrap;padding-left:156px}.grp-label{position:absolute;left:0;top:7px;width:144px;margin:0}}
 .chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:15px;line-height:1.2;transition:background .15s,border-color .15s}
 .chip:hover{border-color:var(--muted)}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}

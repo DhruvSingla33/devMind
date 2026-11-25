@@ -13,6 +13,17 @@
 
 const blogs = [
   {
+    slug: 'ecg-lab', // -> loads /blogs/ecg-lab.html
+    title: 'ECG Lab',
+    excerpt:
+      'An interactive ECG lab: pick a cardiac condition and watch the monitor, the conduction system and the 12-lead ECG respond together, all driven by the same simulated heart.',
+    date: '2026-11-25', // YYYY-MM-DD
+    author: 'Mukul',
+    authorUrl: 'https://www.instagram.com/chale_mukul',
+    tags: ['Medical', 'Interactive'],
+  },
+
+  {
     slug: 'heart-murmur-lab', // -> loads /blogs/heart-murmur-lab.html
     title: 'Heart Murmur Lab',
     excerpt:

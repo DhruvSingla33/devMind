@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import ScreenContainer from '../../../components/ScreenContainer';
 import Card from '../../../components/Card';
 import { radius, spacing } from '../../../theme/theme';
@@ -23,9 +23,9 @@ export default function BlogListScreen({ navigation }) {
     <ScreenContainer noPadding>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[typography.h1, styles.title]}>Blog</Text>
+          <Text style={[typography.h1, styles.title]}>Aarambh</Text>
           <Text style={[typography.bodyMuted, styles.subtitle]}>
-            Articles, interactive labs and notes from Aarambh.
+            New way of medical study.
           </Text>
         </View>
 
@@ -55,7 +55,16 @@ export default function BlogListScreen({ navigation }) {
                 </Text>
 
                 <View style={styles.meta}>
-                  <Text style={[typography.caption, styles.metaText]}>{b.author}</Text>
+                  {b.authorUrl ? (
+                    <Text
+                      style={[typography.caption, styles.metaText, styles.authorLink]}
+                      onPress={() => Linking.openURL(b.authorUrl)}
+                    >
+                      {b.author}
+                    </Text>
+                  ) : (
+                    <Text style={[typography.caption, styles.metaText]}>{b.author}</Text>
+                  )}
                   <Text style={[typography.caption, styles.metaText]}>{formatDate(b.date)}</Text>
                 </View>
                 <Text style={styles.read}>Read →</Text>
@@ -118,6 +127,10 @@ const makeStyles = ({ colors }) =>
       marginTop: spacing.xs,
     },
     metaText: {},
+    authorLink: {
+      color: colors.primary,
+      fontWeight: '600',
+    },
     read: {
       fontWeight: '700',
       color: colors.primary,
