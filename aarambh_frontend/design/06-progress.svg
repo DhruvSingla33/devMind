@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" font-family="Poppins, Segoe UI, sans-serif">
+  <rect width="390" height="844" fill="#FFF8F6"/>
+  <text x="24" y="84" font-size="26" font-weight="700" fill="#2B2D42">Your Progress</text>
+  <rect x="24" y="108" width="342" height="210" rx="24" fill="#fff" stroke="#F4E3E3"/>
+  <circle cx="110" cy="213" r="60" fill="none" stroke="#F1E4E4" stroke-width="16"/>
+  <circle cx="110" cy="213" r="60" fill="none" stroke="#E63946" stroke-width="16" stroke-linecap="round" stroke-dasharray="226 377" transform="rotate(-90 110 213)"/>
+  <text x="110" y="220" text-anchor="middle" font-size="24" font-weight="700" fill="#2B2D42">60%</text>
+  <text x="200" y="180" font-size="13" fill="#6B6B6B">Overall completion</text>
+  <text x="200" y="210" font-size="20" font-weight="700" fill="#2B2D42">35 / 59</text>
+  <text x="200" y="232" font-size="13" fill="#6B6B6B">chapters done</text>
+  <text x="200" y="266" font-size="13" font-weight="600" fill="#2EC27E">▲ 12% this week</text>
+  <text x="24" y="362" font-size="18" font-weight="700" fill="#2B2D42">Study time this week</text>
+  <rect x="24" y="378" width="342" height="200" rx="24" fill="#fff" stroke="#F4E3E3"/>
+  <g fill="#FDCACA">
+    <rect x="50" y="480" width="26" height="60" rx="8"/><rect x="95" y="450" width="26" height="90" rx="8"/>
+    <rect x="140" y="500" width="26" height="40" rx="8"/><rect x="185" y="420" width="26" height="120" rx="8" fill="#E63946"/>
+    <rect x="230" y="470" width="26" height="70" rx="8"/><rect x="275" y="440" width="26" height="100" rx="8"/><rect x="320" y="510" width="26" height="30" rx="8"/>
+  </g>
+  <g font-size="12" fill="#6B6B6B" text-anchor="middle">
+    <text x="63" y="562">M</text><text x="108" y="562">T</text><text x="153" y="562">W</text><text x="198" y="562" fill="#E63946" font-weight="700">T</text>
+    <text x="243" y="562">F</text><text x="288" y="562">S</text><text x="333" y="562">S</text>
+    <text x="198" y="410" font-weight="700" fill="#E63946">2h 10m</text>
+  </g>
+  <text x="24" y="622" font-size="18" font-weight="700" fill="#2B2D42">By subject</text>
+  <g font-size="14" font-weight="600" fill="#2B2D42">
+    <text x="24" y="654">Mathematics</text><text x="366" y="654" text-anchor="end" fill="#6B6B6B">27%</text>
+    <rect x="24" y="664" width="342" height="8" rx="4" fill="#F1E4E4"/><rect x="24" y="664" width="92" height="8" rx="4" fill="#4D8DF7"/>
+    <text x="24" y="700">Science</text><text x="366" y="700" text-anchor="end" fill="#6B6B6B">75%</text>
+    <rect x="24" y="710" width="342" height="8" rx="4" fill="#F1E4E4"/><rect x="24" y="710" width="256" height="8" rx="4" fill="#2EC27E"/>
+  </g>
+
+  <!-- bottom nav -->
+  <defs><filter id="navsh" x="-10%" y="-40%" width="120%" height="180%"><feDropShadow dx="0" dy="-2" stdDeviation="12" flood-color="#2B2D42" flood-opacity=".10"/></filter></defs>
+  <rect x="0" y="738" width="390" height="106" rx="0" fill="#fff" filter="url(#navsh)"/>
+  <rect x="0" y="738" width="390" height="106" fill="#fff"/>
+  <g transform="translate(51 755)" fill="none" stroke="#A0A0AB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10 L11 2.5 L20 10 V19 a1.5 1.5 0 0 1 -1.5 1.5 H14 V14 H8 V20.5 H3.5 A1.5 1.5 0 0 1 2 19 Z"/></g>
+  <text x="62" y="797" text-anchor="middle" font-size="11.5" font-weight="500" fill="#A0A0AB">Home</text>
+  <g transform="translate(139 755)" fill="none" stroke="#A0A0AB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4.5 C6 2.5 9 3 11 5 C13 3 16 2.5 20 4.5 V19 C16 17 13 17.5 11 19.5 C9 17.5 6 17 2 19 Z M11 5 V19.5"/></g>
+  <text x="150" y="797" text-anchor="middle" font-size="11.5" font-weight="500" fill="#A0A0AB">Books</text>
+  <rect x="200" y="748" width="80" height="58" rx="20" fill="#FDECEC"/>
+  <rect x="226" y="742" width="28" height="4" rx="2" fill="#E63946"/>
+  <g transform="translate(229 755)" fill="none" stroke="#E63946" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 V13 M11 20 V4 M18 20 V9"/></g>
+  <text x="240" y="797" text-anchor="middle" font-size="11.5" font-weight="700" fill="#E63946">Progress</text>
+  <g transform="translate(317 755)" fill="none" stroke="#A0A0AB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="7" r="4.2"/><path d="M3 20.5 C3 15.5 6.5 13.2 11 13.2 C15.5 13.2 19 15.5 19 20.5"/></g>
+  <text x="328" y="797" text-anchor="middle" font-size="11.5" font-weight="500" fill="#A0A0AB">Profile</text>
+  <rect x="128" y="828" width="134" height="5" rx="2.5" fill="#2B2D42"/>
+
+  <g id="status-bar" font-size="15" font-weight="600" fill="#2B2D42">
+    <text x="32" y="30">9:41</text>
+    <g transform="translate(288 19)"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></g>
+    <rect x="318" y="19" width="25" height="12" rx="3.5" fill="none" stroke="#2B2D42" stroke-width="1.2"/><rect x="320" y="21" width="18" height="8" rx="2"/><rect x="344" y="23" width="2" height="4" rx="1"/>
+  </g>
+</svg>

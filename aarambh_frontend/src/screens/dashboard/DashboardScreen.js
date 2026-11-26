@@ -280,6 +280,8 @@ export default function DashboardScreen({ navigation }) {
 
   const wide = width >= 900; // fixed sidebar on wide screens (where the design lives)
   const [section, setSection] = useState(() => sectionFromUrl() || 'home');
+  // Subject filter for the books section, set when a Home subject card is tapped.
+  const [bookSubject, setBookSubject] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [attemptSession, setAttemptSession] = useState(null);
@@ -328,7 +330,7 @@ export default function DashboardScreen({ navigation }) {
   const goProfile = useCallback(() => setSection('profile'), []);
 
   // Home feature cards → open the matching in-dashboard section.
-  const handleFeature = useCallback((target) => {
+  const handleFeature = useCallback((target, params) => {
     const TARGET_SECTION = {
       practice: 'practice',
       bookmarks: 'bookmarks',
@@ -343,6 +345,7 @@ export default function DashboardScreen({ navigation }) {
       analytics: 'analytics',
     };
     const next = TARGET_SECTION[target];
+    if (next === 'books') setBookSubject(params?.subject || null);
     if (next) setSection(next);
   }, []);
 
@@ -476,7 +479,13 @@ export default function DashboardScreen({ navigation }) {
     }
     if (section === 'settings') return <ProfileScreen navigation={navigation} />;
     if (section === 'books') {
-      return <TextbookListScreen navigation={scopedNavigation(navigation, 'TextbooksTab', TEXTBOOK_ROUTES)} />;
+      return (
+        <TextbookListScreen
+          navigation={scopedNavigation(navigation, 'TextbooksTab', TEXTBOOK_ROUTES)}
+          subject={bookSubject}
+          onClearSubject={() => setBookSubject(null)}
+        />
+      );
     }
     if (section === 'doubts') {
       return <MyDoubtsScreen navigation={scopedNavigation(navigation, 'MoreTab', DOUBT_ROUTES)} />;
@@ -492,7 +501,7 @@ export default function DashboardScreen({ navigation }) {
     if (section === 'home') {
       return <HomeSection user={user} data={data} onFeature={handleFeature} />;
     }
-    if (loading) return <LoadingState label="Loading your analytics…" />;
+    if (loading) return <LoadingState variant="detail" label="Loading your analytics…" />;
     if (error) return <ErrorState message={error} onRetry={load} />;
     // Analytics: the performance overview + the detailed analytics below it.
     return (

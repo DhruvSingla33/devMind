@@ -17,7 +17,7 @@ const textbookSchema = new mongoose.Schema(
     subject: {
       type: String,
       required: true,
-      enum: ['Biology', 'Physics', 'Chemistry', 'Maths'],
+      enum: ['Biology', 'Botany', 'Zoology', 'Physics', 'Chemistry', 'Maths'],
     },
     classLevel: {
       type: String,

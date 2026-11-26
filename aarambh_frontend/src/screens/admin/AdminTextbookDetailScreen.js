@@ -57,7 +57,7 @@ export default function AdminTextbookDetailScreen({ route, navigation }) {
     }
   };
 
-  if (status === 'loading') return <LoadingState label="Loading textbook…" />;
+  if (status === 'loading') return <LoadingState variant="detail" label="Loading textbook…" />;
   if (status === 'error') return <ErrorState message={errorMessage} onRetry={load} />;
 
   return (

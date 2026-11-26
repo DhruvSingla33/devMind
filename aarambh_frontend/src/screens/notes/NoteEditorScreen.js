@@ -299,7 +299,7 @@ export default function NoteEditorScreen({ route, navigation, noteId: propNoteId
     });
   }, [navigation, routeId, handleSave, embedded]);
 
-  if (loading) return <LoadingState label="Loading note…" />;
+  if (loading) return <LoadingState variant="detail" label="Loading note…" />;
 
   // Precompute list markers (numbers reset on non-number blocks).
   let counter = 0;

@@ -3,7 +3,7 @@ import Joi from 'joi';
 export const createTextbookSchema = Joi.object({
   title: Joi.string().trim().required(),
   code: Joi.string().trim().lowercase().required(),
-  subject: Joi.string().valid('Biology', 'Physics', 'Chemistry', 'Maths').required(),
+  subject: Joi.string().valid('Biology', 'Botany', 'Zoology', 'Physics', 'Chemistry', 'Maths').required(),
   classLevel: Joi.string().valid('XI', 'XII').required(),
   publisher: Joi.string().default('NCERT'),
   icon: Joi.string(),
