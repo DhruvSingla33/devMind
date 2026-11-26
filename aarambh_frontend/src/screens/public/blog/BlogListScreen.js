@@ -5,6 +5,7 @@ import Card from '../../../components/Card';
 import { radius, spacing } from '../../../theme/theme';
 import { useTheme, useThemedStyles } from '../../../theme/ThemeContext';
 import { getAllBlogs } from './blogData';
+import PublicHeader from './PublicHeader';
 
 function formatDate(d) {
   return new Date(d).toLocaleDateString('en-GB', {
@@ -21,6 +22,7 @@ export default function BlogListScreen({ navigation }) {
 
   return (
     <ScreenContainer noPadding>
+      <PublicHeader activeKey="blog" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={[typography.h1, styles.title]}>Aarambh</Text>

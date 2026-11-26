@@ -6,6 +6,7 @@ import { spacing } from '../../../theme/theme';
 import { useTheme, useThemedStyles } from '../../../theme/ThemeContext';
 import { getBlogBySlug } from './blogData';
 import BlogFrame from './BlogFrame';
+import PublicHeader from './PublicHeader';
 
 export default function BlogPostScreen({ route, navigation }) {
   const { slug } = route.params || {};
@@ -33,6 +34,7 @@ export default function BlogPostScreen({ route, navigation }) {
 
   return (
     <ScreenContainer noPadding>
+      <PublicHeader activeKey="blog" />
       <View style={styles.frameWrap}>
         <BlogFrame slug={blog.slug} title={blog.title} />
       </View>

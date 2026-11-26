@@ -1,4 +1,5 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AppTabs from './AppTabs';
 import AdminStack from './AdminStack';
@@ -42,12 +43,12 @@ export default function MainStack() {
       <Stack.Screen
         name="Blog"
         component={BlogListScreen}
-        options={{ ...headerOptions, headerShown: true, title: 'Blog' }}
+        options={{ ...headerOptions, headerShown: Platform.OS !== 'web', title: 'Blog' }}
       />
       <Stack.Screen
         name="BlogPost"
         component={BlogPostScreen}
-        options={{ ...headerOptions, headerShown: true, title: 'Blog' }}
+        options={{ ...headerOptions, headerShown: Platform.OS !== 'web', title: 'Blog' }}
       />
     </Stack.Navigator>
   );

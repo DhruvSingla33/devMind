@@ -60,16 +60,18 @@ export default function AuthStack() {
         component={PublicChapterReaderScreen}
         options={{ headerShown: true }}
       />
-      {/* Public blog — opens without login */}
+      {/* Public blog — opens without login. On web the screens render their
+          own website-style header (PublicHeader) so they read as part of the
+          site; native keeps the native-stack header for the back gesture. */}
       <Stack.Screen
         name="Blog"
         component={BlogListScreen}
-        options={{ headerShown: true, title: 'Blog' }}
+        options={{ headerShown: Platform.OS !== 'web', title: 'Blog' }}
       />
       <Stack.Screen
         name="BlogPost"
         component={BlogPostScreen}
-        options={{ headerShown: true, title: 'Blog' }}
+        options={{ headerShown: Platform.OS !== 'web', title: 'Blog' }}
       />
     </Stack.Navigator>
   );

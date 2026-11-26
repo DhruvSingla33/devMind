@@ -13,6 +13,17 @@
 
 const blogs = [
   {
+    slug: 'diagnose-the-patient', // -> loads /blogs/diagnose-the-patient.html
+    title: 'Diagnose the Patient',
+    excerpt:
+      'An interactive clinical game: meet a patient, ask history questions, examine and order tests — each move costs points — then make the diagnosis and earn up to three stars across 80+ cases in Medicine, Surgery, OBGY and Pediatrics.',
+    date: '2026-11-26', // YYYY-MM-DD
+    author: 'Mukul',
+    authorUrl: 'https://www.instagram.com/chale_mukul',
+    tags: ['Medical', 'Interactive'],
+  },
+
+  {
     slug: 'ecg-lab', // -> loads /blogs/ecg-lab.html
     title: 'ECG Lab',
     excerpt:
@@ -29,7 +40,8 @@ const blogs = [
     excerpt:
       'An interactive lab to learn heart murmurs: pick a condition and press Listen. The valves, the abnormal blood flow and the sound trace all move in time with what you hear.',
     date: '2026-11-23', // YYYY-MM-DD
-    author: 'Aarambh Study',
+    author: 'Mukul',
+    authorUrl: 'https://www.instagram.com/chale_mukul',
     tags: ['Medical', 'Interactive'],
   },
 
