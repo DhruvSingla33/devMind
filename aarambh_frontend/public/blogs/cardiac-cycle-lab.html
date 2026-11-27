@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cardiac Cycle Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2f0; --surface:#ffffff; --surface2:#e3e9e6; --ink:#14232b; --muted:#5d6d72; --line:#d3dcd8;
+  --accent:#c8323c; --accent-ink:#ffffff; --hl:#e8890c; --good:#1f9d5c; --bad:#c8323c;
+  --mon:#0b1418; --mon2:#111d23; --monline:#1d2d35; --monink:#e8f1f3; --monmuted:#8aa1a8;
+  --ao:#ff5d6c; --lv:#ffc24b; --la:#4cc9f0; --vol:#b28dff; --ecg:#3ee08f;
+  color-scheme: light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1114; --surface:#121c21; --surface2:#1a272d; --ink:#e4edef; --muted:#93a6ab; --line:#24343b;
+    --accent:#ff5d63; --accent-ink:#150a0b; --hl:#ffa733; --good:#3ee08f; --bad:#ff5d63;
+    --mon:#070e11; --mon2:#0d171c; --monline:#18272e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1114; --surface:#121c21; --surface2:#1a272d; --ink:#e4edef; --muted:#93a6ab; --line:#24343b;
+  --accent:#ff5d63; --accent-ink:#150a0b; --hl:#ffa733; --good:#3ee08f; --bad:#ff5d63;
+  --mon:#070e11; --mon2:#0d171c; --monline:#18272e;
+  color-scheme: dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding:18px 14px 48px}
+h1,h2,h3{font-family:'Bricolage Grotesque','Atkinson Hyperlegible',system-ui,sans-serif;margin:0;letter-spacing:-.015em}
+h1{font-size:clamp(32px,6.5vw,54px);font-weight:800;line-height:1}
+h1 span{background:linear-gradient(90deg,var(--ao),var(--lv) 45%,var(--la));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:24px;font-weight:800}
+h3{font-size:17px;font-weight:600}
+.sub{color:var(--muted);margin:10px 0 18px;max-width:64ch}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+.conds{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:15px;line-height:1.2}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+.col{display:contents}
+.heart{order:1}.wig{order:2}.ctrl{order:3}.pv{order:4}.phases{order:5}.note{order:6}
+@media(min-width:700px){
+  .grid{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);align-items:start}
+  .col{display:flex;flex-direction:column;gap:14px;min-width:0}
+}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:14px;min-width:0}
+.mon{background:var(--mon);border-color:#000;color:var(--monink);box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.mon .muted{color:var(--monmuted)}
+.phead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.leg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--monmuted)}
+.leg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:3px}
+#wigCv{display:block;width:100%;height:420px;touch-action:none;cursor:ew-resize}
+@media(max-width:600px){#wigCv{height:380px}}
+.scrubnote{font-size:12px;color:var(--monmuted);margin-top:6px}
+#heartSvg{display:block;width:100%;max-width:360px;margin:0 auto;height:auto}
+.pstep{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.pstep button{min-width:34px;height:36px;border-radius:10px;border:1px solid var(--monline);background:var(--mon2);color:var(--monink);font-weight:800;font-size:15px;padding:0 6px}
+.pstep button[aria-pressed="true"]{background:var(--c,var(--monink));color:#071014;border-color:transparent}
+.loopnote{font-size:12px;color:var(--monmuted);margin:-6px 0 8px}
+.phasebadge{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.phasebadge .num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#071014;font-family:'Bricolage Grotesque',sans-serif;flex:none}
+.phasebadge h3{font-size:19px}
+.phasedesc{font-size:14px;color:var(--monmuted);min-height:42px;margin:0 0 10px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+@media(min-width:700px) and (max-width:1020px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--mon2);border:1px solid var(--monline);border-radius:12px;padding:7px 8px;min-width:0}
+.stat dt{font-size:11.5px;color:var(--monmuted)}
+.stat dd{margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:21px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat dd small{font-size:11px;font-weight:600;color:var(--monmuted);margin-left:2px}
+.valves{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.vpill{font-size:13px;padding:3px 10px;border-radius:999px;border:1px solid var(--monline);background:var(--mon2)}
+.vpill.open{border-color:var(--ecg);color:var(--ecg)}
+.play{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:14px;padding:12px 18px;font-weight:700;font-size:17px;width:100%}
+.play svg{width:20px;height:20px}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.seg button,.tog{border:1.5px solid var(--line);background:var(--surface2);border-radius:10px;padding:7px 11px;font-size:14px}
+.seg button[aria-pressed="true"],.tog[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.ctlrow{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:center;margin-top:12px}
+.ctlrow label{font-size:14px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.hint{font-size:13px;color:var(--muted);margin:10px 0 0}
+#pvCv{display:block;width:100%;height:300px}
+.pvstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:8px}
+.plist{display:flex;flex-direction:column;gap:4px}
+.pitem{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;text-align:left;border:1px solid transparent;background:none;border-radius:12px;padding:8px}
+.pitem:hover{background:var(--surface2)}
+.pitem.on{background:var(--surface2);border-color:var(--line)}
+.pitem .dot{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#071014}
+.pitem b{font-weight:700}
+.pitem small{display:block;color:var(--muted);font-size:13px;line-height:1.3}
+.pitem .ms{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.note p{margin:0 0 10px}
+.note ul{margin:0;padding-left:20px}.note li{margin:3px 0}
+.tag{display:inline-block;font-size:13px;padding:2px 10px;border-radius:999px;background:var(--surface2);margin:6px 0 10px}
+/* quiz */
+.quiz{margin-top:26px}
+.qhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.qhead span{color:var(--muted);font-size:14px}
+.qbar{height:8px;border-radius:99px;background:var(--surface2);overflow:hidden;margin-bottom:16px}
+.qbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--la),var(--ecg));transition:width .3s}
+.qtext{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(19px,3.5vw,24px);font-weight:600;line-height:1.25;margin:0 0 14px}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 14px;font-size:16px;transition:border-color .15s,background .15s}
+.opt:hover:not([disabled]){border-color:var(--muted)}
+.opt .k{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--surface2);font-weight:800;flex:none}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,var(--surface))}
+.opt.right .k{background:var(--good);color:#fff}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 10%,var(--surface))}
+.opt.wrong .k{background:var(--bad);color:#fff}
+.opt[disabled]{cursor:default}
+.expl{margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--surface2);display:none}
+.expl.show{display:block}
+.qnav{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:11px 18px;font-weight:700;background:var(--ink);color:var(--bg)}
+.btn.ghost{background:var(--surface2);color:var(--ink)}
+.result{text-align:center;padding:10px 0}
+.score{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:64px;line-height:1;margin:10px 0}
+.foot{font-size:13px;color:var(--muted);margin-top:22px;max-width:70ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span>Cardiac Cycle</span> Lab</h1>
+    <p class="sub">Watch one heartbeat unfold: pressures, volumes, valves, ECG and heart sounds, all in sync. Drag across the Wiggers diagram to scrub through time, change the heart rate, try diseases, then test yourself.</p>
+  </header>
+  <nav class="conds" id="conds" aria-label="Condition"></nav>
+
+  <div class="grid">
+    <div class="col">
+      <section class="panel mon wig">
+        <div class="phead"><h3>Wiggers diagram</h3>
+          <div class="leg"><span><i style="background:var(--ao)"></i>Aortic</span><span><i style="background:var(--lv)"></i>LV</span><span><i style="background:var(--la)"></i>LA</span><span><i style="background:var(--vol)"></i>LV volume</span><span><i style="background:var(--ecg)"></i>ECG</span></div></div>
+        <canvas id="wigCv" aria-label="Wiggers diagram"></canvas>
+        <div class="scrubnote">Drag across the diagram to scrub. Numbers 1–7 are the phases.</div>
+      </section>
+      <section class="panel mon pv">
+        <div class="phead"><h3>Pressure–volume loop</h3><span class="muted" style="font-size:13px" id="pvNote">Left ventricle</span></div>
+        <canvas id="pvCv" aria-label="Pressure volume loop"></canvas>
+        <dl class="pvstats" id="pvStats"></dl>
+      </section>
+    </div>
+    <div class="col">
+      <section class="panel mon heart">
+        <div class="pstep" id="pstep" role="group" aria-label="Choose a phase"></div>
+        <p class="loopnote" id="loopNote">Showing the whole cycle. Pick 1–7 to replay one phase on a loop.</p>
+        <div class="phasebadge"><div class="num" id="pNum">1</div><h3 id="pName">Atrial systole</h3></div>
+        <p class="phasedesc" id="pDesc"></p>
+        <svg id="heartSvg" viewBox="0 0 300 350" aria-label="Animated left heart">
+          <defs>
+            <radialGradient id="gLV" cx="45%" cy="40%" r="70%"><stop offset="0" stop-color="#ff6b6b"/><stop offset="1" stop-color="#8e1f2c"/></radialGradient>
+            <radialGradient id="gLA" cx="45%" cy="40%" r="70%"><stop offset="0" stop-color="#ff8a80"/><stop offset="1" stop-color="#a3313b"/></radialGradient>
+            <linearGradient id="gAo" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#d9394a"/><stop offset="1" stop-color="#ff7a85"/></linearGradient>
+            <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3.5" markerHeight="3.5" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#ffb020"/></marker>
+          </defs>
+          <path d="M30,104 H62 M30,136 H60" stroke="#a3313b" stroke-width="14" stroke-linecap="round"/>
+          <path d="M170,182 V110 C170,62 198,40 234,42 C262,44 276,62 280,84" fill="none" stroke="#5c1620" stroke-width="38"/>
+          <path d="M170,186 V110 C170,62 198,40 234,42 C262,44 276,62 280,84" fill="none" stroke="url(#gAo)" stroke-width="29"/>
+          <g id="laG"><ellipse cx="100" cy="118" rx="54" ry="40" fill="url(#gLA)" stroke="#5c1620" stroke-width="5"/></g>
+          <g id="lvG"><path id="lvPath" d="M58,172 C52,236 96,306 132,316 C170,306 212,240 202,172 Z" fill="url(#gLV)" stroke="#5c1620" stroke-width="9"/></g>
+          <rect x="72" y="146" width="56" height="34" fill="#c2414c"/>
+          <rect x="156" y="150" width="28" height="36" fill="#d9394a"/>
+          <path d="M72,150 V178 M128,150 V178" stroke="#5c1620" stroke-width="5"/>
+          <g id="flow"></g>
+          <g id="jets"><path id="jetMR" d="M100,176 Q98,140 86,112" fill="none" stroke="#ffb020" stroke-width="6" stroke-dasharray="8 7" marker-end="url(#ah)" opacity="0"/><path id="jetAR" d="M170,160 Q166,200 148,236" fill="none" stroke="#ffb020" stroke-width="6" stroke-dasharray="8 7" marker-end="url(#ah)" opacity="0"/></g>
+          <g id="valves"></g>
+          <text x="100" y="114" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">LA</text>
+          <text id="laTxt" x="100" y="132" text-anchor="middle" fill="#ffe3e3" font-size="12">8 mmHg</text>
+          <text x="130" y="236" text-anchor="middle" fill="#fff" font-weight="700" font-size="17">LV</text>
+          <text id="lvTxt" x="130" y="256" text-anchor="middle" fill="#ffe3e3" font-size="12">8 mmHg</text>
+          <text id="lvVolTxt" x="130" y="272" text-anchor="middle" fill="#ffe3e3" font-size="12">120 mL</text>
+          <text x="238" y="22" text-anchor="middle" fill="#ffd0d4" font-weight="700" font-size="13">Aorta</text>
+          <text id="aoTxt" x="238" y="78" text-anchor="middle" fill="#ffe3e3" font-size="12">80 mmHg</text>
+        </svg>
+        <dl class="stats" id="stats"></dl>
+        <div class="valves"><span class="vpill" id="vpM">Mitral: closed</span><span class="vpill" id="vpA">Aortic: closed</span><span class="vpill" id="vpS" style="display:none"></span></div>
+      </section>
+      <section class="panel ctrl">
+        <button class="play" id="play" aria-pressed="true"><svg viewBox="0 0 24 24" id="playIcon" aria-hidden="true"><path fill="currentColor" d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg><span id="playLabel">Pause</span></button>
+        <div class="ctlrow"><label>Speed</label><div class="row seg" id="speed"><button data-sp="0.1">0.1×</button><button data-sp="0.25">0.25×</button><button data-sp="0.5">0.5×</button><button data-sp="1">1× real</button></div></div>
+        <div class="ctlrow"><label for="hr">Heart rate <b id="hrv">72</b></label><input type="range" id="hr" min="45" max="160" value="72"></div>
+        <div class="ctlrow"><label>Heart sounds</label><div class="row"><button class="tog" id="snd" aria-pressed="false">Sound off</button></div></div>
+        <p class="hint">Raise the heart rate and watch diastole (phases 6–7) shrink far more than systole. Use headphones for sound.</p>
+      </section>
+      <section class="panel phases">
+        <div class="phead"><h3>The 7 phases</h3><span class="muted" style="font-size:13px">Tap to loop a phase</span></div>
+        <div class="plist" id="plist"></div>
+      </section>
+      <section class="panel note" id="note"></section>
+    </div>
+  </div>
+
+  <section class="panel quiz" id="quiz"></section>
+  <p class="foot">Curves are simulated from typical textbook values to teach timing and relationships. Real patients vary. For learning only.</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const NS='http://www.w3.org/2000/svg';
+const PH=[
+ {n:'Atrial systole',a:0,b:.18,c:'#4cc9f0',sh:'P wave; atria top up the ventricle',d:'After the P wave the atria contract and push the last 20% or so of blood into the ventricle. Mitral valve open, aortic closed. Produces the a wave; an S4 here means a stiff ventricle.'},
+ {n:'Isovolumetric contraction',a:.18,b:.23,c:'#ffb703',sh:'Mitral closes (S1); all valves shut',d:'Following the QRS, the ventricle contracts. Mitral valve closes (S1). With all valves shut, pressure climbs steeply while volume stays the same. Mitral bulging gives the c wave.'},
+ {n:'Rapid ejection',a:.23,b:.35,c:'#ff5d6c',sh:'Aortic valve opens; most blood ejected',d:'LV pressure exceeds aortic pressure (about 80 mmHg) and the aortic valve opens. About two‑thirds of the stroke volume leaves fast; LV and aortic pressures peak. Atrial pressure dips (x descent).'},
+ {n:'Reduced ejection',a:.35,b:.46,c:'#ff8fa3',sh:'Ejection slows; T wave',d:'Ventricular repolarisation (T wave) begins. Ejection slows and pressures start to fall. The atrium fills against the closed mitral valve, so atrial pressure rises (v wave).'},
+ {n:'Isovolumetric relaxation',a:.46,b:.54,c:'#c77dff',sh:'Aortic closes (S2); all valves shut',d:'LV pressure falls below aortic pressure and the aortic valve closes (S2, the dicrotic notch). All valves shut again: pressure plunges while volume stays at end‑systolic volume. Left coronary flow peaks in early diastole.'},
+ {n:'Rapid filling',a:.54,b:.66,c:'#3ee08f',sh:'Mitral opens; blood rushes in',d:'LV pressure drops below atrial pressure, the mitral valve opens and blood rushes in (y descent). An S3 here suggests volume overload or a failing ventricle (normal in children and athletes).'},
+ {n:'Reduced filling (diastasis)',a:.66,b:.80,c:'#2ec4b6',sh:'Slow passive filling',d:'Filling slows as pressures equalise. This is the longest phase at rest, and the first to disappear as heart rate rises.'}
+];
+const EV={MC:.18,AO:.23,AC:.46,MO:.54};
+
+const COND=[
+ {id:'normal',name:'Normal',p:{hr:72,aoS:120,aoD:80,lvMax:124,lvPk:.31,aoPk:.31,lvedp:9,lvMin:2,la:6,aW:10,vW:13,edv:120,esv:50},
+  note:'<h2>Normal heart</h2><span class="tag">Reference values</span><p>Aortic pressure 120/80 mmHg, LV 124/0–9 mmHg, end‑diastolic volume 120 mL, end‑systolic volume 50 mL, so stroke volume 70 mL and ejection fraction about 58%.</p><ul><li>Cycle length at 75 bpm: 0.8 s (systole about 0.3 s, diastole about 0.5 s).</li><li>S1 marks the start of systole; S2 marks the start of diastole.</li><li>The a, c and v waves on the atrial trace are the same waves you see in the JVP.</li></ul>'},
+ {id:'exercise',name:'Exercise',p:{hr:130,aoS:150,aoD:78,lvMax:156,lvPk:.29,aoPk:.29,lvedp:8,lvMin:1,la:6,aW:11,vW:12,edv:125,esv:35},
+  note:'<h2>Exercise</h2><span class="tag">Sympathetic drive</span><ul><li>Heart rate rises: diastole shortens much more than systole, and diastasis disappears.</li><li>Contractility rises: steeper pressure rise, smaller end‑systolic volume (35 mL), bigger stroke volume.</li><li>Systolic pressure rises; diastolic barely changes because vessels in muscle dilate.</li><li>The PV loop gets wider and taller.</li></ul>'},
+ {id:'as',name:'Aortic stenosis',p:{hr:72,aoS:115,aoD:75,lvMax:190,lvPk:.33,aoPk:.37,lvedp:18,lvMin:5,la:10,aW:22,vW:16,edv:120,esv:55,s4:1,mur:'as'},
+  note:'<h2>Aortic stenosis</h2><span class="tag">Pressure overload</span><ul><li>Large systolic pressure gradient between LV (190) and aorta (115): shaded on the diagram.</li><li>Aortic upstroke is slow and peaks late (pulsus parvus et tardus).</li><li>A stiff, hypertrophied LV raises end‑diastolic pressure; a forceful atrial kick gives a big a wave and an S4.</li><li>PV loop: much taller, similar width.</li><li>Murmur: ejection systolic, crescendo–decrescendo.</li></ul>'},
+ {id:'ar',name:'Aortic regurgitation',p:{hr:72,aoS:160,aoD:45,lvMax:164,lvPk:.30,aoPk:.30,lvedp:22,lvMin:6,la:8,aW:12,vW:15,edv:190,esv:75,s3:1,ar:1,mur:'ar'},
+  note:'<h2>Aortic regurgitation</h2><span class="tag">Volume overload</span><ul><li>Blood leaks back from the aorta in diastole, so aortic diastolic pressure falls (wide pulse pressure 160/45).</li><li>No true isovolumetric relaxation: LV volume rises as soon as the aortic valve “closes”.</li><li>LV dilates (EDV 190 mL) and pumps a huge stroke volume.</li><li>PV loop: much wider, shifted right; no vertical relaxation limb.</li><li>Murmur: early diastolic decrescendo.</li></ul>'},
+ {id:'ms',name:'Mitral stenosis',p:{hr:84,aoS:110,aoD:72,lvMax:114,lvPk:.31,aoPk:.31,lvedp:5,lvMin:3,la:22,aW:30,vW:28,edv:100,esv:45,ms:1,os:1,mur:'ms'},
+  note:'<h2>Mitral stenosis</h2><span class="tag">Inflow obstruction</span><ul><li>Left atrial pressure stays far above LV pressure through diastole: a diastolic gradient (shaded).</li><li>LV fills slowly and underfills (EDV 100 mL); LV pressures are normal or low.</li><li>Opening snap just after S2, then a low rumble with presystolic accentuation.</li><li>Tachycardia shortens diastole, so symptoms worsen with fast heart rates or AF. Try raising the heart rate.</li></ul>'},
+ {id:'mr',name:'Mitral regurgitation',p:{hr:80,aoS:110,aoD:70,lvMax:114,lvPk:.30,aoPk:.30,lvedp:12,lvMin:4,la:12,aW:16,vW:45,edv:160,esv:50,s3:1,mr:1,mur:'mr'},
+  note:'<h2>Mitral regurgitation</h2><span class="tag">Volume overload</span><ul><li>Blood leaks back into the atrium throughout systole, producing a giant v wave in LA pressure.</li><li>No true isovolumetric contraction: LV volume falls as soon as it starts contracting.</li><li>LV dilates; total stroke volume is large but much of it goes backwards.</li><li>PV loop: wider, with a sloping left (contraction) side.</li><li>Murmur: holosystolic, with an S3.</li></ul>'},
+ {id:'hf',name:'Heart failure (HFrEF)',p:{hr:92,aoS:100,aoD:68,lvMax:102,lvPk:.32,aoPk:.32,lvedp:25,lvMin:14,la:22,aW:28,vW:30,edv:210,esv:155,s3:1},
+  note:'<h2>Heart failure, reduced EF</h2><span class="tag">Weak contraction</span><ul><li>Dilated LV (EDV 210 mL) but small stroke volume: EF about 26%.</li><li>High LV end‑diastolic and left atrial pressures cause pulmonary congestion.</li><li>Lower systolic pressure and compensatory tachycardia.</li><li>PV loop: shifted far right, short and narrow.</li><li>S3 gallop.</li></ul>'}
+];
+
+/* ---------- curves ---------- */
+function mono(pts){
+  pts=pts.slice().sort((a,b)=>a[0]-b[0]);if(pts[pts.length-1][0]<.8)pts.push([.8,pts[0][1]]);
+  const x=pts.map(p=>p[0]),y=pts.map(p=>p[1]),n=x.length,d=[],m=new Array(n).fill(0);
+  for(let i=0;i<n-1;i++)d[i]=(y[i+1]-y[i])/(x[i+1]-x[i]);
+  for(let i=1;i<n-1;i++)m[i]=d[i-1]*d[i]<=0?0:(d[i-1]+d[i])/2;
+  m[0]=m[n-1]=d[0]*d[n-2]<=0?0:(d[0]+d[n-2])/2;
+  for(let i=0;i<n-1;i++){if(d[i]===0){m[i]=m[i+1]=0;continue;}const a=m[i]/d[i],b=m[i+1]/d[i],s=a*a+b*b;if(s>9){const t=3/Math.sqrt(s);m[i]=t*a*d[i];m[i+1]=t*b*d[i];}}
+  return u=>{u=((u%.8)+.8)%.8;let i=0;while(i<n-2&&u>x[i+1])i++;const h=x[i+1]-x[i],t=(u-x[i])/h,t2=t*t,t3=t2*t;
+    return (2*t3-3*t2+1)*y[i]+(t3-2*t2+t)*h*m[i]+(-2*t3+3*t2)*y[i+1]+(t3-t2)*h*m[i+1];};
+}
+function build(p){
+  const inc=p.aoS-.5*(p.aoS-p.aoD);
+  const ao=[[0,p.aoD+2],[.12,p.aoD+1],[.23,p.aoD],[p.aoPk-.045,p.aoD+(p.aoS-p.aoD)*.82],[p.aoPk,p.aoS],[Math.max(p.aoPk+.04,.41),p.aoS-(p.aoS-inc)*.45],[.46,inc],[.466,inc-5],[.48,inc-1.5],[.6,p.aoD+(inc-1.5-p.aoD)*.5],[.7,p.aoD+(inc-1.5-p.aoD)*.22]];
+  let lv=[[0,p.lvMin+2],[.06,p.lvMin+3],[.12,p.lvedp],[.165,p.lvedp],[.18,p.lvedp+2],[.205,(p.lvedp+p.aoD)/2],[.23,p.aoD+1],[p.lvPk-.04,p.lvMax-.1*(p.lvMax-p.aoD)],[p.lvPk,p.lvMax],[.42,inc+(p.lvMax-inc)*.35],[.46,inc-4],[.49,Math.max(p.lvMin+30,inc*.45)],[.52,p.lvMin+12],[.54,p.lvMin+4],[.58,p.lvMin],[.64,p.lvMin+1],[.72,p.lvMin+2]];
+  if(p.ar) lv=lv.filter(q=>q[0]<.55||q[0]>.79).concat([[.58,p.lvMin+2],[.64,p.lvMin+7],[.72,p.lvMin+11]]).map(q=>q[0]===0?[0,p.lvMin+14]:q[0]===.06?[.06,p.lvMin+15]:q);
+  let la=[[0,p.la],[.08,p.aW],[.14,p.la+1],[.18,p.la+2],[.205,p.la+3],[.26,p.la-2],[.35,p.la+1],[.46,p.vW-2],[.54,p.vW],[.6,p.la+1],[.7,p.la],[.79,p.la]];
+  if(p.mr) la=[[0,p.la],[.08,p.aW],[.14,p.la+1],[.18,p.la+3],[.23,p.la+12],[.33,p.vW*.8],[.46,p.vW-3],[.52,p.vW],[.6,p.la+4],[.7,p.la],[.79,p.la]];
+  const ev=p.edv,es=p.esv,sv=ev-es;
+  let vol=[[0,ev-sv*.17],[.14,ev],[.18,ev],[.23,ev],[.35,es+sv*.27],[.46,es],[.54,es],[.62,es+sv*.6],[.66,es+sv*.72],[.79,ev-sv*.17]];
+  if(p.mr) vol=[[0,ev-sv*.12],[.14,ev],[.18,ev],[.23,ev-sv*.12],[.35,es+sv*.25],[.46,es],[.54,es],[.62,es+sv*.62],[.66,es+sv*.75],[.79,ev-sv*.12]];
+  if(p.ar) vol=[[0,ev-sv*.12],[.14,ev],[.18,ev],[.23,ev],[.35,es+sv*.3],[.46,es],[.54,es+sv*.15],[.62,es+sv*.62],[.66,es+sv*.74],[.79,ev-sv*.12]];
+  if(p.ms) vol=[[0,ev-sv*.3],[.15,ev],[.18,ev],[.23,ev],[.35,es+sv*.27],[.46,es],[.54,es],[.62,es+sv*.32],[.66,es+sv*.42],[.79,ev-sv*.3]];
+  return {ao:mono(ao),lv:mono(lv),la:mono(la),vol:mono(vol)};
+}
+const G=(x,s)=>Math.exp(-x*x/(2*s*s));
+const ecg=u=>.15*G(u-.045,.016)-.08*G(u-.155,.005)+1*G(u-.17,.0065)-.22*G(u-.185,.006)+.3*G(u-.41,.026);
+function murEnv(type,u){
+  if(type==='as') return u>.235&&u<.455?Math.sin(Math.PI*(u-.235)/.22):0;
+  if(type==='ar') return u>.465&&u<.76?(1-(u-.465)/.295):0;
+  if(type==='mr') return u>.18&&u<.46?.85:0;
+  if(type==='ms') return (u>.565&&u<.8?.75*Math.max(.35,1-(u-.565)/.18):0)+(u>=0&&u<.175?.4+.6*u/.175:0);
+  return 0;
+}
+
+/* ---------- time mapping ---------- */
+const S={cond:COND[0],hr:72,speed:.1,playing:true,sound:false,loopPhase:null};
+let CV=null;
+function segs(){const T=60/S.hr,sys=.36*(.1+.25*T)/.3,D=T-sys;let at=.18,rf=.12,dia=D-.30;if(D<.30){at=.18*D/.30;rf=.12*D/.30;dia=0;}return {T,R:[at,sys,rf,dia]};}
+const B=[0,.18,.54,.66,.80];
+function realOf(u,sg){sg=sg||segs();let acc=0;for(let i=0;i<4;i++){if(u<B[i+1]||i===3)return acc+(u-B[i])/(B[i+1]-B[i])*sg.R[i];acc+=sg.R[i];}return acc;}
+function baseOf(t,sg){sg=sg||segs();let acc=0;for(let i=0;i<4;i++){const r=sg.R[i];if(r>0&&t<acc+r)return B[i]+(t-acc)/r*(B[i+1]-B[i]);acc+=r;}return .7999;}
+const phaseOf=u=>PH.findIndex(p=>u>=p.a&&u<p.b);
+
+/* ---------- Wiggers ---------- */
+const wbase=document.createElement('canvas');let wmap=null;
+const cs=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+function drawWig(){
+  const cv=$('#wigCv'),r=cv.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1),W=r.width,H=r.height;
+  cv.width=W*dpr;cv.height=H*dpr;wbase.width=W*dpr;wbase.height=H*dpr;
+  const g=wbase.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
+  const sg=segs(),T=sg.T,p=S.cond.p,L=36,Rm=8,top=24;
+  const pH=(H-top)*.5,vH=(H-top)*.22,eH=(H-top)*.14,sH=(H-top)*.14;
+  const y0=top,y1=y0+pH,y2=y1+vH,y3=y2+eH,y4=y3+sH;
+  const X=t=>L+(t/T)*(W-L-Rm);
+  const pMax=Math.max(140,Math.ceil((p.lvMax+15)/20)*20),vMin=Math.max(0,Math.floor((p.esv-25)/20)*20),vMax=Math.ceil((p.edv+15)/20)*20;
+  const YP=v=>y1-6-(v/pMax)*(pH-14),YV=v=>y2-6-((v-vMin)/(vMax-vMin))*(vH-14),YE=v=>y3-eH*.35-v*eH*.5;
+  g.fillStyle=cs('--mon');g.fillRect(0,0,W,H);
+  // phase bands
+  PH.forEach((ph,i)=>{const xa=X(realOf(ph.a,sg)),xb=X(realOf(Math.min(ph.b,.7999),sg));if(xb-xa<.5)return;g.fillStyle=ph.c;g.globalAlpha=.08;g.fillRect(xa,y0,xb-xa,y4-y0);g.globalAlpha=1;
+    if(xb-xa>12){g.fillStyle=ph.c;g.font="800 12px 'Bricolage Grotesque',sans-serif";g.textAlign='center';g.textBaseline='middle';g.beginPath();g.arc((xa+xb)/2,12,9,0,Math.PI*2);g.fill();g.fillStyle='#071014';g.fillText(i+1,(xa+xb)/2,12.5);}});
+  // grid + axes
+  g.strokeStyle=cs('--monline');g.lineWidth=1;g.font="11px 'Atkinson Hyperlegible',sans-serif";g.fillStyle=cs('--monmuted');g.textAlign='right';g.textBaseline='middle';
+  for(let v=0;v<=pMax;v+=40){const y=YP(v);g.beginPath();g.moveTo(L,y);g.lineTo(W-Rm,y);g.stroke();g.fillText(v,L-6,y);}
+  [vMin,(vMin+vMax)/2,vMax].forEach(v=>{const y=YV(v);g.beginPath();g.moveTo(L,y);g.lineTo(W-Rm,y);g.stroke();g.fillText(Math.round(v),L-6,y);});
+  [y1,y2,y3].forEach(y=>{g.strokeStyle=cs('--monline');g.beginPath();g.moveTo(L,y);g.lineTo(W-Rm,y);g.stroke();});
+  g.save();g.translate(11,(y0+y1)/2);g.rotate(-Math.PI/2);g.textAlign='center';g.fillText('mmHg',0,0);g.restore();
+  g.save();g.translate(11,(y1+y2)/2);g.rotate(-Math.PI/2);g.textAlign='center';g.fillText('mL',0,0);g.restore();
+  // valve event lines
+  g.setLineDash([3,4]);g.strokeStyle='rgba(255,255,255,.28)';
+  const evl={MC:'MC',AO:'AO',AC:'AC',MO:'MO'};
+  for(const k in EV){const x=X(realOf(EV[k],sg));g.beginPath();g.moveTo(x,y0+20);g.lineTo(x,y4);g.stroke();}
+  g.setLineDash([]);
+  g.textAlign='center';g.fillStyle=cs('--monmuted');g.font="700 10px 'Atkinson Hyperlegible',sans-serif";
+  let lastx=-99;for(const k in EV){let x=X(realOf(EV[k],sg));if(x-lastx<22)x=lastx+22;lastx=x;g.fillText(evl[k],x,y1-4);}
+  // gradients shading
+  const N=Math.round(W-L-Rm);
+  const shade=(fa,fb,ua,ub,col)=>{g.fillStyle=col;g.globalAlpha=.28;g.beginPath();const pts=[];for(let i=0;i<=N;i++){const t=i/N*T,u=baseOf(t,sg);if(u>=ua&&u<=ub)pts.push([X(t),u]);}if(!pts.length)return;
+    pts.forEach(([x,u],i)=>{const y=YP(fa(u));i?g.lineTo(x,y):g.moveTo(x,y);});for(let i=pts.length-1;i>=0;i--)g.lineTo(pts[i][0],YP(fb(pts[i][1])));g.closePath();g.fill();g.globalAlpha=1;};
+  if(p.mur==='as') shade(CV.lv,CV.ao,.25,.45,cs('--lv'));
+  if(p.ms) shade(CV.la,CV.lv,.56,.79,cs('--la'));
+  // curves
+  const curve=(f,Y,col,w=2.4)=>{g.strokeStyle=col;g.lineWidth=w;g.shadowColor=col;g.shadowBlur=8;g.lineJoin='round';g.beginPath();for(let i=0;i<=N;i++){const t=i/N*T,u=baseOf(t,sg),y=Y(f(u));i?g.lineTo(X(t),y):g.moveTo(X(t),y);}g.stroke();g.shadowBlur=0;};
+  curve(CV.la,YP,cs('--la'));curve(CV.lv,YP,cs('--lv'));curve(CV.ao,YP,cs('--ao'));
+  curve(CV.vol,YV,cs('--vol'));curve(ecg,YE,cs('--ecg'),2);
+  // a c v labels
+  g.font="700 11px 'Atkinson Hyperlegible',sans-serif";g.fillStyle=cs('--la');g.textAlign='center';
+  [['a',.08],['c',.205],['v',p.mr?.5:.54]].forEach(([s,u])=>{const x=X(realOf(u,sg));if(u<.18&&sg.R[0]<.05)return;g.fillText(s,x,YP(CV.la(u))-9);});
+  g.fillStyle=cs('--ao');g.fillText('dicrotic notch',X(realOf(.47,sg))+34,YP(CV.ao(.466))-10);
+  g.fillStyle=cs('--ecg');[['P',.045,.15],['QRS',.17,1],['T',.41,.3]].forEach(([s,u,a])=>{g.fillText(s,X(realOf(u,sg)),YE(a)-9);});
+  // sounds strip
+  const ys=(y3+y4)/2;g.fillStyle=cs('--monmuted');g.textAlign='left';g.fillText('Sounds',L+2,y3+9);
+  if(p.mur){g.fillStyle=cs('--hl');g.globalAlpha=.55;g.beginPath();g.moveTo(L,ys);for(let i=0;i<=N;i++){const t=i/N*T,u=baseOf(t,sg);g.lineTo(X(t),ys-murEnv(p.mur,u)*sH*.3);}for(let i=N;i>=0;i--){const t=i/N*T,u=baseOf(t,sg);g.lineTo(X(t),ys+murEnv(p.mur,u)*sH*.3);}g.closePath();g.fill();g.globalAlpha=1;}
+  const snd=[['S1',.185,1],['S2',.46,.85]];if(p.s3)snd.push(['S3',.61,.5]);if(p.s4)snd.push(['S4',.11,.5]);if(p.os)snd.push(['OS',.565,.45]);
+  snd.forEach(([s,u,a])=>{const x=X(realOf(u,sg));g.fillStyle=cs('--monink');g.fillRect(x-2,ys-sH*.32*a,4,sH*.64*a);g.textAlign='center';g.fillText(s,x,y4-4);});
+  wmap={X,YP,YV,YE,T,sg,L,Rm,W,H,y0,y4,top};
+}
+function drawWigHead(t){
+  const cv=$('#wigCv'),g=cv.getContext('2d'),dpr=cv.width/(wmap?wmap.W:1);if(!wmap)return;
+  g.setTransform(1,0,0,1,0,0);g.drawImage(wbase,0,0);g.setTransform(dpr,0,0,dpr,0,0);
+  const x=wmap.X(t),u=baseOf(t,wmap.sg),ph=PH[phaseOf(u)];
+  g.strokeStyle='#fff';g.globalAlpha=.85;g.lineWidth=1.5;g.beginPath();g.moveTo(x,wmap.top);g.lineTo(x,wmap.y4);g.stroke();g.globalAlpha=1;
+  [[CV.ao,wmap.YP,cs('--ao')],[CV.lv,wmap.YP,cs('--lv')],[CV.la,wmap.YP,cs('--la')],[CV.vol,wmap.YV,cs('--vol')],[ecg,wmap.YE,cs('--ecg')]].forEach(([f,Y,c])=>{g.fillStyle=c;g.shadowColor=c;g.shadowBlur=10;g.beginPath();g.arc(x,Y(f(u)),4.2,0,Math.PI*2);g.fill();g.shadowBlur=0;});
+}
+
+/* ---------- PV loop ---------- */
+const pbase=document.createElement('canvas');let pmap=null,NORM=null;
+function drawPV(){
+  const cv=$('#pvCv'),r=cv.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1),W=r.width,H=r.height;
+  cv.width=W*dpr;cv.height=H*dpr;pbase.width=W*dpr;pbase.height=H*dpr;
+  const g=pbase.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
+  const p=S.cond.p,L=40,Bm=28,T=10,Rm=12;
+  const vMax=Math.max(220,Math.ceil((p.edv+20)/20)*20),pMax=Math.max(160,Math.ceil((p.lvMax+20)/20)*20);
+  const X=v=>L+(v/vMax)*(W-L-Rm),Y=q=>H-Bm-(q/pMax)*(H-Bm-T);
+  g.fillStyle=cs('--mon');g.fillRect(0,0,W,H);
+  g.strokeStyle=cs('--monline');g.fillStyle=cs('--monmuted');g.font="11px 'Atkinson Hyperlegible',sans-serif";g.textAlign='right';g.textBaseline='middle';
+  for(let q=0;q<=pMax;q+=40){g.beginPath();g.moveTo(L,Y(q));g.lineTo(W-Rm,Y(q));g.stroke();g.fillText(q,L-6,Y(q));}
+  g.textAlign='center';for(let v=0;v<=vMax;v+=40){g.beginPath();g.moveTo(X(v),T);g.lineTo(X(v),H-Bm);g.stroke();g.fillText(v,X(v),H-Bm+12);}
+  g.fillText('LV volume (mL)',(L+W)/2,H-5);g.save();g.translate(11,(H-Bm)/2);g.rotate(-Math.PI/2);g.fillText('LV pressure (mmHg)',0,0);g.restore();
+  const loop=(C,col,dash,w)=>{g.strokeStyle=col;g.lineWidth=w;g.setLineDash(dash);g.beginPath();for(let i=0;i<=400;i++){const u=i/400*.8;const x=X(C.vol(u)),y=Y(C.lv(u));i?g.lineTo(x,y):g.moveTo(x,y);}g.closePath();g.stroke();g.setLineDash([]);};
+  if(S.cond.id!=='normal'){loop(NORM,'rgba(255,255,255,.35)',[5,5],1.5);}
+  const grad=g.createLinearGradient(X(p.esv),0,X(p.edv),0);grad.addColorStop(0,cs('--ao'));grad.addColorStop(1,cs('--lv'));
+  g.shadowColor=cs('--lv');g.shadowBlur=10;loop(CV,grad,[],3);g.shadowBlur=0;
+  g.font="800 11px 'Atkinson Hyperlegible',sans-serif";g.fillStyle=cs('--monink');
+  [['MC',EV.MC,10,12],['AO',EV.AO,12,-8],['AC',EV.AC,-14,-8],['MO',EV.MO,-14,10]].forEach(([s,u,dx,dy])=>{const x=X(CV.vol(u)),y=Y(CV.lv(u));g.beginPath();g.arc(x,y,3.5,0,Math.PI*2);g.fill();g.fillText(s,x+dx,y+dy);});
+  if(S.cond.id!=='normal'){g.fillStyle=cs('--monmuted');g.textAlign='left';g.fillText('dashed: normal',L+6,T+10);}
+  pmap={X,Y,W,H};
+  const sv=p.edv-p.esv;
+  $('#pvStats').innerHTML=[['EDV',p.edv,'mL'],['ESV',p.esv,'mL'],['Stroke vol.',sv,'mL'],['EF',Math.round(sv/p.edv*100),'%']].map(([a,b,c])=>`<div class="stat"><dt>${a}</dt><dd>${b}<small>${c}</small></dd></div>`).join('');
+}
+function drawPVHead(u){
+  const cv=$('#pvCv'),g=cv.getContext('2d');if(!pmap)return;const dpr=cv.width/pmap.W;
+  g.setTransform(1,0,0,1,0,0);g.drawImage(pbase,0,0);g.setTransform(dpr,0,0,dpr,0,0);
+  const x=pmap.X(CV.vol(u)),y=pmap.Y(CV.lv(u)),c=PH[phaseOf(u)].c;
+  g.fillStyle=c;g.shadowColor=c;g.shadowBlur=16;g.beginPath();g.arc(x,y,7,0,Math.PI*2);g.fill();g.shadowBlur=0;
+  g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.arc(x,y,7,0,Math.PI*2);g.stroke();
+}
+
+/* ---------- heart svg ---------- */
+const VALV={mitral:{h:[[72,163],[128,163]],L:28,dir:1},aortic:{h:[[156,168],[184,168]],L:14,dir:-1}};
+const vEls={};
+function buildValves(){const root=$('#valves');for(const k in VALV){const v=VALV[k];const ls=v.h.map(([x,y],i)=>{const l=document.createElementNS(NS,'line');l.setAttribute('x1',x);l.setAttribute('y1',y);l.setAttribute('x2',i?x-v.L:x+v.L);l.setAttribute('y2',y);l.setAttribute('stroke','#fff3e6');l.setAttribute('stroke-width','5');l.setAttribute('stroke-linecap','round');root.appendChild(l);return l;});vEls[k]=ls;}}
+function setValve(k,ang,thick){const v=VALV[k],ls=vEls[k];ls[0].setAttribute('transform',`rotate(${ang*v.dir} ${v.h[0][0]} ${v.h[0][1]})`);ls[1].setAttribute('transform',`rotate(${-ang*v.dir} ${v.h[1][0]} ${v.h[1][1]})`);ls.forEach(l=>{l.setAttribute('stroke',thick?'#ffd166':'#fff3e6');l.setAttribute('stroke-width',thick?8:5);});}
+const FP=[{d:'M100,108 Q100,150 104,190 T120,250',kind:'in',n:6},{d:'M150,250 Q168,215 170,180 L170,110 C170,64 198,44 234,44 C262,46 274,62 278,84',kind:'out',n:10}];
+const flowParts=[];
+function buildFlow(){const root=$('#flow');FP.forEach(f=>{const p=document.createElementNS(NS,'path');p.setAttribute('d',f.d);p.setAttribute('fill','none');root.appendChild(p);const len=p.getTotalLength();for(let i=0;i<f.n;i++){const c=document.createElementNS(NS,'circle');c.setAttribute('r','4');c.setAttribute('fill','#ffd6d6');c.setAttribute('filter','url(#glow)');root.appendChild(c);flowParts.push({f,p,len,s:i/f.n,el:c});}});}
+const ramp=(x,a,b)=>Math.max(0,Math.min(1,(x-a)/(b-a)));
+function updateHeart(u,dt){
+  const p=S.cond.p,vol=CV.vol(u),s=.7+.3*(vol/120);
+  $('#lvG').setAttribute('transform',`translate(130 172) scale(${s.toFixed(3)} ${(s*1.03).toFixed(3)}) translate(-130 -172)`);
+  $('#lvPath').setAttribute('stroke-width',p.mur==='as'?15:(S.cond.id==='hf'?6:9));
+  const la=u<.16?1-.07*Math.sin(Math.PI*u/.16):1;$('#laG').setAttribute('transform',`translate(100 150) scale(${la.toFixed(3)}) translate(-100 -150)`);
+  const mo=ramp(u,.54,.58)*(1-ramp(u,.79,.8))+(u<.18?1-ramp(u,.16,.18):0);
+  const ao=ramp(u,.23,.26)*(1-ramp(u,.43,.46));
+  setValve('mitral',(p.ms?30:72)*mo+(p.mr&&u>=.18&&u<.54?-12:0),p.ms);
+  setValve('aortic',(p.mur==='as'?28:78)*ao+(p.ar&&(u>=.46||u<.23)?12:0),p.mur==='as');
+  $('#jetMR').setAttribute('opacity',p.mr&&u>.18&&u<.5?.95:0);$('#jetAR').setAttribute('opacity',p.ar&&u>.465&&u<.78?Math.max(.3,1-(u-.465)/.4):0);
+  const dv=(CV.vol(u+.004)-CV.vol(u-.004))/.008;
+  flowParts.forEach(q=>{const sp=q.f.kind==='in'?Math.max(0,dv)*(mo>.1?1:0):Math.max(0,-dv)*(ao>.1?1:0);q.s=(q.s+dt*sp*.0002*S.speed)%1;const pt=q.p.getPointAtLength(q.s*q.len);q.el.setAttribute('cx',pt.x);q.el.setAttribute('cy',pt.y);q.el.style.opacity=sp>2?Math.min(1,q.s*6,(1-q.s)*6):0;});
+  return {mo,ao};
+}
+
+/* ---------- readouts ---------- */
+let lastPh=-1,fr=0;
+function updateReadouts(u,vs){
+  const p=S.cond.p,i=phaseOf(u),ph=PH[i];
+  if(i!==lastPh){lastPh=i;$('#pNum').textContent=i+1;$('#pNum').style.background=ph.c;$('#pName').textContent=ph.n;$('#pDesc').textContent=ph.d;document.querySelectorAll('.pitem').forEach((b,j)=>b.classList.toggle('on',j===i));}
+  if(fr++%3)return;
+  const ao=CV.ao(u),lv=CV.lv(u),la=CV.la(u),vol=CV.vol(u);
+  $('#stats').innerHTML=[['Aortic',ao,'mmHg','--ao'],['LV',lv,'mmHg','--lv'],['LA',la,'mmHg','--la'],['LV vol.',vol,'mL','--vol']].map(([a,b,c,k])=>`<div class="stat"><dt>${a}</dt><dd style="color:var(${k})">${Math.round(b)}<small>${c}</small></dd></div>`).join('');
+  $('#laTxt').textContent=Math.round(la)+' mmHg';$('#lvTxt').textContent=Math.round(lv)+' mmHg';$('#lvVolTxt').textContent=Math.round(vol)+' mL';$('#aoTxt').textContent=Math.round(ao)+' mmHg';
+  const mOpen=vs.mo>.1,aOpen=vs.ao>.1;
+  $('#vpM').textContent='Mitral: '+(mOpen?'open':'closed')+(p.mr&&!mOpen&&u<.5?' (leaking)':'');$('#vpM').classList.toggle('open',mOpen);
+  $('#vpA').textContent='Aortic: '+(aOpen?'open':'closed')+(p.ar&&!aOpen&&u>.46?' (leaking)':'');$('#vpA').classList.toggle('open',aOpen);
+  let snd='';if(Math.abs(u-.185)<.02)snd='S1';else if(Math.abs(u-.46)<.02)snd='S2';else if(p.s3&&Math.abs(u-.61)<.02)snd='S3';else if(p.s4&&Math.abs(u-.11)<.02)snd='S4';else if(p.os&&Math.abs(u-.565)<.015)snd='Opening snap';
+  else if(p.mur&&murEnv(p.mur,u)>.2)snd='Murmur';
+  $('#vpS').style.display=snd?'':'none';$('#vpS').textContent='♪ '+snd;
+}
+
+/* ---------- audio ---------- */
+let actx=null,master=null,noise=null,nextIdx=0;
+function audioInit(){if(actx)return;const AC=window.AudioContext||window.webkitAudioContext;actx=new AC();const comp=actx.createDynamicsCompressor();comp.connect(actx.destination);actx.__comp=comp;newMaster();
+  const len=actx.sampleRate*2;noise=actx.createBuffer(1,len,actx.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;}
+function newMaster(){if(master){const o=master;o.gain.setTargetAtTime(0,actx.currentTime,.01);setTimeout(()=>o.disconnect(),150);}master=actx.createGain();master.gain.value=.8;master.connect(actx.__comp);}
+function thump(t,f,dur,g){[[f,1],[f*2.1,.6],[f*3.3,.35]].forEach(([fr,k])=>{const o=actx.createOscillator(),gn=actx.createGain();o.frequency.setValueAtTime(fr*1.25,t);o.frequency.exponentialRampToValueAtTime(fr,t+dur*.6);gn.gain.setValueAtTime(.0001,t);gn.gain.exponentialRampToValueAtTime(g*k,t+.008);gn.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(gn);gn.connect(master);o.start(t);o.stop(t+dur+.03);});}
+function hiss(t0,dur,f,q,envFn,g){const src=actx.createBufferSource();src.buffer=noise;const bp=actx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f;bp.Q.value=q;const e=actx.createGain();const norm=.12/(.577*Math.sqrt((Math.PI/2)*f/q/(actx.sampleRate/2)));
+  for(let i=0;i<=24;i++){const k=i/24;const v=envFn(k)*g*norm;i?e.gain.linearRampToValueAtTime(v,t0+k*dur):e.gain.setValueAtTime(v,t0);}src.connect(bp);bp.connect(e);e.connect(master);src.start(t0,Math.random()*.5);src.stop(t0+dur+.02);}
+function scheduleCycle(idx,A=0,B=.8){
+  const sg=segs(),T=sg.T,p=S.cond.p,base=idx*T,now=actx.currentTime,at=u=>now+(base+realOf(u,sg)-simT)/S.speed,inR=u=>u>=A&&u<B;
+  const tS1=at(.18);if(inR(.18)&&tS1>now)thump(tS1,58,.12,.75);
+  const tS2=at(.46);if(inR(.46)&&tS2>now)thump(tS2,72,.09,.65);
+  if(p.s3&&inR(.61)){const t=at(.61);if(t>now)thump(t,40,.1,.4);}
+  if(p.s4&&inR(.11)){const t=at(.11);if(t>now)thump(t,40,.09,.4);}
+  if(p.os&&inR(.565)){const t=at(.565);if(t>now)thump(t,240,.03,.35);}
+  const m=p.mur;if(!m)return;
+  const seg=(ua,ub,f,q,env)=>{const a=Math.max(ua,A),b=Math.min(ub,B);if(b<=a)return;const ta=at(a),tb=at(b);if(tb>now&&tb-ta>.02){const s=Math.max(now,ta);hiss(s,tb-s,f,q,k=>env((a+k*(b-a)-ua)/(ub-ua)),1);}};
+  if(m==='as')seg(.235,.455,230,.9,k=>Math.sin(Math.PI*k));
+  if(m==='ar')seg(.465,.76,500,1.1,k=>1-k);
+  if(m==='mr')seg(.185,.46,470,1,k=>k<.05?k*17:.85);
+  if(m==='ms'){seg(.565,.79,95,.8,k=>.75*Math.max(.35,1-k*1.2));seg(0,.175,95,.8,k=>.4+.6*k);}
+}
+
+/* ---------- clock & loop ---------- */
+let simT=0,lastNow=performance.now(),dragging=false,wasPlaying=true;
+function frame(now){
+  const dt=Math.min(.1,(now-lastNow)/1000);lastNow=now;
+  const T=60/S.hr;
+  if(S.playing&&!dragging) simT+=dt*S.speed;
+  if(S.loopPhase!=null&&!dragging){const ph=PH[S.loopPhase],ra=realOf(ph.a),rb=realOf(Math.min(ph.b,.7999)),base=Math.floor(simT/T)*T,t0=simT-base;
+    if(rb-ra>.004&&(t0<ra-1e-6||t0>=rb)){simT=base+ra+1e-4;if(S.sound&&actx){newMaster();scheduleCycle(Math.floor(simT/T),ph.a,ph.b);}}}
+  else if(S.sound&&actx&&S.playing&&!dragging){const idx=Math.floor(simT/T);if(nextIdx<idx)nextIdx=idx;while(nextIdx*T-simT<.25*S.speed){scheduleCycle(nextIdx);nextIdx++;}}
+  const t=((simT%T)+T)%T,u=baseOf(t);
+  const vs=updateHeart(u,dt*60);updateReadouts(u,vs);drawWigHead(t);drawPVHead(u);
+  requestAnimationFrame(frame);
+}
+function resync(){if(actx&&S.sound){newMaster();nextIdx=Math.floor(simT/(60/S.hr))+1;}}
+
+/* ---------- UI ---------- */
+function buildUI(){
+  COND.forEach(c=>{const b=document.createElement('button');b.className='chip';b.textContent=c.name;b.dataset.id=c.id;b.addEventListener('click',()=>setCond(c.id));$('#conds').appendChild(b);});
+  $('#plist').innerHTML=PH.map((p,i)=>`<button class="pitem" data-i="${i}"><span class="dot" style="background:${p.c}">${i+1}</span><span><b>${p.n}</b><small>${p.sh}</small></span><span class="ms" id="ms${i}"></span></button>`).join('');
+  document.querySelectorAll('.pitem').forEach(b=>b.addEventListener('click',()=>{setLoop(+b.dataset.i);document.querySelector('.heart').scrollIntoView({behavior:'smooth',block:'nearest'});}));
+  const ps=$('#pstep');
+  ps.innerHTML='<button data-s="prev" aria-label="Previous phase">‹</button><button data-s="all" style="padding:0 12px">All</button>'+PH.map((p,i)=>`<button data-s="${i}" style="--c:${p.c}" aria-label="Phase ${i+1}: ${p.n}">${i+1}</button>`).join('')+'<button data-s="next" aria-label="Next phase">›</button>';
+  ps.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{const s=b.dataset.s;if(s==='all')setLoop(null);else if(s==='prev'||s==='next'){const cur=S.loopPhase!=null?S.loopPhase:Math.max(0,lastPh);setLoop((cur+(s==='next'?1:6))%7);}else setLoop(+s);}));
+  document.querySelectorAll('#speed button').forEach(b=>{b.setAttribute('aria-pressed',+b.dataset.sp===S.speed);b.addEventListener('click',()=>{S.speed=+b.dataset.sp;document.querySelectorAll('#speed button').forEach(x=>x.setAttribute('aria-pressed',x===b));resync();});});
+  $('#hr').addEventListener('input',e=>{const T0=60/S.hr,f=((simT%T0)+T0)%T0/T0;S.hr=+e.target.value;$('#hrv').textContent=S.hr;const T=60/S.hr;simT=Math.floor(simT/T0)*T+f*T;redraw();resync();});
+  $('#play').addEventListener('click',()=>setPlaying(!S.playing));
+  $('#snd').addEventListener('click',()=>{audioInit();if(actx.state!=='running')actx.resume();S.sound=!S.sound;$('#snd').setAttribute('aria-pressed',S.sound);$('#snd').textContent=S.sound?'Sound on':'Sound off';if(S.sound)resync();else newMaster();});
+  const cv=$('#wigCv');
+  const scrub=e=>{if(!wmap)return;const r=cv.getBoundingClientRect();const x=e.clientX-r.left;const T=60/S.hr;const t=Math.max(0,Math.min(.9999,(x-wmap.L)/(r.width-wmap.L-wmap.Rm)))*T;simT=Math.floor(simT/T)*T+t;};
+  cv.addEventListener('pointerdown',e=>{if(S.loopPhase!=null)setLoop(null);dragging=true;cv.setPointerCapture(e.pointerId);scrub(e);if(actx&&S.sound)newMaster();});
+  cv.addEventListener('pointermove',e=>{if(dragging)scrub(e);});
+  const end=()=>{if(!dragging)return;dragging=false;resync();};
+  cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+}
+function setPlaying(on){S.playing=on;$('#play').setAttribute('aria-pressed',on);$('#playLabel').textContent=on?'Pause':'Play';$('#playIcon').innerHTML=on?'<path fill="currentColor" d="M6 4h4v16H6zM14 4h4v16h-4z"/>':'<path fill="currentColor" d="M7 4.5v15l12-7.5z"/>';if(!on&&actx)newMaster();else resync();}
+function setLoop(i){
+  S.loopPhase=i;
+  document.querySelectorAll('#pstep button').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.s==='all'&&i==null)||b.dataset.s===String(i)));
+  $('#loopNote').textContent=i==null?'Showing the whole cycle. Pick 1–7 to replay one phase on a loop.':'Looping phase '+(i+1)+' only. Tap All to see the whole cycle.';
+  if(i!=null){const T=60/S.hr;simT=Math.floor(simT/T)*T+realOf(PH[i].a)+1e-4;lastPh=-1;if(!S.playing)setPlaying(true);if(S.sound&&actx){newMaster();scheduleCycle(Math.floor(simT/T),PH[i].a,PH[i].b);}}
+  else resync();
+}
+function jumpTo(u){if(S.loopPhase!=null)setLoop(null);const T=60/S.hr;simT=Math.floor(simT/T)*T+realOf(u);setPlaying(false);lastPh=-1;document.querySelector('.wig').scrollIntoView({behavior:'smooth',block:'nearest'});}
+function updateMs(){const sg=segs();PH.forEach((p,i)=>{const ms=Math.round((realOf(Math.min(p.b,.7999),sg)-realOf(p.a,sg))*1000);$('#ms'+i).textContent=ms+' ms';});}
+function redraw(){drawWig();drawPV();updateMs();}
+function setCond(id){
+  S.cond=COND.find(c=>c.id===id);CV=build(S.cond.p);
+  document.querySelectorAll('#conds .chip').forEach(b=>b.setAttribute('aria-pressed',b.dataset.id===id));
+  S.hr=S.cond.p.hr;$('#hr').value=S.hr;$('#hrv').textContent=S.hr;
+  $('#note').innerHTML=S.cond.note;lastPh=-1;redraw();resync();
+}
+
+/* ---------- quiz ---------- */
+const QZ=[
+ {q:'Which event produces the first heart sound (S1)?',o:['Closure of the mitral and tricuspid valves','Opening of the aortic valve','Closure of the aortic and pulmonary valves','Rapid ventricular filling'],a:0,e:'S1 is AV valve closure at the start of isovolumetric contraction, just after the QRS.',u:.2},
+ {q:'During isovolumetric contraction:',o:['All four valves are closed and volume is constant','The aortic valve is open','LV volume falls rapidly','LV pressure falls'],a:0,e:'Both inflow and outflow valves are shut, so the contracting ventricle raises pressure without changing volume.',u:.205},
+ {q:'The dicrotic notch (incisura) on the aortic pressure curve marks:',o:['Aortic valve closure','Mitral valve opening','Peak ejection','Atrial contraction'],a:0,e:'A brief backflow snaps the aortic valve shut, causing a small dip then rebound. It coincides with S2.',u:.466},
+ {q:'Which phase is the longest at a resting heart rate?',o:['Reduced filling (diastasis)','Rapid ejection','Isovolumetric relaxation','Atrial systole'],a:0,e:'Diastasis is the longest phase at rest and is the first to shorten as the heart rate rises. Try the heart rate slider.',u:.73},
+ {q:'As heart rate increases, which part of the cycle shortens the most?',o:['Diastole','Systole','Both shorten equally','Neither changes'],a:0,e:'Systole shortens a little; diastole shortens a lot. That is why tachycardia hurts filling and coronary perfusion.',u:.6},
+ {q:'The aortic valve opens when LV pressure exceeds about:',o:['80 mmHg (aortic diastolic pressure)','10 mmHg','120 mmHg','25 mmHg'],a:0,e:'The valve opens when LV pressure exceeds aortic pressure, which is at its lowest (about 80 mmHg) just before ejection.',u:.23},
+ {q:'Maximum LV pressure is reached during:',o:['Rapid ejection','Isovolumetric contraction','Reduced ejection','Isovolumetric relaxation'],a:0,e:'LV and aortic pressures peak during rapid ejection, when most of the stroke volume is expelled.',u:.31},
+ {q:'Left ventricular coronary blood flow is greatest during:',o:['Isovolumetric relaxation (early diastole)','Isovolumetric contraction','Rapid ejection','Atrial systole'],a:0,e:'The contracting LV squeezes its own vessels in systole. Flow peaks in early diastole as the muscle relaxes.',u:.5},
+ {q:'The v wave in atrial (and jugular) pressure is due to:',o:['Atrial filling against a closed AV valve','Atrial contraction','Bulging of the AV valve into the atrium','Rapid ventricular filling'],a:0,e:'Venous return fills the atrium while the AV valve is shut in systole. A giant v wave suggests mitral or tricuspid regurgitation.',u:.52},
+ {q:'Which wave is absent in atrial fibrillation?',o:['a wave','c wave','v wave','y descent'],a:0,e:'The a wave comes from atrial contraction; with no organised contraction in AF, it disappears (as does S4).',u:.08},
+ {q:'The third heart sound (S3) occurs during:',o:['Rapid filling','Atrial systole','Isovolumetric contraction','Reduced ejection'],a:0,e:'S3 is heard early in diastole as blood rushes into a compliant or overfilled ventricle. S4 is in atrial systole.',u:.61},
+ {q:'EDV 120 mL and ESV 50 mL. What is the ejection fraction?',o:['58%','42%','70%','29%'],a:0,e:'Stroke volume = 120 − 50 = 70 mL. EF = 70 ÷ 120 ≈ 58%.',u:.4},
+ {q:'The T wave occurs during which mechanical phase?',o:['Reduced ejection','Isovolumetric contraction','Rapid filling','Atrial systole'],a:0,e:'Ventricular repolarisation (T wave) overlaps the reduced ejection phase, just before the aortic valve closes.',u:.41},
+ {q:'In aortic regurgitation, which isovolumetric phase is lost?',o:['Isovolumetric relaxation','Isovolumetric contraction','Both are preserved','Atrial systole'],a:0,e:'Blood leaks back from the aorta as soon as the valve “closes”, so LV volume rises instead of staying constant. Select Aortic regurgitation to see it.',u:.5,c:'ar'},
+ {q:'In aortic stenosis, the PV loop becomes:',o:['Taller, with high peak LV pressure','Much wider','Shifted far right and short','Unchanged'],a:0,e:'Pressure overload: the LV must generate very high pressure to eject through the narrow valve, so the loop grows taller.',u:.33,c:'as'}
+];
+let qOrder=[],qi=0,score=0,answered=false;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function bestGet(){try{return +localStorage.getItem('ccl-best')||0;}catch(e){return 0;}}
+function bestSet(v){try{localStorage.setItem('ccl-best',v);}catch(e){}}
+function startQuiz(){qOrder=shuffle(QZ.map((_,i)=>i));qi=0;score=0;renderQ();}
+function renderQ(){
+  const box=$('#quiz');answered=false;
+  if(qi>=qOrder.length){const pct=Math.round(score/qOrder.length*100),best=Math.max(bestGet(),score);bestSet(best);
+    const msg=pct>=90?'Outstanding: you know the cycle cold.':pct>=70?'Strong work. Review the ones you missed on the diagram.':pct>=50?'Good start. Scrub through the phases again and retry.':'Keep going: watch one beat slowly at 0.25× and try again.';
+    box.innerHTML=`<div class="result"><h2>Quiz complete</h2><div class="score">${score}/${qOrder.length}</div><p>${msg}</p><p style="color:var(--muted)">Best score: ${best}/${qOrder.length}</p><div class="qnav" style="justify-content:center"><button class="btn" id="retry">Try again</button></div></div>`;
+    $('#retry').addEventListener('click',startQuiz);return;}
+  const Q=QZ[qOrder[qi]],opts=shuffle(Q.o.map((t,i)=>({t,ok:i===Q.a})));
+  box.innerHTML=`<div class="qhead"><h2>Test yourself</h2><span>Question ${qi+1} of ${qOrder.length} · Score ${score}</span></div><div class="qbar"><i style="width:${qi/qOrder.length*100}%"></i></div>
+   <p class="qtext">${Q.q}</p><div class="opts">${opts.map((o,i)=>`<button class="opt" data-ok="${o.ok?1:0}"><span class="k">${'ABCD'[i]}</span><span>${o.t}</span></button>`).join('')}</div>
+   <div class="expl" id="expl"></div><div class="qnav" id="qnav" style="display:none"><button class="btn" id="next">${qi+1<qOrder.length?'Next question':'See score'}</button><button class="btn ghost" id="show">Show on diagram</button></div>`;
+  box.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{if(answered)return;answered=true;const ok=b.dataset.ok==='1';if(ok)score++;
+    box.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(x.dataset.ok==='1')x.classList.add('right');});if(!ok)b.classList.add('wrong');
+    const ex=$('#expl');ex.innerHTML=`<strong>${ok?'Correct.':'Not quite.'}</strong> ${Q.e}`;ex.classList.add('show');$('#qnav').style.display='flex';
+    box.querySelector('.qhead span').textContent=`Question ${qi+1} of ${qOrder.length} · Score ${score}`;}));
+  setTimeout(()=>{const n=$('#next');if(n)n.onclick=()=>{qi++;renderQ();box.scrollIntoView({behavior:'smooth',block:'start'});};const s=$('#show');if(s)s.onclick=()=>{if(Q.c&&S.cond.id!==Q.c)setCond(Q.c);else if(!Q.c&&S.cond.id!=='normal')setCond('normal');jumpTo(Q.u);};},0);
+}
+
+/* ---------- init ---------- */
+NORM=build(COND[0].p);
+buildUI();buildValves();buildFlow();setCond('normal');setLoop(null);startQuiz();
+let rt=null;new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(redraw,100);}).observe(document.body);
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

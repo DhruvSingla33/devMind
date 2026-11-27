@@ -13,10 +13,10 @@
 
 const blogs = [
   {
-    slug: 'clinical-case-challenge', // -> loads /blogs/clinical-case-challenge.html
-    title: 'Clinical Case Challenge',
+    slug: 'cardiac-cycle-lab', // -> loads /blogs/cardiac-cycle-lab.html
+    title: 'Cardiac Cycle Lab',
     excerpt:
-      'An interactive clinical game: meet a patient, ask history questions, examine and order tests — each move costs points — then make the diagnosis and earn up to three stars across 80+ cases in Medicine, Surgery, OBGY and Pediatrics.',
+      'An interactive cardiac cycle lab: watch one heartbeat unfold with pressures, volumes, valves, ECG and heart sounds all in sync. Scrub the Wiggers diagram, change the heart rate, try diseases, then test yourself.',
     date: '2026-11-27', // YYYY-MM-DD
     author: 'Mukul',
     authorUrl: 'https://www.instagram.com/chale_mukul',
