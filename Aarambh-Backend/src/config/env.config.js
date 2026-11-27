@@ -22,6 +22,8 @@ const envSchema = Joi.object({
   SMTP_PORT: Joi.number().allow(null),
   SMTP_USER: Joi.string().allow('', null),
   SMTP_PASS: Joi.string().allow('', null),
+  RESEND_API_KEY: Joi.string().allow('', null),
+  EMAIL_FROM: Joi.string().allow('', null),
 })
   .unknown();
 

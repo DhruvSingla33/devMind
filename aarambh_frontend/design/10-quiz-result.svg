@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" font-family="Poppins, Segoe UI, sans-serif">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF6B6B"/><stop offset="1" stop-color="#E63946"/></linearGradient></defs>
+  <rect width="390" height="844" fill="url(#bg)"/>
+  <g fill="#FFD166"><rect x="60" y="90" width="10" height="16" rx="2" transform="rotate(25 65 98)"/><rect x="310" y="120" width="10" height="16" rx="2" transform="rotate(-30 315 128)"/>
+  <circle cx="110" cy="190" r="5"/><circle cx="290" cy="80" r="6"/><rect x="330" y="230" width="10" height="16" rx="2" fill="#fff" transform="rotate(40 335 238)"/><rect x="40" y="250" width="10" height="16" rx="2" fill="#fff"/></g>
+  <text x="195" y="150" text-anchor="middle" font-size="60">🏆</text>
+  <text x="195" y="214" text-anchor="middle" font-size="28" font-weight="700" fill="#fff">Great job!</text>
+  <text x="195" y="242" text-anchor="middle" font-size="14" fill="#fff" opacity=".85">You completed Chapter 4 Quiz</text>
+  <rect x="24" y="280" width="342" height="420" rx="28" fill="#fff"/>
+  <circle cx="195" cy="380" r="64" fill="none" stroke="#F1E4E4" stroke-width="14"/>
+  <circle cx="195" cy="380" r="64" fill="none" stroke="#2EC27E" stroke-width="14" stroke-linecap="round" stroke-dasharray="322 402" transform="rotate(-90 195 380)"/>
+  <text x="195" y="380" text-anchor="middle" font-size="30" font-weight="700" fill="#2B2D42">8/10</text>
+  <text x="195" y="404" text-anchor="middle" font-size="13" fill="#6B6B6B">Score</text>
+  <g text-anchor="middle">
+    <rect x="44" y="470" width="92" height="76" rx="16" fill="#E7F8EF"/><text x="90" y="503" font-size="20" font-weight="700" fill="#2EC27E">8</text><text x="90" y="528" font-size="12" fill="#6B6B6B">Correct</text>
+    <rect x="149" y="470" width="92" height="76" rx="16" fill="#FDECEC"/><text x="195" y="503" font-size="20" font-weight="700" fill="#E63946">2</text><text x="195" y="528" font-size="12" fill="#6B6B6B">Wrong</text>
+    <rect x="254" y="470" width="92" height="76" rx="16" fill="#E8F1FF"/><text x="300" y="503" font-size="20" font-weight="700" fill="#4D8DF7">4:12</text><text x="300" y="528" font-size="12" fill="#6B6B6B">Time</text>
+  </g>
+  <rect x="44" y="574" width="302" height="52" rx="16" fill="#E63946"/><text x="195" y="606" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">Next chapter</text>
+  <text x="195" y="666" text-anchor="middle" font-size="14" font-weight="600" fill="#E63946">Review answers</text>
+</svg>

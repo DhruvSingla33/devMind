@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import ScreenContainer from '../../components/ScreenContainer';
 import Grid from '../../components/Grid';
 import Card from '../../components/Card';
@@ -14,6 +14,8 @@ import { hexToRgba } from '../../utils/color';
 
 const SUBJECT_ICONS = {
   Biology: '🧬',
+  Botany: '🌿',
+  Zoology: '🦋',
   Physics: '⚡',
   Chemistry: '⚗️',
   Maths: '📐',
@@ -21,12 +23,14 @@ const SUBJECT_ICONS = {
 
 const SUBJECT_COLORS = {
   Biology: '#3DD68C',
+  Botany: '#22A04B',
+  Zoology: '#0EA5B7',
   Physics: '#5B8CFF',
   Chemistry: '#F5A623',
   Maths: '#E63946',
 };
 
-export default function TextbookListScreen({ navigation }) {
+export default function TextbookListScreen({ navigation, subject, onClearSubject }) {
   const { colors, typography } = useTheme();
   const styles = useThemedStyles(makeStyles);
   const [textbooks, setTextbooks] = useState([]);
@@ -36,14 +40,14 @@ export default function TextbookListScreen({ navigation }) {
   const load = useCallback(async () => {
     setStatus('loading');
     try {
-      const data = await listTextbooks();
+      const data = await listTextbooks(subject ? { subject } : {});
       setTextbooks(data);
       setStatus('ready');
     } catch (error) {
       setErrorMessage(extractErrorMessage(error));
       setStatus('error');
     }
-  }, []);
+  }, [subject]);
 
   useEffect(() => {
     load();
@@ -59,7 +63,21 @@ export default function TextbookListScreen({ navigation }) {
         keyExtractor={(item) => item._id}
         columns={{ mobile: 1, tablet: 2, desktop: 3 }}
         contentContainerStyle={styles.list}
-        ListEmptyComponent={<ErrorState message="No textbooks published yet." />}
+        ListHeaderComponent={
+          subject ? (
+            <View style={styles.filterRow}>
+              <Text style={typography.h3}>{subject} books</Text>
+              {onClearSubject ? (
+                <Pressable onPress={onClearSubject} hitSlop={8} style={styles.filterClear}>
+                  <Text style={[styles.filterClearText, { color: colors.primary }]}>Show all subjects ✕</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : null
+        }
+        ListEmptyComponent={
+          <ErrorState message={subject ? `No ${subject} books published yet.` : 'No textbooks published yet.'} />
+        }
         renderItem={({ item }) => {
           const tint = SUBJECT_COLORS[item.subject] || colors.primary;
           return (
@@ -106,6 +124,21 @@ const makeStyles = () => StyleSheet.create({
   list: {
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
+  filterClear: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: radius.pill,
+  },
+  filterClearText: {
+    fontWeight: '700',
+    fontSize: 13,
   },
   card: {
     marginBottom: spacing.md,

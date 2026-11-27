@@ -3,6 +3,7 @@ import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 import { radius, shadow, spacing } from '../../theme/theme';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 import { useBreakpoint } from '../../theme/responsive';
+import Svg, { Path } from 'react-native-svg';
 import Carousel from '../../components/Carousel';
 import { CHART } from './dashboardUtils';
 
@@ -26,6 +27,42 @@ const STUDY_TOOLS = [
   { key: 'pyq', icon: '🎓', color: CHART.teal, title: 'Chapterwise PYQ', body: 'Topic-wise PYQs with NCERT mapping.', target: 'textbooks' },
   { key: 'notes', icon: '🗒️', color: CHART.amber, title: 'Short Notes', body: 'Quick revision, better retention.', target: 'notes' },
   { key: 'material', icon: '📚', color: CHART.red, title: 'Study Material', body: 'Handwritten notes, PDFs, & more.', target: 'textbooks' },
+];
+
+// Subject cards — artwork in src/images/subjects.
+const SUBJECTS = [
+  {
+    key: 'physics',
+    title: 'Physics',
+    img: require('../../images/subjects/physics.png'),
+    bubbles: [
+      { color: '#0EA5B7', size: 80, top: -24, right: -24 },
+      { color: '#F97316', size: 22, top: 62, right: 14 },
+    ],
+  },
+  {
+    key: 'chemistry',
+    title: 'Chemistry',
+    img: require('../../images/subjects/chemistry.png'),
+    bubbles: [
+      { color: '#E63946', size: 76, top: -22, right: -22 },
+    ],
+  },
+  {
+    key: 'botany',
+    title: 'Botany',
+    img: require('../../images/subjects/biology.png'),
+    bubbles: [],
+  },
+  {
+    key: 'zoology',
+    title: 'Zoology',
+    img: require('../../images/subjects/zoology.png'),
+    bubbles: [
+      { color: '#2563EB', size: 80, top: -24, right: -24 },
+      { color: '#06B6D4', size: 22, top: 62, right: 14 },
+    ],
+  },
 ];
 
 // Practice & performance — a compact row of three.
@@ -74,9 +111,6 @@ function ToolCard({ styles, item, onPress }) {
       <Text style={styles.toolBody} numberOfLines={2}>
         {item.body}
       </Text>
-      <View style={[styles.toolArrow, { backgroundColor: `${item.color}22` }]}>
-        <Text style={[styles.toolArrowTxt, { color: item.color }]}>→</Text>
-      </View>
     </Pressable>
   );
 }
@@ -164,6 +198,63 @@ export default function HomeSection({ data, onFeature }) {
         <View style={styles.datePill}>
           <Text style={styles.datePillTxt}>📅 {todayLabel()}</Text>
         </View>
+      </View>
+
+      {/* Subjects */}
+      <View style={{ gap: spacing.md }}>
+        <SectionHeader
+          styles={styles}
+          icon="📘"
+          title="PYQ Practice + NCERT Line to Line"
+          subtitle="Study smarter. Understand deeper."
+          actionLabel="View All"
+          onAction={() => onFeature?.('textbooks')}
+        />
+        <Grid
+          items={SUBJECTS}
+          columns={width >= 700 ? 4 : 2}
+          gap={spacing.md}
+          renderItem={(item) => (
+            <Pressable
+              key={item.key}
+              onPress={() => onFeature?.('textbooks', { subject: item.title })}
+              style={({ hovered, pressed }) => [
+                styles.subjectCard,
+                hovered && styles.cardHover,
+                pressed && { opacity: 0.9 },
+              ]}
+            >
+              {item.bubbles.map(({ color, size, ...pos }, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.subjectBubble,
+                    pos,
+                    { width: size, height: size, borderRadius: size / 2, backgroundColor: `${color}${isDark ? '26' : '1A'}` },
+                  ]}
+                />
+              ))}
+              <View style={styles.subjectImgWrap}>
+                <Image source={item.img} style={styles.subjectImg} resizeMode="contain" />
+              </View>
+              <Text style={styles.subjectTitle}>{item.title}</Text>
+              <View style={styles.subjectFoot}>
+                <Text style={styles.subjectMeta}>• 100% NCERT</Text>
+                <View style={styles.subjectArrow}>
+                  <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                    <Path
+                      d="M5 12h14M13 6l6 6-6 6"
+                      stroke={colors.primary}
+                      strokeWidth={2.5}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </Svg>
+                </View>
+              </View>
+            </Pressable>
+          )}
+        />
       </View>
 
       {/* Study Tools */}
@@ -303,6 +394,44 @@ const makeStyles = ({ colors }) =>
     sectionSub: { fontSize: 12.5, color: colors.textSecondary, marginTop: 1 },
     sectionAction: { fontSize: 13, fontWeight: '800', color: colors.primary },
 
+    // Subject cards
+    subjectCard: {
+      flex: 1,
+      minWidth: 0,
+      backgroundColor: colors.surface,
+      borderRadius: radius.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderBottomWidth: 4,
+      borderBottomColor: colors.primary,
+      padding: spacing.md,
+      overflow: 'hidden',
+      ...shadow.card,
+      ...Platform.select({
+        web: { cursor: 'pointer', transitionProperty: 'transform, border-color', transitionDuration: '140ms' },
+        default: {},
+      }),
+    },
+    subjectBubble: { position: 'absolute' },
+    subjectImgWrap: {
+      height: 96,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: spacing.sm,
+    },
+    subjectImg: { width: 88, height: 88 },
+    subjectTitle: { fontSize: 17, fontWeight: '800', color: colors.textPrimary },
+    subjectFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 },
+    subjectMeta: { fontSize: 12.5, color: colors.textSecondary },
+    subjectArrow: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: `${colors.primary}1A`,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+
     // Tool cards
     toolCard: {
       flex: 1,
@@ -330,15 +459,6 @@ const makeStyles = ({ colors }) =>
     toolIconTxt: { fontSize: 22 },
     toolTitle: { fontSize: 15.5, fontWeight: '800', color: colors.textPrimary },
     toolBody: { fontSize: 12.5, lineHeight: 17, color: colors.textSecondary, flex: 1 },
-    toolArrow: {
-      width: 26,
-      height: 26,
-      borderRadius: 13,
-      alignItems: 'center',
-      justifyContent: 'center',
-      alignSelf: 'flex-end',
-    },
-    toolArrowTxt: { fontSize: 14, fontWeight: '800' },
 
     // Performance cards
     perfCard: {

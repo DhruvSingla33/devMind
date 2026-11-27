@@ -12,11 +12,19 @@ import { radius, spacing } from '../../theme/theme';
 import { hexToRgba } from '../../utils/color';
 import { notify } from '../../utils/alert';
 
+const SUBJECT_IMAGES = {
+  physics: require('../../images/subjects/physics.png'),
+  chemistry: require('../../images/subjects/chemistry.png'),
+  biology: require('../../images/subjects/biology.png'),
+  botany: require('../../images/subjects/biology.png'),
+  zoology: require('../../images/subjects/zoology.png'),
+};
+
 const FALLBACK_SUBJECTS = [
-  { code: 'physics', title: 'Physics', icon: '⚛️', color: '#3B6FE0' },
-  { code: 'chemistry', title: 'Chemistry', icon: '🧪', color: '#E63946' },
-  { code: 'biology', title: 'Biology', icon: '🌿', color: '#18875A' },
-  { code: 'maths', title: 'Maths', icon: '📐', color: '#0E9488' },
+  { code: 'physics', title: 'Physics', color: '#3B6FE0' },
+  { code: 'chemistry', title: 'Chemistry', color: '#E63946' },
+  { code: 'biology', title: 'Biology', color: '#18875A' },
+  { code: 'zoology', title: 'Zoology', color: '#0E9488' },
 ];
 
 const DAILY_TASKS = [
@@ -263,6 +271,8 @@ export default function HomeScreen({ navigation }) {
           {subjects.map((subject) => {
             const key = subject.code || subject.key || subject.title;
             const color = subject.color || colors.primary;
+            const image = SUBJECT_IMAGES[String(subject.code || '').toLowerCase()];
+            const pyqCount = subject.pyqCount ?? subject.totalPyqs;
             return (
               <Pressable
                 key={key}
@@ -271,15 +281,27 @@ export default function HomeScreen({ navigation }) {
                     ? goToTab('TextbooksTab', 'TextbookDetail', { code: subject.code })
                     : goToTab('TextbooksTab', 'TextbookList')
                 }
-                style={[styles.subjectCard, { borderBottomColor: color }]}
+                style={styles.subjectCard}
               >
-                <View style={[styles.subjectIconWrap, { backgroundColor: hexToRgba(color, 0.12) }]}>
-                  <Text style={styles.subjectIcon}>{subject.icon || '📚'}</Text>
+                <View style={[styles.subjectBlob, { backgroundColor: hexToRgba(color, 0.1) }]} />
+                <View style={styles.subjectImageWrap}>
+                  {image ? (
+                    <Image source={image} style={styles.subjectImage} resizeMode="contain" />
+                  ) : (
+                    <Text style={styles.subjectIcon}>{subject.icon || '📚'}</Text>
+                  )}
                 </View>
                 <Text style={styles.subjectTitle}>{subject.title || subject.subject}</Text>
                 <View style={styles.subjectMetaRow}>
-                  <Text style={styles.subjectMeta}>100% NCERT</Text>
-                  <Text style={[styles.subjectArrow, { color }]}>→</Text>
+                  <View>
+                    {pyqCount != null && (
+                      <Text style={styles.subjectMeta}>{Number(pyqCount).toLocaleString()} PYQs</Text>
+                    )}
+                    <Text style={styles.subjectMeta}>• 100% NCERT</Text>
+                  </View>
+                  <View style={styles.subjectArrowWrap}>
+                    <Text style={styles.subjectArrow}>→</Text>
+                  </View>
                 </View>
               </Pressable>
             );
@@ -682,41 +704,69 @@ const makeStyles = ({ colors, typography }) => StyleSheet.create({
     paddingBottom: spacing.lg,
   },
   subjectCard: {
-    width: 150,
+    width: 170,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderBottomWidth: 3,
-    borderRadius: radius.md,
+    borderBottomWidth: 4,
+    borderBottomColor: '#D62839',
+    borderRadius: radius.lg,
     padding: spacing.md,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
     ...Platform.select({ web: { cursor: 'pointer' }, default: {} }),
   },
-  subjectIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
+  subjectBlob: {
+    position: 'absolute',
+    top: -20,
+    right: -20,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+  },
+  subjectImageWrap: {
+    height: 84,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.sm,
   },
+  subjectImage: {
+    width: 84,
+    height: 84,
+  },
   subjectIcon: {
-    fontSize: 20,
+    fontSize: 44,
   },
   subjectTitle: {
     ...typography.h3,
-    fontSize: 15,
+    fontSize: 17,
+    fontWeight: '800',
   },
   subjectMetaRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
     marginTop: spacing.xs,
   },
   subjectMeta: {
     ...typography.caption,
   },
+  subjectArrowWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FDE4E6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   subjectArrow: {
+    color: '#D62839',
     fontWeight: '800',
+    fontSize: 16,
   },
   pyqCard: {
     marginHorizontal: spacing.md,

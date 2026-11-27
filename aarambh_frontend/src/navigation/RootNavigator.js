@@ -14,7 +14,7 @@ export default function RootNavigator() {
   const navigationTheme = makeNavigationTheme(colors, isDark);
 
   if (isBootstrapping) {
-    return <LoadingState label="Preparing Aarambh…" />;
+    return <LoadingState variant="spinner" label="Preparing Aarambh…" />;
   }
 
   // Everyone signs into the same student app (MainStack). Admins reach the

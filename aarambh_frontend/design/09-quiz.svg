@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" font-family="Poppins, Segoe UI, sans-serif">
+  <rect width="390" height="844" fill="#FFF8F6"/>
+  <text x="24" y="76" font-size="20" fill="#9A9A9A">✕</text>
+  <text x="195" y="76" text-anchor="middle" font-size="15" font-weight="700" fill="#2B2D42">Chapter 4 Quiz</text>
+  <rect x="300" y="56" width="66" height="30" rx="15" fill="#FDECEC"/><text x="333" y="76" text-anchor="middle" font-size="13" font-weight="700" fill="#E63946">⏱ 0:42</text>
+  <g>
+    <rect x="24" y="110" width="30" height="6" rx="3" fill="#2EC27E"/><rect x="58" y="110" width="30" height="6" rx="3" fill="#2EC27E"/>
+    <rect x="92" y="110" width="30" height="6" rx="3" fill="#E63946"/><rect x="126" y="110" width="30" height="6" rx="3" fill="#2EC27E"/>
+    <rect x="160" y="110" width="30" height="6" rx="3" fill="#FFB703"/>
+    <rect x="194" y="110" width="30" height="6" rx="3" fill="#F1E4E4"/><rect x="228" y="110" width="30" height="6" rx="3" fill="#F1E4E4"/>
+    <rect x="262" y="110" width="30" height="6" rx="3" fill="#F1E4E4"/><rect x="296" y="110" width="30" height="6" rx="3" fill="#F1E4E4"/><rect x="330" y="110" width="36" height="6" rx="3" fill="#F1E4E4"/>
+  </g>
+  <text x="24" y="168" font-size="13" font-weight="700" fill="#E63946">QUESTION 5 OF 10</text>
+  <text x="24" y="206" font-size="20" font-weight="700" fill="#2B2D42">Which of these is a solution of</text>
+  <text x="24" y="234" font-size="20" font-weight="700" fill="#2B2D42">x + 2y = 6 ?</text>
+  <g font-size="16" font-weight="600" fill="#2B2D42">
+    <rect x="24" y="276" width="342" height="64" rx="18" fill="#fff" stroke="#F1D5D5"/><circle cx="56" cy="308" r="14" fill="#F1E4E4"/><text x="56" y="313" text-anchor="middle" font-size="13">A</text><text x="84" y="314">(1, 2)</text>
+    <rect x="24" y="352" width="342" height="64" rx="18" fill="#FDECEC" stroke="#E63946" stroke-width="2"/><circle cx="56" cy="384" r="14" fill="#E63946"/><text x="56" y="389" text-anchor="middle" font-size="13" fill="#fff">B</text><text x="84" y="390">(2, 2)</text>
+    <rect x="24" y="428" width="342" height="64" rx="18" fill="#fff" stroke="#F1D5D5"/><circle cx="56" cy="460" r="14" fill="#F1E4E4"/><text x="56" y="465" text-anchor="middle" font-size="13">C</text><text x="84" y="466">(3, 2)</text>
+    <rect x="24" y="504" width="342" height="64" rx="18" fill="#fff" stroke="#F1D5D5"/><circle cx="56" cy="536" r="14" fill="#F1E4E4"/><text x="56" y="541" text-anchor="middle" font-size="13">D</text><text x="84" y="542">(0, 4)</text>
+  </g>
+  <text x="195" y="620" text-anchor="middle" font-size="14" font-weight="600" fill="#6B6B6B">💡 Show hint</text>
+  <rect x="24" y="752" width="342" height="58" rx="18" fill="#E63946"/>
+  <text x="195" y="787" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Check answer</text>
+</svg>

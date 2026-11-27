@@ -85,7 +85,7 @@ export default function ChapterScreen({ route, navigation }) {
     });
   }, [status, showReader, goPractice, navigation]);
 
-  if (status === 'loading') return <LoadingState label="Loading chapter…" />;
+  if (status === 'loading') return <LoadingState variant="detail" label="Loading chapter…" />;
   if (status === 'error') return <ErrorState message={errorMessage} onRetry={load} />;
 
   if (showReader) {

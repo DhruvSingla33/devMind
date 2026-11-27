@@ -13,6 +13,7 @@ import { Mentor } from '../models/mentor.model.js';
 import { AarambhPulse } from '../models/aarambhPulse.model.js';
 import { CollegeCutoff } from '../models/collegeCutoff.model.js';
 import { Batch } from '../models/batch.model.js';
+import { SUBJECT_BOOKS } from './subjectBooks.data.js';
 
 export const seedDatabase = async () => {
   try {
@@ -51,38 +52,11 @@ export const seedDatabase = async () => {
     });
 
     console.log('[Seeder] Seeding Textbooks...');
-    const bio11 = await Textbook.create({
-      title: 'Biology 11th',
-      code: 'biology-11',
-      subject: 'Biology',
-      classLevel: 'XI',
-      icon: '🧬',
-      color: '#3dd68c',
-      examTags: ['NEET'],
-      pdfUrl: 'https://aarambh-media-assets.s3.ap-south-1.amazonaws.com/pdfs/ncert-bio-11.pdf',
-    });
-
-    const chem11 = await Textbook.create({
-      title: 'Chemistry 11th Part 1',
-      code: 'chemistry-11-part-1',
-      subject: 'Chemistry',
-      classLevel: 'XI',
-      icon: '⚗️',
-      color: '#f0a500',
-      examTags: ['NEET', 'JEE'],
-      pdfUrl: 'https://aarambh-media-assets.s3.ap-south-1.amazonaws.com/pdfs/ncert-chem-11.pdf',
-    });
-
-    const phy11 = await Textbook.create({
-      title: 'Physics 11th Part 1',
-      code: 'physics-11-part-1',
-      subject: 'Physics',
-      classLevel: 'XI',
-      icon: '⚡',
-      color: '#4aa3ff',
-      examTags: ['NEET', 'JEE'],
-      pdfUrl: 'https://aarambh-media-assets.s3.ap-south-1.amazonaws.com/pdfs/ncert-phy-11.pdf',
-    });
+    // Two NCERT parts per subject card shown on Home (Physics, Chemistry, Botany, Zoology).
+    const created = await Textbook.insertMany(SUBJECT_BOOKS);
+    const byCode = Object.fromEntries(created.map((b) => [b.code, b]));
+    const bio11 = byCode['botany-11-part-1'];
+    const chem11 = byCode['chemistry-11-part-1'];
 
     console.log('[Seeder] Seeding Chapters...');
     const ch1 = await Chapter.create({

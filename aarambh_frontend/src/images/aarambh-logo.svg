@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Aarambh logo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF6B6B"/>
+      <stop offset="1" stop-color="#E63946"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFD166"/>
+      <stop offset="1" stop-color="#FFB703"/>
+    </linearGradient>
+  </defs>
+  <!-- App tile -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bg)"/>
+  <!-- Rising sun = "Aarambh" (a new beginning) -->
+  <circle cx="256" cy="232" r="78" fill="url(#sun)"/>
+  <g stroke="#FFD166" stroke-width="14" stroke-linecap="round">
+    <line x1="256" y1="110" x2="256" y2="80"/>
+    <line x1="170" y1="146" x2="149" y2="125"/>
+    <line x1="342" y1="146" x2="363" y2="125"/>
+    <line x1="134" y1="232" x2="104" y2="232"/>
+    <line x1="378" y1="232" x2="408" y2="232"/>
+  </g>
+  <!-- Open book -->
+  <path d="M256 300 C206 268 146 266 96 282 L96 410 C146 394 206 396 256 428 Z" fill="#FFFFFF"/>
+  <path d="M256 300 C306 268 366 266 416 282 L416 410 C366 394 306 396 256 428 Z" fill="#FDECEC"/>
+  <path d="M256 300 L256 428" stroke="#E63946" stroke-width="8" stroke-linecap="round"/>
+  <g stroke="#E63946" stroke-opacity=".35" stroke-width="7" stroke-linecap="round" fill="none">
+    <path d="M128 318 C160 310 196 312 226 326"/>
+    <path d="M128 350 C160 342 196 344 226 358"/>
+    <path d="M286 326 C316 312 352 310 384 318"/>
+    <path d="M286 358 C316 344 352 342 384 350"/>
+  </g>
+</svg>

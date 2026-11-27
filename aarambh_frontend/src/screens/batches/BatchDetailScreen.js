@@ -51,7 +51,7 @@ export default function BatchDetailScreen({ route, navigation }) {
     }
   };
 
-  if (status === 'loading') return <LoadingState label="Loading batch…" />;
+  if (status === 'loading') return <LoadingState variant="detail" label="Loading batch…" />;
   if (status === 'error') return <ErrorState message={errorMessage} onRetry={load} />;
 
   return (

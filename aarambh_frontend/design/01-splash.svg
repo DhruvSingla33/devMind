@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" font-family="Poppins, Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF6B6B"/><stop offset="1" stop-color="#E63946"/></linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD166"/><stop offset="1" stop-color="#FFB703"/></linearGradient>
+  </defs>
+  <rect width="390" height="844" fill="url(#bg)"/>
+  <circle cx="340" cy="90" r="120" fill="#fff" opacity=".07"/>
+  <circle cx="40" cy="760" r="150" fill="#fff" opacity=".07"/>
+  <circle cx="195" cy="330" r="70" fill="url(#sun)"/>
+  <g stroke="#FFD166" stroke-width="10" stroke-linecap="round">
+    <line x1="195" y1="230" x2="195" y2="205"/><line x1="125" y1="260" x2="108" y2="243"/>
+    <line x1="265" y1="260" x2="282" y2="243"/><line x1="95" y1="330" x2="70" y2="330"/><line x1="295" y1="330" x2="320" y2="330"/>
+  </g>
+  <path d="M195 390 C155 364 110 362 70 375 L70 470 C110 457 155 459 195 485 Z" fill="#fff"/>
+  <path d="M195 390 C235 364 280 362 320 375 L320 470 C280 457 235 459 195 485 Z" fill="#FDECEC"/>
+  <text x="195" y="560" text-anchor="middle" font-size="42" font-weight="700" fill="#fff">Aarambh</text>
+  <text x="195" y="592" text-anchor="middle" font-size="16" fill="#fff" opacity=".85">Every great journey has a beginning</text>
+  <rect x="145" y="760" width="100" height="6" rx="3" fill="#fff" opacity=".3"/>
+  <rect x="145" y="760" width="60" height="6" rx="3" fill="#fff"/>
+</svg>

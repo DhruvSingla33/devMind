@@ -40,7 +40,7 @@ export default function DoubtDetailScreen({ route }) {
     load();
   }, [load]);
 
-  if (status === 'loading') return <LoadingState label="Loading doubt…" />;
+  if (status === 'loading') return <LoadingState variant="detail" label="Loading doubt…" />;
   if (status === 'error') return <ErrorState message={errorMessage} onRetry={load} />;
 
   return (

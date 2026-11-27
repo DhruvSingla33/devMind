@@ -9,7 +9,7 @@ import { extractErrorMessage } from '../../api/client';
 import { spacing } from '../../theme/theme';
 import { useTheme, useThemedStyles } from '../../theme/ThemeContext';
 
-const SUBJECTS = ['Biology', 'Physics', 'Chemistry', 'Maths'];
+const SUBJECTS = ['Biology', 'Botany', 'Zoology', 'Physics', 'Chemistry', 'Maths'];
 const CLASS_LEVELS = ['XI', 'XII'];
 const EXAM_TAGS = ['NEET', 'JEE', 'BOARDS'];
 

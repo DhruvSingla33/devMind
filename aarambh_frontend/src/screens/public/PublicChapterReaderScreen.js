@@ -130,7 +130,7 @@ export default function PublicChapterReaderScreen({ route, navigation }) {
     load();
   }, [load, navigation, title]);
 
-  if (status === 'loading') return <LoadingState label="Loading chapter…" />;
+  if (status === 'loading') return <LoadingState variant="detail" label="Loading chapter…" />;
   if (status === 'error') return <ErrorState message={errorMessage} onRetry={load} />;
 
   const { chapter } = data;

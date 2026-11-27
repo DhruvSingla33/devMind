@@ -33,7 +33,7 @@ export default function PulseScreen() {
     load();
   }, [load]);
 
-  if (status === 'loading') return <LoadingState label="Loading today's pulse…" />;
+  if (status === 'loading') return <LoadingState variant="detail" label="Loading today's pulse…" />;
   if (status === 'error') return <ErrorState message={errorMessage} onRetry={load} />;
 
   return (

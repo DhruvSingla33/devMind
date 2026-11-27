@@ -1,21 +1,10 @@
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
 import { Otp } from '../models/otp.model.js';
 import { User } from '../models/user.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import { HTTP_STATUS, OTP_PURPOSE, AUTH_PROVIDERS } from '../constants/app.constants.js';
 import { generateAccessToken, generateRefreshToken } from './jwt.service.js';
-
-// Email Transporter (Nodemailer)
-const mailTransporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: process.env.SMTP_USER ? {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  } : undefined,
-});
+import { sendEmail, emailTemplates } from './email.service.js';
 
 /**
  * Generate 6-digit numeric OTP
@@ -103,41 +92,20 @@ const sendRealSms = async (phoneNumber, otpCode) => {
 };
 
 /**
- * Send real Email OTP using Nodemailer
+ * Send real Email OTP using Resend
  */
-const sendRealEmail = async (email, otpCode) => {
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-    try {
-      await mailTransporter.sendMail({
-        from: `"${process.env.SMTP_FROM_NAME || 'Aarambh Learning'}" <${process.env.SMTP_USER}>`,
-        to: email,
-        subject: 'Your Aarambh Verification OTP Code',
-        html: `
-          <div style="font-family: Arial, sans-serif; padding: 24px; background-color: #f4f6f8;">
-            <div style="max-width: 500px; margin: 0 auto; background: #ffffff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-              <h2 style="color: #4aa3ff; margin-top: 0;">Aarambh Verification</h2>
-              <p style="font-size: 16px; color: #333;">Your 6-digit OTP code for authentication is:</p>
-              <div style="text-align: center; margin: 24px 0;">
-                <span style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #111; background: #eef5ff; padding: 12px 24px; border-radius: 6px; display: inline-block;">
-                  ${otpCode}
-                </span>
-              </div>
-              <p style="font-size: 14px; color: #666;">This code is valid for 10 minutes. Do not share this OTP with anyone.</p>
-            </div>
-          </div>
-        `,
-      });
-      console.log(`[Email OTP Sent Successfully] to ${email}`);
-      return true;
-    } catch (err) {
-      console.error('[Nodemailer Email Error]:', err.message);
-    }
-  }
+const sendRealEmail = async (email, otpCode, purpose) => {
+  const template = purpose === OTP_PURPOSE.RESET_PASSWORD
+    ? emailTemplates.resetPassword(otpCode)
+    : emailTemplates.otp(otpCode);
+
+  const delivered = await sendEmail({ to: email, ...template });
+  if (delivered) return true;
 
   // Fallback for Development Mode
   console.log(`====================================================`);
   console.log(`📧 [EMAIL OTP LOG]: Target '${email}' => OTP Code: [ ${otpCode} ]`);
-  console.log(`   (To send real emails, configure SMTP_USER & SMTP_PASS in .env)`);
+  console.log(`   (To send real emails, configure RESEND_API_KEY in .env)`);
   console.log(`====================================================`);
   return false;
 };
@@ -168,7 +136,7 @@ export const sendOtpService = async ({ target, purpose = OTP_PURPOSE.LOGIN }) =>
 
   let delivered = false;
   if (isEmail) {
-    delivered = await sendRealEmail(normalizedTarget, otpCode);
+    delivered = await sendRealEmail(normalizedTarget, otpCode, purpose);
   } else {
     delivered = await sendRealSms(normalizedTarget, otpCode);
   }
