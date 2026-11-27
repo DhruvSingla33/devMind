@@ -13,6 +13,17 @@
 
 const blogs = [
   {
+    slug: 'clinical-case-challenge', // -> loads /blogs/clinical-case-challenge.html
+    title: 'Clinical Case Challenge',
+    excerpt:
+      'An interactive clinical game: meet a patient, ask history questions, examine and order tests — each move costs points — then make the diagnosis and earn up to three stars across 80+ cases in Medicine, Surgery, OBGY and Pediatrics.',
+    date: '2026-11-27', // YYYY-MM-DD
+    author: 'Mukul',
+    authorUrl: 'https://www.instagram.com/chale_mukul',
+    tags: ['Medical', 'Interactive'],
+  },
+
+  {
     slug: 'diagnose-the-patient', // -> loads /blogs/diagnose-the-patient.html
     title: 'Diagnose the Patient',
     excerpt:
